@@ -123,7 +123,7 @@ enyo.kind({
     this.$.backButton.setShowing(this.showPrefs.showScroll);
     this.$.forthButton.setShowing(this.showPrefs.showScroll);
     this.$.transposergr.setShowing(this.showPrefs.showTransposer);
-    this.$.playButton.setShowing(this.showPrefs.showAuto);
+    //~ this.$.playButton.setShowing(this.showPrefs.showAuto);
     //~ this.$.printButton.setShowing(this.showPrefs.showPrint);
   },
   
