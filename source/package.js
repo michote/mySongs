@@ -1,7 +1,20 @@
 enyo.depends(
-	"$lib/layout",
-	"$lib/onyx",	// To theme Onyx using Theme.less, change this line to $lib/onyx/source,
-	//"Theme.less",	// uncomment this line, and follow the steps described in Theme.less
-	"App.css",
-	"App.js"
+  "$lib/layout",
+  "$lib/onyx/source",
+  "$lib/g11n",
+  "helper/",
+  "modules/JMTKspinner/heartcode_canvas.js",
+  "modules/JMTKspinner/canvasSpinner.js",
+  "Theme.less",
+  "App.css",
+  "MySongs.js",
+  "Preferences.js",
+  "SongList.js",
+  "ViewPanels.js",
+  "SongView.js",
+  "Help.js",
+  "SidePane.js",
+  "EditToaster.js",
+  "EditMeta.js",
+  "EditLyrics.js"
 );
