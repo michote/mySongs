@@ -22,6 +22,17 @@ html {
     .app-panels > * {
         box-shadow: none;
     }
+    
+    .quer { /* hide some stuff when in landscape */
+        display: none;
+    }
+}
+
+/* hide some stuff when in portrait */
+@media all and (min-width: 800px) { 
+    .hochk {
+        display: none;
+    }
 }
 
 .inner-panels {
@@ -58,7 +69,7 @@ html {
     box-shadow: none !important;
     font-size: 1.5rem;
     font-weight: bold;
-    padding: 0 1.125rem;
+    padding: 0;
 }
 
 .reintext-button:active:hover:not([disabled]) {
@@ -74,6 +85,29 @@ html {
     padding: .5rem .375rem;
     font-size: 1rem;
     line-height: 1rem;
+}
+
+/* format bottom Toolbar in Songview */
+@media all and (min-width: 800px) { 
+    .side {
+        width: 40%;
+    }
+    
+    .middle {
+        width: 20%;
+        text-align:center;
+    }
+}
+
+@media all and (max-width: 800px) { 
+    .side {
+        width: 30%;
+    }
+    
+    .middle {
+        width: 40%;
+        text-align:center;
+    }
 }
 
 /* ### Search ### */
@@ -135,7 +169,7 @@ html {
 }
 
 .deco {
-    margin: .875rem;
+    margin: .75rem;
     padding: .5rem;
     background-color: rgba(255,255,255,0.5);
     border-radius: .5rem;
@@ -158,11 +192,18 @@ html {
 }
 
 .lyric {
-    margin: 1.25rem;
     padding: .5rem 1rem;
     background-color: rgba(255,255,255,0.5);
     border-radius: .5rem;
     color: #333333;
+}
+
+.lyricmar {
+    margin: 1.25rem;
+}
+
+.lyricmar-phone {
+    margin: .5rem;
 }
 
 .lyric h1, .lyric h2, .lyric h3 {
@@ -216,10 +257,6 @@ a {
 }
 
 .chordbox {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-box-pack: start;
-    -webkit-box-align: stretch;
     float: left;
     margin: 0 0 .25rem 0;
 }
@@ -276,6 +313,10 @@ a {
 .enyo-vthumb {
     right: .125rem;
     width: .25rem;
+}
+
+.enyo-hthumb {
+    visibility: hidden;
 }
 
 @media all and (min-width: 800px) {

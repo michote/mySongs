@@ -11,6 +11,8 @@ function Helper() {}
   Helper.phone = function() { 
       return window.innerWidth < 800; 
   };
+  
+  Helper.browser = true;
 
   // Create songlist with dublicates
   Helper.handleDoubles = function(arr) {

@@ -70,7 +70,7 @@ enyo.kind({
             {fit: 1, content:  $L("Autoscroll end to next page (on button press)")},
             {kind: "onyx.ToggleButton", name: "scrollToNext", value: true, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
-          {kind: "FittableColumns", style: "padding: .5rem;", showing: false, components: [
+          {kind: "FittableColumns", style: "padding: .5rem;", showing: Helper.browser, components: [
             {fit: 1, content:  $L("Show Printbutton")},
             {kind: "onyx.ToggleButton", name: "showPrint", value: true, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]}

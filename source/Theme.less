@@ -103,7 +103,7 @@
 .onyx-groupbox-header {
     padding: .5rem .875rem;
     line-height: 1rem;
-    background: @onyx-groupbox-background @onyx-groupbox-gradient repeat-x 0 .625rem;
+    background: @onyx-groupbox-background @onyx-groupbox-gradient repeat-x 0 100%;
     box-shadow: inset 0 .125rem .125rem rgba(0,0,0,0.5);
 }
 
@@ -247,4 +247,32 @@
     box-shadow: inset 0 .0625rem .25rem rgba(0,0,0,0.3);
     border-top: .0625rem solid rgba(0,0,0,0.4);
     border-bottom: .0625rem solid rgba(255,255,255,0.2);
+}
+
+
+/* ToggleButton.css */
+.onyx-toggle-button {
+    height: 2rem;
+    line-height: 2rem;
+    min-width: 4rem;
+    box-shadow: inset 0 .0625rem .1875rem rgba(0,0,0,0.4);
+}
+
+.onyx-toggle-button-knob {
+    width: 1.875rem;
+    height: 1.875rem;
+    margin: .0625rem;
+}
+
+.onyx-toggle-button .onyx-toggle-button-knob {
+    box-shadow: -.0625rem 0 .25rem rgba(0,0,0,0.35), inset 0 -.0625rem 0 rgba(0,0,0,0.4);
+}
+
+.onyx-toggle-button.off .onyx-toggle-button-knob {
+    box-shadow: .0625rem 0 .25rem rgba(0,0,0,0.35), inset 0 -.0625rem 0 rgba(0,0,0,0.4);
+}
+
+.onyx-toggle-content {
+    min-width: 2rem;
+    padding: 0 .375rem;
 }

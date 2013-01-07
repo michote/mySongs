@@ -105,6 +105,12 @@
     "Swipe a list to remove it": "Eine Liste wischen, um sie zu löschen",
     "Doubletab maximizes mainview": "Doppeltab maximiert die Liedanzeige",
     "print current song as displayed": "Aktuelles Lied ausdrucken so wie in der App angezeigt wird",
+    "Editing": "Editieren",
+    "Note: Everything you edit will only be stored temporarily until you hit 'done' and actually write the changes to XML or 'discard' to discard all changes you made.": "Anmerkung: Alles was editiert wird, wird zwischengespeichert bis 'Fertig' gedrückt wird und die Daten in die XML-Datei geschrieben werden, oder alle Änderungen werden mit 'Verwerfen' gelöscht.",
+    "opens metadata editing page": "Öffnet die Metadaten-Seite",
+    "opens lyrics editing page": "Öffnet die Lyrics-Seite",
+    "adds a new metadata or lyric element": "Ein neues Metadaten- oder Lyric-Element hinzufügen",
+    "edits a lyric element (rename, language, parts and delete)": "Editiert das Lyric-Element (Umbenenen, Sprache, Strophenteile und Löschen)",
     
     "Create new song": "Neues Lied erstellen",
     "Refresh Library": "Bibliothek auffrischen",

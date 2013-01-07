@@ -1,0 +1,139 @@
+/* This css is included against media='print' and is used for styling the printed output. */
+
+#mySongs_songListPane, 
+#mySongs_viewPane_image,
+#mySongs_viewPane_help,
+#mySongs_sidePane,
+#mySongs_viewPane_songViewPane_footerToolbar,
+#mySongs_viewPane_songViewPane_fittableColumns {
+    display: none;
+}
+
+html, body {
+    font-family: Prelude, Arial;
+    font-size: 120%;
+    line-height: 100%;
+}
+
+#mySongs_songListPane {
+    width: 0;
+}
+
+#mySongs_infoPanels,
+#mySongs_mainPanels,
+#mySongs_viewPane {
+    width: 100%;
+}
+
+.enyo-fittable-columns-layout {
+    position: relative;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.enyo-fittable-columns-layout > * {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    vertical-align: top;
+    display: inline-block;
+    white-space: normal;
+}
+
+.enyo-fittable-rows-layout {
+    position: relative;
+}
+
+.enyo-fittable-rows-layout > * {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    /* float when not stretched */
+    float: left;
+    clear: both;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: .2rem 0 1.2rem 1rem; 
+}
+
+
+.lyric {
+    page-break-inside: avoid;
+    margin: 1rem 0;
+    padding: .5rem 1.25rem;
+}
+
+.lyric h1, .lyric h2, .lyric h3 {
+    display: block;
+    margin: .25rem 0;
+    font-weight: bold;
+}
+
+.lyric h1 {
+    font-size: 1.5em;
+}
+
+.lyric h2 {
+    font-size: 1.25em;
+}
+
+.lyric sup {
+    vertical-align: text-top;
+    line-height: 100%;
+}
+
+.lyric small {
+    line-height: 90%;
+}
+
+
+.element {
+    color: #333;
+    font-weight: bold;
+}
+
+.text i {
+    color: #777777;
+}
+
+.chordbox {
+    float: left;
+    margin: 0 0 .25rem 0;
+}
+
+.chord {
+    font-weight: bold;
+    margin: 0 0 -.2rem 0;
+}
+
+.txt {
+    max-width: 100%; 
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.cursor, .scrollspacer {
+    display: none;
+}
+
+a {
+    text-decoration: underline;
+}
+
+.pageBreak {
+    display: block;
+    page-break-after: always;
+}
+
+.printCopy {
+    page-break-inside: avoid;
+    text-align: right;
+    width: 30rem;
+    margin: 2rem 0 0 24rem;
+    line-height: 1rem;
+    font-size: .8rem;
+}

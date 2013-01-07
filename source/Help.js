@@ -10,7 +10,7 @@ enyo.kind({
     ]},
     {name: "viewScroller", kind: "enyo.Scroller", classes: "michote-scroller", horizontal: "hidden", touch: true, fit: 1,
       components: [
-      {name: "helpContent", kind: "FittableRows", classes: "lyric", components: [
+      {name: "helpContent", kind: "FittableRows", classes:  Helper.phone() ? "lyric lyricmar-phone" : "lyric lyricmar", components: [
         {allowHtml: true, content: "<h1>" + $L("Welcome to ") + "mySongs"},
         {allowHtml: true, content: "mySongs" + $L(" is an App to display Songs in ")
           + '<a href="http://openlyrics.info/" target="_blank"> OpenLyrics XML Standard</a>' +
@@ -59,7 +59,7 @@ enyo.kind({
           //~ ]},
           {tag: 'il', components: [
             {kind: "Image", src: Helper.iconPath()+"info-help.png"},
-            {tag: 'p', content: $L("shows songinfo") + "<br><br>"}
+            {tag: 'p', content: $L("shows songinfo")}
           ]},
         ]},
         

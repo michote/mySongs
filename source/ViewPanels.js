@@ -19,8 +19,8 @@ enyo.kind({
   kind: "FittableColumns",
   style: "height: 2rem;",
   components: [
-    {style: "width: 1rem; border-right: .0625rem solid rgba(0,0,0,0.7); height: 2rem;"},
-    {style: "width: 1rem; border-left: .0625rem solid rgba(255,255,255,0.3); height: 2rem;"}
+    {style: "width: " + (Helper.phone() ? .5 : 1) + "rem; border-right: .0625rem solid rgba(0,0,0,0.7); height: 2rem;"},
+    {style: "width: " + (Helper.phone() ? .5 : 1) + "rem; border-left: .0625rem solid rgba(255,255,255,0.3); height: 2rem;"}
   ]
 });
 
@@ -28,5 +28,5 @@ enyo.kind({
   name: "my.Grabber",
   kind: "onyx.IconButton",
   src: Helper.iconPath()+"grabber.png", 
-  style: "float: left"
+  style: "float: left;"
 });

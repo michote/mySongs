@@ -163,6 +163,7 @@ enyo.kind({
   showHelp: function() {
     this.owner.$.viewPane.$.viewPanels.setIndex(0);
     this.owner.$.infoPanels.setIndex(0);
+    this.owner.setCurrentIndex(undefined);
     !Helper.phone() || this.owner.$.mainPanels.setIndex(1);
   },
   

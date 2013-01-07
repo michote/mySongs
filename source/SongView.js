@@ -60,7 +60,7 @@ enyo.kind({
           {name: "trSpacer", kind: "my.Spacer", showing: false},
           {name: "transposergr", kind: "FittableColumns", components: [
             {name: "transminus", kind: "onyx.IconButton", src: Helper.iconPath()+"minus.png", style: "width: 1.25rem;", ontap: "transMinus", disabled: true},
-            {name: "transposer", kind: "onyx.Button", classes: "reintext-button", style: "width: 5rem; margin-top: -.25rem", ontap: "transButton"},
+            {name: "transposer", kind: "onyx.Button", classes: "reintext-button", style: "width: " + (Helper.phone() ? 3.5 : 5) + "rem; margin-top: -.25rem", ontap: "transButton"},
             {kind: "onyx.IconButton", name: "transplus", src: Helper.iconPath()+"plus.png", style: "width: 1.25rem;", ontap: "transPlus", disabled: true},
             {kind: "my.Spacer"}
           ]},
@@ -84,31 +84,28 @@ enyo.kind({
       ]},
     ]},
     {name: "footerToolbar", kind: "onyx.Toolbar", pack: "center", components: [
-      {kind: "my.Grabber", ontap: "grabber"},
-      {name: "copy", classes: "title copy", content: "&copy; michote", style: "float: left; width: 40%;", allowHtml: true, showing: !Helper.phone()},
-      {style: "width: 3rem", showing: Helper.phone()},
-      {name: "backButton", kind: "onyx.IconButton", disabled: true, src: Helper.iconPath()+"back.png", ontap: "textBack"}, 
-      {style: "width: 2rem"},
-      {name: "forthButton", kind: "onyx.IconButton", disabled: true, src: Helper.iconPath()+"forth.png", ontap: "textForth"},
-      {style: "width: 2rem"},
-      //~ {name: "playButton", kind: "onyx.IconButton", toggling: true, src: Helper.iconPath()+"play.png", ontap: "togglePlay"},
-      //~ {name: "printButton", kind: "IconButton", src: Helper.iconPath()+"print.png", ontap: "print", disabled: true},
-      {name: "infoButton", kind: "onyx.IconButton", src: Helper.iconPath()+"info.png", style: "float: right", ontap: "showInfo"},
-      {name: "editButton", kind: "onyx.IconButton", src: Helper.iconPath()+"edit.png", style: "float: right", ontap: "openEdit"}
+      {kind: "FittableColumns", style: "width: 100%; margin: 0; padding: 0;", components: [
+        {kind: "FittableColumns", classes: "side", components: [
+          {kind: "my.Grabber", ontap: "grabber"},
+          {name: "copy", classes: "title copy quer", fit: true, content: "&copy; michote", style: "padding: .3125rem 0;", allowHtml: true}
+        ]},
+        {kind: "FittableColumns",  classes: "middle", components: [
+          {name: "backButton", kind: "onyx.IconButton", disabled: true, src: Helper.iconPath()+"back.png", ontap: "textBack"}, 
+          {style: "width: 2rem;"},
+          {name: "forthButton", kind: "onyx.IconButton", disabled: true, src: Helper.iconPath()+"forth.png", ontap: "textForth"}
+        ]},
+        {kind: "FittableColumns", classes: "side", components: [
+          //~ {name: "playButton", kind: "onyx.IconButton", toggling: true, src: Helper.iconPath()+"play.png", ontap: "togglePlay"},
+          {name: "infoButton", kind: "onyx.IconButton", src: Helper.iconPath()+"info.png", style: "float: right", ontap: "showInfo"},
+          {name: "editButton", kind: "onyx.IconButton", src: Helper.iconPath()+"edit.png", style: "float: right", ontap: "openEdit"},
+          {name: "printButton", kind: "onyx.IconButton", src: Helper.iconPath()+"print.png", style: "float: right", ontap: "print", showing: Helper.browser}
+        ]}
+      ]}
     ]},
-  //~ {name: "printDialog", kind: "PrintDialog", lazy: false, 
-    //~ copiesRange: {min: 1, max: 10}, 
-    //~ duplexOption: true,
-    //~ colorOption: false,
-    //~ appName: enyo.fetchAppInfo().title
-  //~ }
   ],
   
   create: function() {
     this.inherited(arguments);
-    //~ if (!window.PalmSystem) {
-      //~ this.$.lockButton.hide();
-    //~ }
   },
   
   showPrefsChanged: function() {
@@ -124,7 +121,7 @@ enyo.kind({
     this.$.forthButton.setShowing(this.showPrefs.showScroll);
     this.$.transposergr.setShowing(this.showPrefs.showTransposer);
     //~ this.$.playButton.setShowing(this.showPrefs.showAuto);
-    //~ this.$.printButton.setShowing(this.showPrefs.showPrint);
+    this.$.printButton.setShowing(Helper.browser ? this.showPrefs.showPrint : false);
   },
   
   // get xml lyricdata
@@ -299,7 +296,7 @@ enyo.kind({
     } else {
       y = "";
     }
-    if (!Helper.phone() && d[this.showPrefs.showinToolbar]) {
+    if (d[this.showPrefs.showinToolbar]) {
       if (this.showPrefs.showinToolbar === "authors") {
         this.$.copy.setContent(y + ParseXml.authorsToString(d.authors).join(", "));
       } else {
@@ -337,7 +334,7 @@ enyo.kind({
               name: i,
               kind: "FittableColumns",
               fit: true,
-              classes: "lyric",
+              classes: Helper.phone() ? "lyric lyricmar-phone" : "lyric lyricmar",
               components: [
                 {content: t, classes: "element", style: "width: " + (2 + this.elWidth * 0.1) + "rem;"},
                 {content: formL[i][1], fit: true, allowHtml: true}
@@ -345,13 +342,15 @@ enyo.kind({
           } else {
             this.$.lyric.createComponent({
               name: i,
-              classes: "lyric",
+              classes: Helper.phone() ? "lyric lyricmar-phone" : "lyric lyricmar",
               components: [
                 {content: formL[i][1], allowHtml: true}
             ]}, {owner: this});
-            this.$.lyric.createComponent({ // needed for printing
+          }
+          if (Helper.browser) { // needed for printing
+            this.$.lyric.createComponent({ 
               classes: "pageBreak"
-              });
+            });
           }
         }
       }
@@ -506,7 +505,8 @@ enyo.kind({
   // ### Scrolling Button/Keypress ###
   scrollHelper: function() {
     var x = this.$[this.order[this.textIndex]].hasNode();
-    var ePos = Helper.calcNodeOffset(x).top - 74; // element offset - Toolbar and margin
+    var offset = 54 * Helper.ratio + (Helper.phone() ? 8 : 20) * Helper.ratio;
+    var ePos = Helper.calcNodeOffset(x).top - offset; // element offset - Toolbar and margin
     this.scroll = this.$.viewScroller.getScrollTop();   // scroll position
     this.$.viewScroller.scrollTo(0, (this.scroll + ePos));
   },
@@ -616,19 +616,19 @@ enyo.kind({
     this.owner.owner.$.sidePane.showInfo(this.data);
   },
   
-  toggleLock: function() {
-    if (this.$.lockButton.getIcon() === "assets/images/lock-open.png") {
-      this.$.lockButton.setIcon("assets/images/lock.png");
-      if (window.PalmSystem) {
-        enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {"blockScreenTimeout" : true});
-      }
-    } else {
-      this.$.lockButton.setIcon("assets/images/lock-open.png");
-      if (window.PalmSystem) {
-        enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {"blockScreenTimeout" : false});
-      }
-    }
-  },
+  //~ toggleLock: function() {
+    //~ if (this.$.lockButton.getIcon() === "assets/images/lock-open.png") {
+      //~ this.$.lockButton.setIcon("assets/images/lock.png");
+      //~ if (window.PalmSystem) {
+        //~ enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {"blockScreenTimeout" : true});
+      //~ }
+    //~ } else {
+      //~ this.$.lockButton.setIcon("assets/images/lock-open.png");
+      //~ if (window.PalmSystem) {
+        //~ enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {"blockScreenTimeout" : false});
+      //~ }
+    //~ }
+  //~ },
   
   showFontDialog: function() {
     this.owner.owner.$.infoPanels.setIndex(1);
@@ -636,36 +636,29 @@ enyo.kind({
   },
   
   // ### Print ###
-  //~ print: function() {
-    //~ this.printAdd();
-    //~ this.$.viewScroller.scrollIntoView(0, 0);
-    //~ setTimeout(this.openPrint(), 1000); // delay to be shure it scrolled to top
-    //~ this.renderLyrics();
-  //~ },
-  //~ 
-  //~ openPrint: function() {
-    //~ if (window.PalmSystem && !Helper.phone()) {
-      //~ this.$.printDialog.setFrameToPrint({name: "", landscape: false});
-      //~ this.$.printDialog.openAtCenter();  // Standard enyo.Popup method
-    //~ } else if (!window.PalmSystem) {
-      //~ window.print();
-    //~ }
-  //~ },
-  //~ 
-  //~ printAdd: function() { // add Copyright-box for printing
-    //~ var printCopy = ParseXml.authorsToString(this.data.authors).join('<br>');
-    //~ printCopy += '<br>&copy; '
-    //~ if (this.data.released) { printCopy += this.data.released + ' ';}
-    //~ if (this.data.copyright) { printCopy += this.data.copyright;}
-    //~ if (this.data.publisher) { printCopy += '<br>' + this.data.publisher;}
-    //~ printCopy += '<br>---<br>Printed with MySongBook'
-    //~ this.$.lyric.createComponent({
-      //~ name: "test",
-      //~ kind: "HFlexBox",
-      //~ fit: 1,
-      //~ classes: "printCopy",
-      //~ content: printCopy
-      //~ });
-    //~ this.$.lyric.render();
-  //~ }
+  print: function() {
+    this.printAdd();
+    this.owner.owner.$.mainPanels.setAnimate(false);
+    this.owner.owner.$.mainPanels.setIndex(1);
+    this.$.viewScroller.setScrollTop(0);
+    window.print();
+    this.owner.owner.$.mainPanels.setIndex(0);
+    this.owner.owner.$.mainPanels.setAnimate(true);
+    this.renderLyrics();
+  },
+  
+  printAdd: function() { // add Copyright-box for printing
+    var printCopy = ParseXml.authorsToString(this.data.authors).join('<br>');
+    printCopy += '<br>&copy; '
+    if (this.data.released) { printCopy += this.data.released + ' ';}
+    if (this.data.copyright) { printCopy += this.data.copyright;}
+    if (this.data.publisher) { printCopy += '<br>' + this.data.publisher;}
+    printCopy += '<br>---<br>Printed with mySongs'
+    this.$.lyric.createComponent({
+      classes: "printCopy",
+      allowHtml: true,
+      content: printCopy
+      });
+    this.$.lyric.render();
+  }
 });

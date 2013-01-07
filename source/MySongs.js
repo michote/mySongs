@@ -241,7 +241,7 @@ enyo.kind({
   // Adjust Font
   setFont: function(css) {
     if (css) {
-      var size = (css.size * 4 * Helper.ratio + 100 * Helper.ratio) + "%";
+      var size = (css.size * 4 * Helper.ratio + 100) + "%";
       var space = (css.space * 8 + 100) + "%";
       enyo.log("set font css: size:", size, "space:", space);
       this.$.viewPane.$.songViewPane.$.lyric.applyStyle("font-size", size);
