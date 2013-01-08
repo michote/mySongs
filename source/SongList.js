@@ -26,7 +26,7 @@ enyo.kind({
       {name: "prefsButton", kind: "onyx.IconButton", src: Helper.iconPath()+"prefs.png", style: "float: right;", classes: "hochk", ontap: "showMenu"},
       {name: "searchButton", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"search.png", style: "float: right", ontap: "extendSearch", disabled: true},
       {name: "searchSpinner", style: "float: right; margin-top: 0;", showing: false, components: [
-        {kind:"jmtk.Spinner", color: "#FFFFFF", diameter: (Helper.ratio * 30)}
+        {kind:"jmtk.Spinner", color: "#FFFFFF", diameter: (Helper.ratio() * 30)}
       ]}
     ]},
     
@@ -68,7 +68,7 @@ enyo.kind({
     {name: "listPane", kind: "Panels", arrangerKind: "CarouselArranger", draggable: false, fit: 1, index: 6, components: [
       {classes: "inner-panels", components: [
         {classes: "deco enyo-center", style: "text-align: center;", components: [
-          {kind:"jmtk.Spinner", color: "#9E0508", diameter: (Helper.ratio * 90)},
+          {kind:"jmtk.Spinner", color: "#9E0508", diameter: (Helper.ratio() * 90)},
           {name: "readProgress", kind: "onyx.ProgressBar", showStripes: false},
           {name: "readFiles", tag: "b"}
         ]}

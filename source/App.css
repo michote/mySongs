@@ -90,11 +90,11 @@ html {
 /* format bottom Toolbar in Songview */
 @media all and (min-width: 800px) { 
     .side {
-        width: 45%;
+        width: 40%;
     }
     
     .middle {
-        width: 10%;
+        width: 20%;
         text-align:center;
     }
 }

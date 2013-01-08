@@ -34,7 +34,7 @@ enyo.kind({
             {fit: 1, content:  $L("Show in bottom toolbar:")},
             {name: "showinToolbar", kind: "onyx.RadioGroup", onActivate: "toggleShowinToolbar", style: "margin: -.1875rem 0", components: [
               {name: "copyright", content: $L("copyright"), active: true},
-              {name: "author", content: $L("author")},
+              {name: "authors", content: $L("author")},
               {name: "publisher", content: $L("publisher")}
             ]}
           ]},
@@ -70,7 +70,7 @@ enyo.kind({
             {fit: 1, content:  $L("Autoscroll end to next page (on button press)")},
             {kind: "onyx.ToggleButton", name: "scrollToNext", value: true, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
-          {kind: "FittableColumns", style: "padding: .5rem;", showing: Helper.browser, components: [
+          {kind: "FittableColumns", style: "padding: .5rem;", showing: Helper.browser(), components: [
             {fit: 1, content:  $L("Show Printbutton")},
             {kind: "onyx.ToggleButton", name: "showPrint", value: true, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]}
@@ -79,7 +79,7 @@ enyo.kind({
           {kind: "onyx.GroupboxHeader", content: $L("Dropbox Settings")},
           {name:"log", kind:"FittableColumns", style: "padding: .5rem;", components: [
             {fit: 1, content:  $L("Logout from Dropbox")},
-            {name: "spinner", kind:"jmtk.Spinner", color: "#000000", diameter: (Helper.ratio * 32), style: "margin-right: .5rem; height: 2rem;"},
+            {name: "spinner", kind:"jmtk.Spinner", color: "#000000", diameter: (Helper.ratio() * 32), style: "margin-right: .5rem; height: 2rem;"},
             {name: "login", kind:"onyx.Button", content: "Login", classes: "onyx-affirmative", ontap:"logTapped", showing: false},
             {name: "logout", kind:"onyx.Button", content: "Logout", classes: "onyx-negative", ontap:"logTapped"}
           ]}
@@ -96,7 +96,7 @@ enyo.kind({
     this.inherited(arguments);
     this.getPrefs();
     this.owner.$.songViewPane.setShowPrefs(this.showPrefs);
-    this.$.spinner.setDiameter(Helper.ratio * 32);
+    this.$.spinner.setDiameter(Helper.ratio() * 32);
   },
   
   // Dropbox Logout

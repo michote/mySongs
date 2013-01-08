@@ -10,8 +10,9 @@ You can create songs from scratch, edit existing ones and also create your own c
 
 Features:
 ---------
-* Create and sdit Songs
+* Create and edit Songs
 * Create custom songlists
+* Autoscroll
 * Transpose chords
 * Customize display of songs
 * Store your files in your Dropbox

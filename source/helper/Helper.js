@@ -1,18 +1,39 @@
 
 function Helper() {}
 
-  Helper.ratio = "1.0";
+  Helper.ratio = function() { 
+    var p = enyo.platform;
+    if (p.blackberry) {
+      return "2.0";
+    //~ } else if (p.android > 3) {
+      //~ return "1.5";
+    } else {
+      return "1.0";
+    }
+  };
 
   Helper.iconPath = function() { 
-      return "assets/images/" + this.ratio +"/"; 
+      return "assets/images/" + this.ratio() +"/"; 
   }; 
 
   // small Screen on Phone
   Helper.phone = function() { 
-      return window.innerWidth < 800; 
+    var p = enyo.platform;
+    if (window.innerWidth < 800 || p.blackberry) {
+      return true;
+    } else {
+      return false;
+    }
   };
   
-  Helper.browser = true;
+  Helper.browser = function() { 
+    var p = enyo.platform;
+    if (p.chrome || p.firefox || p.safari || p.ie ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   // Create songlist with dublicates
   Helper.handleDoubles = function(arr) {

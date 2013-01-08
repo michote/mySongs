@@ -53,9 +53,9 @@ enyo.kind({
   components: [
     {kind: "Signals", onkeydown: "handleKeyPress"},
     // Drawer for Phone Title and Copyright !!
-    {name: "titleDrawer", kind: "onyx.Drawer", open: false, classes: "searchbar", components: [
-      {style: "color: #fff; padding: .5rem;", components: [
-        {name: "titleText", content: "Titel hier"},
+    {name: "titleDrawer", kind: "onyx.Drawer", open: false, classes: "searchbar hochk", components: [
+      {style: "color: #fff; padding: .5rem; background-color: rgba(0,0,0,0.6); text-align: center;", ontap: "closeTitle", components: [
+        {name: "titleText", classes: "title", allowHtml: true},
       ]}
     ]},
     {name: "headerToolbar", kind: "onyx.Toolbar", ondragfinish: "titleDragFinish", components: [
@@ -81,7 +81,7 @@ enyo.kind({
     {name:"transposePanels", kind: "Panels", fit: true, arrangerKind: "CollapsingArranger", draggable: false, components: [
       {name: "viewIncScrollBar", kind: "FittableColumns", fit: true, classes:"app-panels inner-panels", components: [
         {name: "cursorScrollBar", kind: "cursorScrollBar", ontap: "resetCursorTiming", classes: "cursor"},
-        {name: "viewScroller", kind: "enyo.Scroller", classes: "michote-scroller", horizontal: "hidden", fit: 1, components: [
+        {name: "viewScroller", kind: "enyo.Scroller", classes: "michote-scroller", horizontal: "hidden", fit: true, components: [
           {name: "lyric", ondragfinish: "songDragFinish", ondblclick: "onDoubleClick"}
         ]}
       ]},
@@ -105,7 +105,7 @@ enyo.kind({
         {kind: "FittableColumns", classes: "side", components: [
           {name: "playButton", kind: "onyx.IconButton", toggling: true, src: Helper.iconPath()+"play.png", ontap: "togglePlay"},
           {fit: true},
-          {name: "printButton", kind: "onyx.IconButton", src: Helper.iconPath()+"print.png", ontap: "print", showing: Helper.browser},
+          {name: "printButton", kind: "onyx.IconButton", src: Helper.iconPath()+"print.png", ontap: "print", showing: Helper.browser()},
           {name: "editButton", kind: "onyx.IconButton", src: Helper.iconPath()+"edit.png", ontap: "openEdit"},
           {name: "infoButton", kind: "onyx.IconButton", src: Helper.iconPath()+"info.png", ontap: "showInfo"}
         ]}
@@ -130,7 +130,7 @@ enyo.kind({
     this.$.forthButton.setShowing(this.showPrefs.showScroll);
     this.$.transposergr.setShowing(this.showPrefs.showTransposer);
     this.$.playButton.setShowing(this.showPrefs.showAuto);
-    this.$.printButton.setShowing(Helper.browser ? this.showPrefs.showPrint : false);
+    this.$.printButton.setShowing(Helper.browser() ? this.showPrefs.showPrint : false);
   },
   
   start: function() {
@@ -281,26 +281,18 @@ enyo.kind({
   metaDataSet: function() {
     var d = this.data;
     //~ format and set title
-    if (d.titles) {
-      var t = ParseXml.titlesToString(d.titles, this.lang);
-      this.$.title.setContent(t);
-    }
+    var t = ParseXml.titlesToString(d.titles, this.lang);
+    this.$.title.setContent(t);
     //~ format and set copyright
-    var y;
-    if (d.released) { // add release year
-      y = d.released + ": ";
-    } else {
-      y = "";
-    }
+    var y = (d.released ? d.released + ": " :  ""); // add release year
+    var copy = "";
     if (d[this.showPrefs.showinToolbar]) {
-      if (this.showPrefs.showinToolbar === "authors") {
-        this.$.copy.setContent(y + ParseXml.authorsToString(d.authors).join(", "));
-      } else {
-        this.$.copy.setContent("&copy; " + y + d[this.showPrefs.showinToolbar]);
-      }
+      copy = (this.showPrefs.showinToolbar === "authors" ? y + ParseXml.authorsToString(d.authors).join(", ") : "&copy; " + y + d[this.showPrefs.showinToolbar]);
     } else {
-      this.$.copy.setContent("&copy; " + y + $L("no" + this.showPrefs.showinToolbar));
+      copy = "&copy; " + y + $L("no" + this.showPrefs.showinToolbar);
     }
+    this.$.copy.setContent(copy);
+    this.$.titleText.setContent('<big><b>' + t + '</big></b><br><small>' + copy + '</small>'); 
   },
   
   lyricDataSet: function() {
@@ -578,26 +570,36 @@ enyo.kind({
     }
   },
   
+  
+  // Swipe down in Titlebar on Phone
   titleDragFinish: function(inSender, inEvent) {
-    if (+inEvent.dy > 40) {
-      enyo.log("drag down");
+    if (Helper.phone && !this.running) {
+      if (+inEvent.dy > 50) {
+        this.$.titleDrawer.setOpen(true);
+      }
+      if (+inEvent.dy < -50) {
+        this.$.titleDrawer.setOpen(false);
+      }
     }
-    if (+inEvent.dy < -40) {
-      enyo.log("drag up");
+  },
+  
+  closeTitle: function() {
+    if (!this.running) {
+      this.$.titleDrawer.setOpen(false);this.$.titleDrawer.setOpen(false);
     }
   },
   
   // Maximize view on doubleclick
   onDoubleClick: function() {
     this.fullscreen = !this.fullscreen;
-    if (this.fullscreen === true) {
+    if (this.fullscreen === true) {this.$.titleDrawer.setOpen(false);
       this.$.headerToolbar.hide(); 
       this.$.footerToolbar.hide();
       this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
     } else {
       this.$.headerToolbar.show(); 
       this.$.footerToolbar.show();
-      this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
+      this.owner.owner.$.mainPanels.setIndethis.$.titleDrawer.setOpen(false);x(this.owner.owner.$.mainPanels.index ? 0 : 1);
     }
     if (window.PalmSystem) {
       enyo.setFullScreen(this.fullscreen);
