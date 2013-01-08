@@ -13,3 +13,6 @@
 [submodule "source/modules/JMTKspinner"]
 	path = source/modules/JMTKspinner
 	url = git://github.com/JMTK/canvas-spinner.git
+[submodule "lib/canvas"]
+	path = lib/canvas
+	url = https://github.com/enyojs/canvas.git

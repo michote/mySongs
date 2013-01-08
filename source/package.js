@@ -2,6 +2,7 @@ enyo.depends(
   "$lib/layout",
   "$lib/onyx/source",
   "$lib/g11n",
+  "$lib/canvas",
   "helper/",
   "modules/JMTKspinner/heartcode_canvas.js",
   "modules/JMTKspinner/canvasSpinner.js",

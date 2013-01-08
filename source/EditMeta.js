@@ -48,17 +48,17 @@ enyo.kind({
         {kind: "onyx.Groupbox", components:[
           {kind: "onyx.GroupboxHeader", content: $L("copyright")},
           {kind: "FittableColumns", components:[
-            {content: $L("release date") + ":", style: "padding: .25rem .5rem; line-height: normal; width: 6rem;", classes: "editlabel"},
-            {kind: "onyx.InputDecorator", style: "max-width: 25%;", components: [
+            {content: $L("release date") + ":", style: "padding: .25rem .5rem; line-height: normal; width: 5.5rem;", classes: "editlabel"},
+            {kind: "onyx.InputDecorator", style: "max-width: 20%;", components: [
               {name: "released", kind: "Input", placeholder: $L("release date")}
             ]},
-            {content: $L("copyright holder") + ":", style: "padding: .25rem .5rem; line-height: normal; width: 6rem;", classes: "editlabel"},
+            {content: $L("copyright holder") + ":", style: "padding: .25rem .5rem; line-height: normal; width: 5.5rem;", classes: "editlabel"},
             {kind: "onyx.InputDecorator", fit: true, components: [
               {name: "copyright", kind: "Input", placeholder: $L("copyright holder")}
             ]}
           ]},
           {kind: "FittableColumns", components:[
-            {content: $L("publisher") + ":", style: "width: 8rem;", classes: "editlabel"},
+            {content: $L("publisher") + ":", style: "width: 7.5rem;", classes: "editlabel"},
             {kind: "onyx.InputDecorator", fit: true, components: [
               {name: "publisher", kind: "Input", placeholder: $L("publisher")}
             ]}
@@ -67,23 +67,23 @@ enyo.kind({
         {name: "songbookbox", kind: "onyx.Groupbox", components:[
           {kind: "onyx.GroupboxHeader", content: $L("infos")},
           {kind: "FittableColumns", components:[
-            {content: $L("key") + ":", style: "width: 5rem;", classes: "editlabel"},
-            {kind: "onyx.InputDecorator", style: "max-width: 25%", components: [
-              {name: "key", kind: "Input", placeholder: $L("key")}
-            ]},
-            {content: $L("transposition") + ":", style: "width: 9rem;", classes: "editlabel"},
-            {kind: "onyx.InputDecorator", fit: true, components: [
+            {content: $L("transposition") + ":", style: "width: 8.5rem;", classes: "editlabel"},
+            {kind: "onyx.InputDecorator", style: "max-width: 20%", components: [
               {name: "transposition", kind: "Input", placeholder: $L("transposition")}
+            ]},
+            {content: $L("key") + ":", style: "width: 4.5rem;", classes: "editlabel"},
+            {kind: "onyx.InputDecorator", fit: true, components: [
+              {name: "key", kind: "Input", placeholder: $L("key")}
             ]}
           ]},
           {kind: "FittableColumns", components:[
-            {content: $L("tempo") + ":", style: "width: 5rem;", classes: "editlabel"},
-            {kind: "onyx.InputDecorator", style: "max-width: 25%", components: [
-              {name: "tempo", kind: "Input", placeholder: $L("tempo")}
-            ]},
-            {content: $L("duration") + ":", style: "width: 9rem;", classes: "editlabel"},
-            {kind: "onyx.InputDecorator", fit: true, components: [
+            {content: $L("duration") + ":", style: "width: 8.5rem;", classes: "editlabel"},
+            {kind: "onyx.InputDecorator", style: "max-width: 20%", components: [
               {name: "duration", kind: "Input", placeholder: $L("duration")}
+            ]},
+            {content: $L("tempo") + ":", style: "width: 4.5rem;", classes: "editlabel"},
+            {kind: "onyx.InputDecorator", fit: true, components: [
+              {name: "tempo", kind: "Input", placeholder: $L("tempo")}
             ]}
           ]},
           {kind: "FittableColumns", fit: true, components:[
@@ -94,11 +94,11 @@ enyo.kind({
           ]},
           {name: "versehflex", kind: "FittableColumns", style: "text-align:center; padding: .25rem;"},
           {name: "songbookhflex1", kind: "FittableColumns", components:[
-            {content: $L("songbook") + ":", style: "width: 7rem;", classes: "editlabel"},
+            {content: $L("songbook") + ":", style: "width: 6.5rem;", classes: "editlabel"},
             {kind: "onyx.InputDecorator", fit: true, components: [
               {name: "songbook1", kind: "Input", placeholder: $L("songbook")}
             ]},
-            {content: $L("no.") + ":", style: "width: 3rem;", classes: "editlabel"},
+            {content: $L("no.") + ":", style: "width: 2.5rem;", classes: "editlabel"},
             {kind: "onyx.InputDecorator", style: "max-width: 15%", components: [
               {name: "no1", kind: "Input", placeholder: $L("number")}
             ]}
@@ -164,11 +164,11 @@ enyo.kind({
     this.songbookCount += 1;
     this.$.songbookbox.createComponent(
       {name: "songbookhflex" + this.songbookCount, kind: "FittableColumns", owner: this, components:[
-        {content: $L("songbook") + ":", style: "width: 7rem;", classes: "editlabel"},
+        {content: $L("songbook") + ":", style: "width: 6.5rem;", classes: "editlabel"},
         {kind: "onyx.InputDecorator", fit: true, components: [
           {name: "songbook" + this.songbookCount, kind: "Input", placeholder: $L("songbook"), owner: this}
         ]},
-        {content: $L("no.") + ":", style: "width: 3rem;", classes: "editlabel"},
+        {content: $L("no.") + ":", style: "width: 2.5rem;", classes: "editlabel"},
         {kind: "onyx.InputDecorator", style: "max-width: 15%", components: [
           {name: "no" + this.songbookCount, kind: "Input", placeholder: $L("number"), owner: this}
         ]}

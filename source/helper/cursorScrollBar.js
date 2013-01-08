@@ -1,12 +1,13 @@
 enyo.kind({
-  name: "cursorScrollBar", 
-  kind: enyo.Control,
-  nodeTag: "canvas",
-  canvas: "",
-  context: "",
-  domAttributes: { 
-    width: "20px"
-  },
+  name: "enyo.cursorScrollBar",
+  kind: "Control",
+  components: [
+    {kind:"enyo.Canvas", attributes: {width: 20, height: 300}, components: [
+      {name: "cursor", kind: "cursorImage", style: "z-index: 99"}
+      ]
+    }
+  ],
+
   ms8: 0,
   eighthCycle: 0,
   start: 0,
@@ -17,44 +18,65 @@ enyo.kind({
     color: "#D4D7AC",
     onColor: "#434437",
     offColor: "#D4D7AC",
-    cursorRow: 10
   },
+
   create: function() {
     this.inherited(arguments);
-  },
-  drawCanvas: function() {
-    this.context.fillStyle=this.color;
-    this.context.beginPath();
-    this.context.arc(13,this.cursorRow,6,1.23,5.05,true);
-    this.context.lineTo(0,this.cursorRow-11);
-    this.context.lineTo(0,this.cursorRow+11);
-    this.context.closePath();
-    this.context.fill();
-  },
-  rendered: function() {
-    this.hasNode();    
-    this.canvas = this.node;
-    this.context = this.canvas.getContext('2d');    
-    this.drawCanvas();
-  },
-  colorChanged: function() {
-    this.drawCanvas();
-  },
+    // Code to monitor image and redraw once loaded
+//    var img = new Image();
+//  img.src = this.$.image.src;
+//    img.onload = enyo.bind(this, function() {
+//      this.$.canvas.update();
+    },
   clearCursor: function() {
-    this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
-    this.clearBpmTimer();
+    this.$.canvas.update();
+    this.$.cursor.clearBpmTimer();
   },
   setY: function(Y) {
-    this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
-    this.cursorRow = Y;
-    this.drawCanvas();
+//    this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
+    this.$.cursor.cursorRow = Y;
+    this.$.canvas.update();
   },
   cursorOn: function () {
-    this.color = this.onColor;
+    this.$.cursor.color = this.onColor;
   },
   cursorOff: function () {
-    this.color = this.offColor;
+    this.$.cursor.color = this.offColor;
+  }
+});
+
+enyo.kind({
+	name: "enyo.cursorImage",
+	kind: "enyo.canvas.Shape",
+  published: {
+    color: "#D4D7AC",
+    cursorRow: 10
   },
+  renderSelf: function(ctx) {
+    ctx.fillStyle=this.color;
+    ctx.beginPath();
+    ctx.arc(13,this.cursorRow,6,1.23,5.05,true);
+    ctx.lineTo(0,this.cursorRow-11);
+    ctx.lineTo(0,this.cursorRow+11);
+    ctx.closePath();
+    ctx.fill();
+  },
+	create: function() {
+		this.inherited(arguments);
+//		this.jobName = "blinkMe_" + this.id;
+//		this.blinkMe();
+	},
+	destroy: function() {
+//		enyo.job.stop(this.jobName);
+		this.inherited(arguments);
+	},
+//	blinkMe: function() {
+//		var color = this.color;
+//		this.color = this.highlightColor;
+//		this.highlightColor = color;
+//		this.container.update();
+//		enyo.job(this.jobName, enyo.bind(this, "blinkMe"), 500);
+//	}
   timeoutInstance: function () {
     this.counterTime += this.ms8;
     this.eighthCycle = (this.eighthCycle + 1) % 8;

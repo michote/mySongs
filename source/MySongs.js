@@ -58,6 +58,7 @@ enyo.kind({
     this.inherited(arguments);
     this.connectToDropbox();
     this.getPreferences();
+    enyo.log("platform", enyo.platform);
   },
   
   connectToDropbox: function() {
@@ -198,7 +199,7 @@ enyo.kind({
     enyo.log("open song:", this[this.currentList].content[index].file);
     this.$.viewPane.$.songViewPane.setFirst(true);
     this.$.viewPane.$.songViewPane.setFile(this[this.currentList].content[index].file);
-    this.$.viewPane.$.songViewPane.renderLyrics();
+    this.$.viewPane.$.songViewPane.start();
     //~ this.$.viewPane.$.songViewPane.setXml(this[this.currentList].content[index].xml);
     this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(index);
     this.$.viewPane.$.songViewPane.$.viewScroller.setScrollTop(0);

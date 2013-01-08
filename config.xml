@@ -7,7 +7,7 @@
   <name>mySongs</name>
   <description>mySongs manage and displays your songs (lyrics and chords) in  OpenLyrics XML</description>
   
-  <icon src="assets/images/64.png" />
+  <icon src="assets/images/icon64.png" />
   <icon src="assets/images/icon256.png" />
   <content src="debug.html"/>
   

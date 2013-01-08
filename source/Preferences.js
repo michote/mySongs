@@ -30,7 +30,7 @@ enyo.kind({
             {fit: 1, content: $L("Sort Lyric")},
             {kind: "onyx.ToggleButton", name: "sortLyrics", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
-          {kind: "FittableColumns", style: "padding: .5rem;", showing: !Helper.phone(), components: [
+          {kind: Helper.phone() ? "FittableRows" : "FittableColumns", style: "padding: .5rem;", components: [
             {fit: 1, content:  $L("Show in bottom toolbar:")},
             {name: "showinToolbar", kind: "onyx.RadioGroup", onActivate: "toggleShowinToolbar", style: "margin: -.1875rem 0", components: [
               {name: "copyright", content: $L("copyright"), active: true},
@@ -62,11 +62,11 @@ enyo.kind({
             {fit: 1, content:  $L("Show Scrollbuttons")},
             {kind: "onyx.ToggleButton", name: "showScroll", value: true, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
-          {kind: "FittableColumns", style: "padding: .5rem;", style: "padding: .5rem;", showing: false, components: [
+          {kind: "FittableColumns", style: "padding: .5rem;", style: "padding: .5rem;", components: [
             {fit: 1, content:  $L("Show Autoscrollbutton")},
             {kind: "onyx.ToggleButton", name: "showAuto", value: true, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
-          {kind: "FittableColumns", style: "padding: .5rem;", style: "padding: .5rem;", showing: false, components: [
+          {kind: "FittableColumns", style: "padding: .5rem;", style: "padding: .5rem;", components: [
             {fit: 1, content:  $L("Autoscroll end to next page (on button press)")},
             {kind: "onyx.ToggleButton", name: "scrollToNext", value: true, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},

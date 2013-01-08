@@ -121,14 +121,9 @@ enyo.kind({
     ]},
   ],
   
-  smallPane: function() {
-    this.applyStyle("min-width", "10rem");
-    this.applyStyle("max-width", "10rem");
-  },
-  
   largePane: function() {
-    this.applyStyle("min-width", "18rem");
-    this.applyStyle("max-width", "18rem");
+    this.applyStyle("min-width", "16rem");
+    this.applyStyle("max-width", "16rem");
   },
   
   // Menu
@@ -246,7 +241,8 @@ enyo.kind({
   // Editing
   // got to add
   goToAdd: function(type) {
-    this.smallPane();
+    this.applyStyle("min-width", "10rem");
+    this.applyStyle("max-width", "10rem");
     this.$.Pane.setIndex(3);
     this.$.title.setContent($L("Add new:"));
     this.back = type;
@@ -273,7 +269,8 @@ enyo.kind({
   editElement: function(element, title) {
     this.$.title.setContent(title);
     this.$.Pane.setIndex(4);
-    this.largePane();
+    this.applyStyle("min-width", "18rem");
+    this.applyStyle("max-width", "18rem");
     this.$.closeButton.setContent($L("Done"));
     this.$.deleteButton.show();
     this.setElement(element);

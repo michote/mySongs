@@ -10,12 +10,12 @@ enyo.kind({
   components: [
     {name: "headerToolbar", kind: "onyx.Toolbar", components: [
       {kind: "FittableColumns", style: "width: 100%; margin: 0; padding: 0;", components: [
-        {classes: "song title", content: $L("Edit"), style: "text-align: left; min-width: 35%; padding: .25rem .375rem;"},
-        {kind: "FittableColumns", fit: true, style: "margin: 0; padding: 0; text-align: center; min-width: 30%", components: [
+        {classes: "song title", content: $L("Edit"), classes: "side", style: "text-align: left; padding: .25rem .375rem;"},
+        {kind: "FittableColumns",  classes: "middle", style: "margin: 0; padding: 0; text-align: center;", components: [
           {name: "meta", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"title.png", ontap: "toggleMeta", value: true},
           {name: "lyrics",  kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"lyrics.png", ontap: "toggleLyrics"}
         ]},
-        {name: "title", classes: "song title", content: $L("Title"), style: "text-align: right; min-width: 35%; padding: .25rem .375rem; float: right;"}
+        {name: "title", content: $L("Title"), classes: "song title side", style: "text-align: right; padding: .25rem .375rem;"}
       ]}
     ]},
     {name: "editPane", kind: "Panels", fit: true, arrangerKind: "CarouselArranger", draggable: false, components: [
@@ -24,8 +24,9 @@ enyo.kind({
     ]},
     {name: "footerToolbar", kind: "onyx.Toolbar", style: "text-align:center;", components: [
       {kind: "my.Grabber", ontap:"grabber"},
-      {kind: "onyx.Button", classes: "onyx-negative", style: "width: 8rem;", content: $L("Discard"), ontap: "closeThis"},
-      {kind: "onyx.Button", classes: "onyx-affirmative", style: "width: 8rem;", content: $L("Done"), ontap: "saveClicked"},
+      {kind: "onyx.Button", classes: "onyx-negative", style: "width: " + (Helper.phone() ? "32%" : "8rem") + "; margin: 0;", content: $L("Discard"), ontap: "closeThis"},
+      {style: "width: " + (Helper.phone() ? .25 : .75) + "rem;"},
+      {kind: "onyx.Button", classes: "onyx-affirmative", style: "width:  " + (Helper.phone() ? "32%" : "8rem") + "; margin: 0;", content: $L("Done"), ontap: "saveClicked"},
       {name: "add", kind: "onyx.IconButton", src: Helper.iconPath()+"add.png", style: "float: right;", ontap: "add"}
     ]}
   ],

@@ -52,10 +52,18 @@ enyo.kind({
   },
   components: [
     {kind: "Signals", onkeydown: "handleKeyPress"},
-    {name: "headerToolbar", kind: "onyx.Toolbar", components: [
+    // Drawer for Phone Title and Copyright !!
+    {name: "titleDrawer", kind: "onyx.Drawer", open: false, classes: "searchbar", components: [
+      {style: "color: #fff; padding: .5rem;", components: [
+        {name: "titleText", content: "Titel hier"},
+      ]}
+    ]},
+    {name: "headerToolbar", kind: "onyx.Toolbar", ondragfinish: "titleDragFinish", components: [
       {name: "titlefit", kind: "FittableColumns", style: "width: 100%; margin: 0; padding: 0;", components: [
-        {name: "title", classes: "title", style: "line-height: 2rem;", fit: true, allowHtml: true},
-        {kind: "FittableColumns", style: "margin: 0; padding: 0;", components: [
+        {fit: true, components: [
+          {name: "title", classes: "title quer", style: "line-height: 2rem;", allowHtml: true}
+        ]},
+        {kind: "FittableColumns", components: [
           {name: "languagegr", kind: "Group", defaultKind: "onyx.IconButton", onActivate: "toggleLang"},
           {name: "trSpacer", kind: "my.Spacer", showing: false},
           {name: "transposergr", kind: "FittableColumns", components: [
@@ -72,7 +80,7 @@ enyo.kind({
     ]},
     {name:"transposePanels", kind: "Panels", fit: true, arrangerKind: "CollapsingArranger", draggable: false, components: [
       {name: "viewIncScrollBar", kind: "FittableColumns", fit: true, classes:"app-panels inner-panels", components: [
-        //~ {name: "cursorScrollBar", kind: "cursorScrollBar", ontap: "resetCursorTiming", classes: "cursor"},
+        {name: "cursorScrollBar", kind: "cursorScrollBar", ontap: "resetCursorTiming", classes: "cursor"},
         {name: "viewScroller", kind: "enyo.Scroller", classes: "michote-scroller", horizontal: "hidden", fit: 1, components: [
           {name: "lyric", ondragfinish: "songDragFinish", ondblclick: "onDoubleClick"}
         ]}
@@ -91,14 +99,15 @@ enyo.kind({
         ]},
         {kind: "FittableColumns",  classes: "middle", components: [
           {name: "backButton", kind: "onyx.IconButton", disabled: true, src: Helper.iconPath()+"back.png", ontap: "textBack"}, 
-          {style: "width: 2rem;"},
+          {style: "width: " + (Helper.phone() ? .75 : 2) + "rem;"},
           {name: "forthButton", kind: "onyx.IconButton", disabled: true, src: Helper.iconPath()+"forth.png", ontap: "textForth"}
         ]},
         {kind: "FittableColumns", classes: "side", components: [
-          //~ {name: "playButton", kind: "onyx.IconButton", toggling: true, src: Helper.iconPath()+"play.png", ontap: "togglePlay"},
-          {name: "infoButton", kind: "onyx.IconButton", src: Helper.iconPath()+"info.png", style: "float: right", ontap: "showInfo"},
-          {name: "editButton", kind: "onyx.IconButton", src: Helper.iconPath()+"edit.png", style: "float: right", ontap: "openEdit"},
-          {name: "printButton", kind: "onyx.IconButton", src: Helper.iconPath()+"print.png", style: "float: right", ontap: "print", showing: Helper.browser}
+          {name: "playButton", kind: "onyx.IconButton", toggling: true, src: Helper.iconPath()+"play.png", ontap: "togglePlay"},
+          {fit: true},
+          {name: "printButton", kind: "onyx.IconButton", src: Helper.iconPath()+"print.png", ontap: "print", showing: Helper.browser},
+          {name: "editButton", kind: "onyx.IconButton", src: Helper.iconPath()+"edit.png", ontap: "openEdit"},
+          {name: "infoButton", kind: "onyx.IconButton", src: Helper.iconPath()+"info.png", ontap: "showInfo"}
         ]}
       ]}
     ]},
@@ -120,32 +129,19 @@ enyo.kind({
     this.$.backButton.setShowing(this.showPrefs.showScroll);
     this.$.forthButton.setShowing(this.showPrefs.showScroll);
     this.$.transposergr.setShowing(this.showPrefs.showTransposer);
-    //~ this.$.playButton.setShowing(this.showPrefs.showAuto);
+    this.$.playButton.setShowing(this.showPrefs.showAuto);
     this.$.printButton.setShowing(Helper.browser ? this.showPrefs.showPrint : false);
   },
   
-  // get xml lyricdata
-  //~ xmlChanged: function() {
-    //~ this.initCursor();
-    //~ this.lang = undefined;
-    //~ this.renderLyrics();
-  //~ },
-    
-  //~ fileChanged: function() {
-    //~ this.lang = undefined;
-    //~ var success = enyo.bind(this, this.fileReadSucces);
-    //~ setTimeout(dropboxHelper.readFile(this.file, success), 50);
-  //~ },
-  //~ 
-  //~ fileReadSucces: function(data, file) {
-    //~ this.xml = ParseXml.parse_dom(data);
-    //~ this.renderLyrics();
-  //~ },
+  start: function() {
+    this.renderLyrics();
+    this.initCursor();
+  },
   
   renderLyrics: function() {
     this.xml = this.owner.owner.dataList[this.file];
     this.lang = undefined;
-    //~ enyo.log("render lyrics of", this.path); 
+    //~ enyo.log("render lyrics of", this.file); 
     this.buttons();
     this.$.transposeList.applyStyle("visibility", "hidden");
     var transposition = ParseXml.get_metadata(this.xml, "transposition");
@@ -177,7 +173,7 @@ enyo.kind({
       this.enableTransposer(this.data.key, this.data.haschords, this.transpose);
       if (this.finished) {  // auto-scroll not active
         this.$.editButton.setDisabled(false);
-        //~ this.$.printButton.setDisabled(false);
+        this.$.printButton.setDisabled(false);
         this.$.backButton.setDisabled(true); 
         if (this.data.verseOrder && 
           (this.textIndex === (this.data.verseOrder.length-1))) {
@@ -371,7 +367,7 @@ enyo.kind({
 
   // ### Autoscroll ###
   togglePlay: function() { 
-    if (this.$.playButton.getSrc() === Helper.iconPath()+"play.png") { 
+    if (this.$.playButton.src === Helper.iconPath()+"play.png") { 
       // play
       if (this.lyricsCurrRow !== 0) {
         // paused
@@ -380,6 +376,7 @@ enyo.kind({
         // begining to play
         this.initForTextPlay();
         this.running = true;
+        this.finished = false;
         var perRowMSecs = 1000*this.songSecs/this.rowsTraversed;
         this.intervalSong = window.setInterval(enyo.bind(this, "showLyrics"), perRowMSecs);
         if (window.PalmSystem) {
@@ -387,15 +384,14 @@ enyo.kind({
         }
         // this.$.cursorScrollBar.setBpmTimer(120);
       }
-      this.$.playButton.setIcon(Helper.iconPath()+"pause.png");
-      this.$.playButton.setDepressed(false);
+      this.$.playButton.setProperty("src", Helper.iconPath()+"pause.png");
+      this.$.forthButton.setDisabled(false);
       this.$.forthButton.setDisabled(true);
       this.$.backButton.setDisabled(true);
-      this.$.printButton.setDisabled(true);
+      //this.$.printButton.setDisabled(true);
     } else { 
       //pause
-      this.$.playButton.setSrc(Helper.iconPath()+"play.png");
-      this.$.playButton.setActive(false);
+      this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
       this.running = false;
       if (this.finished) {
         this.initCursor();
@@ -462,7 +458,8 @@ enyo.kind({
     this.$.cursorScrollBar.setY(this.cursorRow);    
     this.$.cursorScrollBar.clearCursor();
     window.clearInterval(this.intervalSong);
-    this.$.playButton.setSrc(Helper.iconPath()+"play.png");
+    this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
+    this.$.cursorScrollBar.$.cursor.color = this.$.cursorScrollBar.offColor;
     this.finished = false;
     this.$.cursorScrollBar.hide();
     //~ if (window.PalmSystem && (this.$.lockButton.getIcon() === "assets/images/lock-open.png")) {
@@ -489,13 +486,15 @@ enyo.kind({
     }
     this.halfHt = this.$.viewScroller.node.clientHeight / 2;
     this.$.viewScroller.setScrollTop(this.lyricsCurrRow);
+    this.$.cursorScrollBar.$.canvas.height = this.$.viewScroller.node.clientHeight;
+    this.$.cursorScrollBar.$.canvas.update();
     if (this.data.duration) {
       this.songSecs = this.data.duration;
     } else {
       this.songSecs = this.defaultSongSecs;
     }
-    this.$.cursorScrollBar.color = this.$.cursorScrollBar.onColor;
-    this.$.cursorScrollBar.node.height = this.$.viewScroller.node.clientHeight;
+    this.$.cursorScrollBar.$.cursor.color = this.$.cursorScrollBar.onColor;
+    this.$.cursorScrollBar.hasNode().height = this.$.viewScroller.node.clientHeight;
     this.$.cursorScrollBar.show();
     this.$.editButton.setDisabled(true);
     this.$.fontButton.setDisabled(true);
@@ -505,8 +504,7 @@ enyo.kind({
   // ### Scrolling Button/Keypress ###
   scrollHelper: function() {
     var x = this.$[this.order[this.textIndex]].hasNode();
-    var offset = 54 * Helper.ratio + (Helper.phone() ? 8 : 20) * Helper.ratio;
-    var ePos = Helper.calcNodeOffset(x).top - offset; // element offset - Toolbar and margin
+    var ePos = Helper.calcNodeOffset(x).top - 74; // element offset - Toolbar and margin
     this.scroll = this.$.viewScroller.getScrollTop();   // scroll position
     this.$.viewScroller.scrollTo(0, (this.scroll + ePos));
   },
@@ -542,12 +540,14 @@ enyo.kind({
   },
   
   handleKeyPress: function(inSender, inEvent) {
-    k = inEvent.keyCode;
-    //~ enyo.log(k);
-    if ((k===33 || k===38 || k===37 || k===32) && this.textIndex > -2) { // PageUp
-      this.textBack();
-    } else if ((k===34 || k===40 || k===39 || k===13) && this.textIndex < this.data.verseOrder.length+1) { // PageDown
-      this.textForth();
+    if (!this.running) {
+      k = inEvent.keyCode;
+      //~ enyo.log(k);
+      if ((k===33 || k===38 || k===37 || k===32) && this.textIndex > -2) { // PageUp
+        this.textBack();
+      } else if ((k===34 || k===40 || k===39 || k===13) && this.textIndex < this.data.verseOrder.length+1) { // PageDown
+        this.textForth();
+      }
     }
   },
   
@@ -575,6 +575,15 @@ enyo.kind({
     }
     if (+inEvent.dx < -120) {
       this.prevSong();
+    }
+  },
+  
+  titleDragFinish: function(inSender, inEvent) {
+    if (+inEvent.dy > 40) {
+      enyo.log("drag down");
+    }
+    if (+inEvent.dy < -40) {
+      enyo.log("drag up");
     }
   },
   
