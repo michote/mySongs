@@ -1,6 +1,7 @@
 enyo.kind({
   name: "enyo.cursorScrollBar",
   kind: "Control",
+  style: "width: 30px",
   components: [
     {kind:"enyo.Canvas", attributes: {width: 20, height: 300}, components: [
       {name: "cursor", kind: "cursorImage", style: "z-index: 99"}
@@ -22,18 +23,12 @@ enyo.kind({
 
   create: function() {
     this.inherited(arguments);
-    // Code to monitor image and redraw once loaded
-//    var img = new Image();
-//  img.src = this.$.image.src;
-//    img.onload = enyo.bind(this, function() {
-//      this.$.canvas.update();
-    },
+  },
   clearCursor: function() {
     this.$.canvas.update();
     this.$.cursor.clearBpmTimer();
   },
   setY: function(Y) {
-//    this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
     this.$.cursor.cursorRow = Y;
     this.$.canvas.update();
   },
