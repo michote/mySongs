@@ -326,7 +326,6 @@ enyo.kind({
   createSong: function() {
     var songt = this.$.songName.getValue();
     var file = songt.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
-    this.$.songErrorContent.hide();
     file = this.testFilename(file);
     enyo.log("create file:", file);
     this.newSong = true;
