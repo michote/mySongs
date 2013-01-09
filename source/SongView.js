@@ -453,7 +453,6 @@ enyo.kind({
     this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
     this.$.cursorScrollBar.$.cursor.color = this.$.cursorScrollBar.offColor;
     this.finished = false;
-    this.$.cursorScrollBar.hide();
     //~ if (window.PalmSystem && (this.$.lockButton.getIcon() === "assets/images/lock-open.png")) {
       //~ enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {'blockScreenTimeout': false});
     //~ }
@@ -478,8 +477,7 @@ enyo.kind({
     }
     this.halfHt = this.$.viewScroller.node.clientHeight / 2;
     this.$.viewScroller.setScrollTop(this.lyricsCurrRow);
-    this.$.cursorScrollBar.$.canvas.height = this.$.viewScroller.node.clientHeight;
-    this.$.cursorScrollBar.$.canvas.update();
+    this.$.cursorScrollBar.$.canvas.setAttribute("height", this.$.viewScroller.node.clientHeight);
     if (this.data.duration) {
       this.songSecs = this.data.duration;
     } else {
@@ -487,7 +485,6 @@ enyo.kind({
     }
     this.$.cursorScrollBar.$.cursor.color = this.$.cursorScrollBar.onColor;
     this.$.cursorScrollBar.hasNode().height = this.$.viewScroller.node.clientHeight;
-    this.$.cursorScrollBar.show();
     this.$.editButton.setDisabled(true);
     this.$.fontButton.setDisabled(true);
   },

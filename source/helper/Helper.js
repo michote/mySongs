@@ -1,6 +1,10 @@
 
 function Helper() {}
 
+  Helper.app = "mySongs";
+  
+  Helper.vers = "0.5";
+
   Helper.ratio = function() { 
     var p = enyo.platform;
     if (p.blackberry) {

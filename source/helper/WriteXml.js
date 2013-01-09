@@ -31,7 +31,7 @@ function WriteXml() {}
     xw.writeAttributeString('xmlns', 'http://openlyrics.info/namespace/2009/song');
     xw.writeAttributeString('version','0.8');
     xw.writeAttributeString('createdIn', metadata.created);
-    xw.writeAttributeString('modifiedIn', 'mySongs 0.5');
+    xw.writeAttributeString('modifiedIn', Helper.app+' '+Helper.vers);
     xw.writeAttributeString('modifiedDate', WriteXml.date());
     
     // Properties
@@ -158,8 +158,8 @@ function WriteXml() {}
     xw.writeStartElement('song');
     xw.writeAttributeString('xmlns', 'http://openlyrics.info/namespace/2009/song');
     xw.writeAttributeString('version','0.8');
-    xw.writeAttributeString('createdIn', 'mySongs 0.5');
-    xw.writeAttributeString('modifiedIn', 'mySongs 0.5');
+    xw.writeAttributeString('createdIn', Helper.app+' '+Helper.vers);
+    xw.writeAttributeString('modifiedIn', Helper.app+' '+Helper.vers);
     xw.writeAttributeString('modifiedDate', WriteXml.date());
       
       xw.writeStartElement('properties');

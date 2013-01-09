@@ -288,9 +288,10 @@
       }
       i++;
     }
+    destLyrics = destLyrics + "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
     destLyrics = destLyrics + "<song xmlns=\"http:\/\/openlyrics.info\/namespace\/2009\/song\"\n";
     destLyrics = destLyrics + "  version=\"0.8\"\n";
-    destLyrics = destLyrics + "  createdIn=\""+ enyo.fetchAppInfo().title+' '+enyo.fetchAppInfo().version +"\"\n";
+    destLyrics = destLyrics + "  createdIn=\""+Helper.app+' '+Helper.vers+"\"\n";
     destLyrics = destLyrics + "  modifiedIn=\"\"\n"
     destLyrics = destLyrics + "  modifiedDate=\"";
     var currentdate = new Date();

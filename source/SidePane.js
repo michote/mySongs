@@ -14,9 +14,9 @@ enyo.kind({
     {name: "headerToolbar", kind: "onyx.Toolbar", style: "text-align: center;", ondragfinish: "dragFinish", components: [
       {name: "title", classes: "title", content: $L("Song Info")}
     ]},
-    {name: "Pane", kind: "Panels", draggable: false, fit: 1, ondragfinish: "dragFinish", components: [
+    {name: "Pane", kind: "Panels", draggable: false, fit: 1, components: [
       // Menu
-      {name: "menuScroller", kind: "enyo.Scroller", fit: 1, components: [ 
+      {name: "menuScroller", kind: "enyo.Scroller", fit: 1, ondragfinish: "dragFinish", components: [ 
         {kind: "onyx.MenuItem", onSelect: "showPreferences", components: [ 
           {kind: "onyx.Icon", src: Helper.iconPath()+"menu-settings.png"},
           {content: $L("Preferences")}
@@ -39,7 +39,7 @@ enyo.kind({
           ]},
         {name: "about", kind: "onyx.Drawer", open: false, components: [
           {classes: "deco", style: "text-align: center;", components: [
-            {content: '<span style="color: #9E0508; font-weight: bold;"> mySongs &ndash; v. 0.5 </span><br>'
+            {content: '<span style="color: #9E0508; font-weight: bold;">'+Helper.app+' &ndash; v. '+Helper.vers +'</span><br>'
               + "&copy; 2013 <a href='mailto:reischuck.micha@googlemail.com'>Micha Reischuck</a><br>"
               + 'License: <a href="http://opensource.org/licenses/mit-license.php">MIT</a>', allowHtml: true},
             {kind: "Image", src: Helper.iconPath()+"icon128.png"}
@@ -47,7 +47,7 @@ enyo.kind({
         ]}
       ]},
       // InfoDialog
-      {name: "infoScroller", kind: "enyo.Scroller", fit: 1, components: [ 
+      {name: "infoScroller", kind: "enyo.Scroller", fit: 1, ondragfinish: "dragFinish", components: [ 
         {classes: "deco", components: [
           {name: "copyboxdiv", classes: "divider", content: $L("Copyright"), showing: false},
           {name: "copybox"},
@@ -61,7 +61,7 @@ enyo.kind({
       // ADD: Themes?
       
       // FontDialog
-      {kind: "enyo.Scroller", fit: 1, components: [
+      {kind: "enyo.Scroller", fit: 1, ondragfinish: "dragFinish", components: [
         {classes: "deco", components: [
           {content: $L("Font size:"), classes: "divider"},
           {components: [
@@ -81,14 +81,14 @@ enyo.kind({
       
       // Editing
       // Edit Add list
-      {name: "addList", kind: "List", classes: "inner-panels", style: "height: 100%;", onSetupItem: "getAdd", components: [
+      {name: "addList", kind: "List", classes: "inner-panels", ondragfinish: "dragFinish", style: "height: 100%;", onSetupItem: "getAdd", components: [
         {name: "addItem", ontap: "addTab", components: [
           {name: "addTitle", classes: "item"}
         ]}
       ]},
       
       // Edit element
-      {kind: "enyo.Scroller", fit: 1, components: [
+      {kind: "enyo.Scroller", fit: 1, ondragfinish: "dragFinish", components: [
         {classes: "deco", components: [
           {kind: "FittableColumns", style: "margin: .5rem;", components: [
             {content: $L("name") + ": ", style: "width: 5.5rem; padding: .5rem 0;", classes: "editlabel"},
@@ -112,12 +112,31 @@ enyo.kind({
           {name: "edittext1", classes: "preview"},
           {name: "parts"},
         ]}
+      ]},
+      
+      // Import
+      {kind: "enyo.Scroller", fit: true, classes: "michote-scroller", horizontal: "hidden", components: [
+        {name: "box", kind:"FittableRows", classes:"box-center", components:[
+          {name: "titlebox", kind: "onyx.Groupbox", components:[
+            {kind: "onyx.GroupboxHeader", components: [
+              {content: $L("Insert text to import here ...")},
+              {kind: "onyx.IconButton", src: Helper.iconPath()+"help.png", ontap: "openHelp", classes: "editbutton"}
+            ]},
+            {name: "importHelp", kind: "onyx.Drawer", open: false, components: [
+              {content: "The first single line is interpretted as the title.Subsequent single lines (followed by a blank line) can contain the properties values of the OpenLyrics specification: eg author(s), Release Date etc.<br><br>If the title line is present then a complete OpenLyrics song file is produced.<br><br>The lyrics blocks can optionally include chord lines. A chord line is defined as a line containing more than 50% of valid OpenLyrics chord names or two of them separated by a '/' . If present a chord line is expected to be followed by the corresponding lyrics line.<br><br>Chords can also be embedded in the lyrics lines in ChordPro format ie [A].<br><br>Verses are separated by a single blank line or a line containing [x] where x can be v, b, c, e, p under the OpenLyrics specification and will become a verse label which will have sequential numbers added to it to identify each verse. A blank line defaults to a [v] label.<br><br>The generator will also generate OpenLyrics lyrics blocks from OpenSong and ChordPro formatted lyric lists.", allowHtml: true, style: "padding: .5rem; color: #fff; background-color: rgba(0,0,0,0.7); line-height: normal;"}
+            ]},
+            {kind: "onyx.InputDecorator", style: "min-height: 20rem; max-width: 800px", alwaysLooksFocused: true, ontap: "importFocus", components: [
+              {name: "importText", kind: "onyx.RichText", allowHtml: false}
+              
+            ]}
+          ]}
+        ]}
       ]}
       
     ]},
-    {name: "footerToolbar", kind: "onyx.Toolbar", components: [
+    {name: "footerToolbar", kind: "onyx.Toolbar", style: "text-align:center;", components: [
       {name: "closeButton", kind: "onyx.Button", content: $L("Close"), ontap: "closeClicked"},
-      {name: "deleteButton", kind: "onyx.Button", classes: "onyx-negative", style: "float: right;", content: $L("delete element"), ontap: "deleteElement", showing: false},
+      {name: "deleteButton", kind: "onyx.Button", classes: "onyx-negative", ontap: "deleteElement", showing: false},
     ]},
   ],
   
@@ -272,6 +291,7 @@ enyo.kind({
     this.applyStyle("min-width", "18rem");
     this.applyStyle("max-width", "18rem");
     this.$.closeButton.setContent($L("Done"));
+    this.$.deleteButton.setContent($L("delete element"));
     this.$.deleteButton.show();
     this.setElement(element);
   },
@@ -324,8 +344,15 @@ enyo.kind({
   },
   
   deleteElement: function() {
-    this.owner.$.viewPane.$.editToaster.$.lyricsPane.deleteElement();
-    this.closeClicked();
+    switch (this.$.Pane.getIndex()) {
+      case 4: this.owner.$.viewPane.$.editToaster.$.lyricsPane.deleteElement();
+              this.closeClicked();
+              break;
+              
+      case 5: this.$.closeButton.setContent($L("Close"));
+              this.$.deleteButton.hide();
+              break;
+    }
   },
   
   getData: function() {
@@ -349,6 +376,30 @@ enyo.kind({
     this.owner.$.viewPane.$.editToaster.$.lyricsPane.insertSamePlace(id, el);
   },
   
+  // Import
+  showImport: function() {
+    this.applyStyle("min-width", "100%");
+    this.applyStyle("max-width", "100%");
+    this.$.closeButton.setContent($L("Import"));
+    this.$.deleteButton.setContent($L("Cancel"));
+    this.$.deleteButton.show();
+    this.$.Pane.setIndex(5);
+    this.$.importText.setValue("");
+    this.$.title.setContent($L("Import"));
+  },
+  
+  openHelp: function() {
+    this.$.importHelp.setOpen(!this.$.importHelp.getOpen());
+  },
+  
+  importFocus: function() {
+    this.$.importText.focus();
+  },
+  
+  import: function() {
+    this.owner.importSong(convLyrics(this.$.importText.getValue().replace(/<div>/g, '').replace(/<\/div>/g, '<br>').replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ')));
+  },
+  
   // Swipe right to close
   dragFinish: function(inSender, inEvent) {
     if (+inEvent.dx > 120) {
@@ -365,6 +416,11 @@ enyo.kind({
       case 4: this.$.closeButton.setContent($L("Close"));
               this.$.deleteButton.hide();
               this.closeEdit();
+              break;
+              
+      case 5: this.$.closeButton.setContent($L("Close"));
+              this.$.deleteButton.hide();
+              this.import();
               break;
     }
     this.owner.$.infoPanels.setIndex(0);

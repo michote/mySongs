@@ -40,12 +40,13 @@ enyo.kind({
     ]},
     {name: "newSongDialog", kind: "onyx.Popup", style: "padding: 1rem;", centered: true, modal: true, floating: true, scrim: true, components: [
       {kind: "FittableRows", style: "padding: .5rem; background-color: rgba(255, 255, 255, 0.5)", components: [
-        {content: $L("New song"), tag: 'b', style: "font-size: 1.2rem;"},
-        {tag: 'br'},
+        {kind: "FittableColumns", style: "width: 100%;", components: [
+          {content: $L("New song"), tag: 'b', fit: true, style: "font-size: 1.2rem;"},
+          {kind: "onyx.Button", style: "color: #fff;", content: $L("Import"), ontap: "openImportSong"},
+        ]},
         {kind: "onyx.InputDecorator", style: "width: 14.75rem; margin-top: .5rem;", components: [
           {name: "songName", kind: "onyx.Input", placeholder: $L("Enter songname"), style: "width: 100%;"}, //onchange: "createSong"},
         ]},
-        {name: "songErrorContent", style: "color: #fff; padding: .5rem; background-color: #9E0508; border-radius: .5rem; margin-top: .5rem;", showing: false},
         {components: [
           {kind: "onyx.Button", classes: "onyx-negative", style: "margin: .5rem 0 0;", content: $L("Cancel"), ontap: "closeCreateSong"},
           {kind: "onyx.Button", classes: "onyx-affirmative", style: "margin: .5rem 0 0 .5rem;", content: $L("Save"), ontap: "createSong"}
@@ -62,6 +63,7 @@ enyo.kind({
   },
   
   connectToDropbox: function() {
+    enyo.log("Connecting to Dropbox, please Confirm the popup");
     this.$.songListPane.$.readFiles.setContent($L("Connecting..."));
     this.$.songListPane.$.readProgress.setMax(3);
     this.$.songListPane.$.readProgress.animateProgressTo(1);
@@ -130,19 +132,9 @@ enyo.kind({
     }
   },
   
-  //~ gotTxt: function (inSender, inResponse) {
-    //~ this.textSrce = inResponse;
-    //~ //enyo.job.stop("readTimeOut");
-  //~ },
-  //~ 
-  //~ gotTxtFailure: function(inSender, inResponse, inRequest) {
-    //~ this.textSrce = "";
-  //~ },
-  
   gotFile: function(data, file) {
     var xml = ParseXml.parse_dom(data);
     if (ParseXml.get_titles(xml)) { // check for valid title before adding to library
-      //~ var a = {"file": file, "xml": xml, "title": ParseXml.get_titles(xml)[0].title};
       this.dataList[file] = xml;
       var a = {"file": file, "title": ParseXml.get_titles(xml)[0].title};
       this.libraryList.content.push(a);
@@ -295,8 +287,6 @@ enyo.kind({
   openCreateSong: function() {
     this.$.newSongDialog.show();
     this.$.songName.setValue("");
-    this.$.songErrorContent.setContent("");
-    this.$.songErrorContent.hide();
     this.$.songName.focus();
   },
   
@@ -304,44 +294,43 @@ enyo.kind({
     this.$.newSongDialog.hide();
   },
   
-  createSong: function() {
-    var songt = this.$.songName.getValue();
-    var file = songt.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
-    var e = false;
-    this.$.songErrorContent.hide();
-    enyo.log("file:", file);
+  openImportSong: function() {
+    this.$.infoPanels.setIndex(1);
+    this.$.sidePane.showImport();
+    this.$.newSongDialog.hide();
+  },
+  
+  testFilename: function(file) {
     var l = this.libraryList.content;
     for (i in l) {
       if (l[i].file === file || l[i].file === file.toLowerCase()) {
-        enyo.log("lfile:", this.libraryList.content[i].file);
-        this.$.songErrorContent.setContent($L("Name already exist"));
-        this.$.songErrorContent.show();
-        e = true;
+        enyo.log("filename already exist: ", file);
+        file = file.substring(0, file.length-4) + "(1).xml";
+        // refine and merge this to file(2).xml etc.
+        break;
       }
     }
-    if (!e) {  // songt.xml does not exits.
-      enyo.log("file anlegen");
-      this.writeXml(file, WriteXml.create(songt), songt);  // write file skeleton
-      this.newSong = true;
-      this.$.newSongDialog.hide();
-    }
+    return file;
+  },
+  
+  importSong: function(song) {
+    this.newSong = true;
+    var songt = ParseXml.get_titles(ParseXml.parse_dom(song))[0].title;
+    var file = songt.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
+    file = this.testFilename(file);
+    enyo.log("create imported file:", file);
+    this.writeXml(file, song, songt);
+    this.$.infoPanels.setIndex(0);
+  },
+  
+  createSong: function() {
+    var songt = this.$.songName.getValue();
+    var file = songt.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
+    this.$.songErrorContent.hide();
+    file = this.testFilename(file);
+    enyo.log("create file:", file);
+    this.newSong = true;
+    this.writeXml(file, WriteXml.create(songt), songt);  // write file skeleton
+    this.$.newSongDialog.hide();
   }
-    
-      // is there a .txt file to use
-      //~ var txtPath = songt + ".txt";   // allow spaces in txt file names 
-      //~ this.$.getTxt.setUrl(this.dirPath + txtPath);
-      //~ this.$.getTxt.call();  // file content to this.textSrce
-      //~ enyo.job("readTimeOut", enyo.bind(this, "createSongCont", path, songt), 1000); // wait up to 1 sec for text file.
-    //~ }
-  //~ },
-  //~ 
-  //~ createSongCont: function(path, songt) {
-    //~ if (this.textSrce !== "") {
-      //~ this.writeXml(path, convLyrics(this.textSrce));  // write txt file contents
-    //~ } else {  
-      //~ this.writeXml(file, WriteXml.create(songt));  // write file skeleton
-    //~ }
-    //~ this.newSong = {"file": file};
-    //~ this.$.newSongDialog.hide();
-  //~ }
 });

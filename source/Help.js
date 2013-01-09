@@ -11,8 +11,8 @@ enyo.kind({
     {name: "viewScroller", kind: "enyo.Scroller", classes: "michote-scroller", horizontal: "hidden", touch: true, fit: 1,
       components: [
       {name: "helpContent", kind: "FittableRows", classes:  Helper.phone() ? "lyric lyricmar-phone" : "lyric lyricmar", components: [
-        {allowHtml: true, content: "<h1>" + $L("Welcome to ") + "mySongs"},
-        {allowHtml: true, content: "mySongs" + $L(" is an App to display Songs in ")
+        {allowHtml: true, content: "<h1>" + $L("Welcome to ") + Helper.app},
+        {allowHtml: true, content: Helper.app + $L(" is an App to display Songs in ")
           + '<a href="http://openlyrics.info/" target="_blank"> OpenLyrics XML Standard</a>' +
           $L(" from the internal storage of your device.") + "<br>" + 
           $L(" You can create custom lists of songs to display.") + "<br><br>",},
@@ -161,7 +161,7 @@ enyo.kind({
           webOS Nation forum thread</a></li>'},
         {allowHtml: true, content: "<br>"},
         {allowHtml: true, content: "<h2>" + $L("Open Source") + "</h2>"},
-        {allowHtml: true, content: "mySongs" +
+        {allowHtml: true, content: Helper.app +
           ' is available under the terms of the \
           <a href="http://opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.<br> The source can be found on \
           <a href="https://github.com/michote/mySongs" target="_blank">github</a>.'},

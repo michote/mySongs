@@ -73,7 +73,7 @@ enyo.kind({
   saveModifications: function() {
     for (i in this.lyrics) {
       for (j in this.lyrics[i].lines) {
-        var l = this.$[i+"text"+j].getValue();
+        var l = this.$[i+"text"+j].getValue().replace(/<div>/g, '').replace(/<\/div>/g, '<br>');
         l.substring(l.length-4, l.length) === '<br>' ? l = l.substring(0, l.length-4) : l = l;
         this.lyrics[i].lines[j].text = l;
       }
