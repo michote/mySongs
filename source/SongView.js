@@ -367,20 +367,17 @@ enyo.kind({
       } else { 
         // begining to play
         this.initForTextPlay();
+        this.$.cursorScrollBar.cursorOn();
         this.running = true;
         this.finished = false;
         var perRowMSecs = 1000*this.songSecs/this.rowsTraversed;
         this.intervalSong = window.setInterval(enyo.bind(this, "showLyrics"), perRowMSecs);
-        if (window.PalmSystem) {
-          enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {'blockScreenTimeout': true});
-        }
-        // this.$.cursorScrollBar.setBpmTimer(120);
       }
       this.$.playButton.setProperty("src", Helper.iconPath()+"pause.png");
       this.$.forthButton.setDisabled(false);
       this.$.forthButton.setDisabled(true);
       this.$.backButton.setDisabled(true);
-      //this.$.printButton.setDisabled(true);
+      this.$.printButton.setDisabled(true);
     } else { 
       //pause
       this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
@@ -448,18 +445,10 @@ enyo.kind({
     this.lyricsCurrRow = 0;
     this.$.viewScroller.setScrollTop(this.lyricsCurrRow);
     this.$.cursorScrollBar.setY(this.cursorRow);    
-    this.$.cursorScrollBar.clearCursor();
+    this.$.cursorScrollBar.cursorOff();
     window.clearInterval(this.intervalSong);
     this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
-    this.$.cursorScrollBar.$.cursor.color = this.$.cursorScrollBar.offColor;
     this.finished = false;
-    //~ if (window.PalmSystem && (this.$.lockButton.getIcon() === "assets/images/lock-open.png")) {
-      //~ enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {'blockScreenTimeout': false});
-    //~ }
-    //~ if (this.data.titles) { 
-      //~ var theTitles = ParseXml.titlesToString(this.data.titles); 
-      //~ this.$.title.setContent(theTitles);
-    //~ }
     this.$.editButton.setDisabled(false);
     this.$.fontButton.setDisabled(false);
     this.$.forthButton.setDisabled(false);
@@ -483,7 +472,7 @@ enyo.kind({
     } else {
       this.songSecs = this.defaultSongSecs;
     }
-    this.$.cursorScrollBar.$.cursor.color = this.$.cursorScrollBar.onColor;
+    this.$.cursorScrollBar.cursorOff();
     this.$.cursorScrollBar.hasNode().height = this.$.viewScroller.node.clientHeight;
     this.$.editButton.setDisabled(true);
     this.$.fontButton.setDisabled(true);
