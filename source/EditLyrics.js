@@ -71,6 +71,7 @@ enyo.kind({
   },
   
   saveModifications: function() {
+    enyo.log("save lyrics modification");
     for (i in this.lyrics) {
       for (j in this.lyrics[i].lines) {
         var l = this.$[i+"text"+j].getValue().replace(/<div>/g, '').replace(/<\/div>/g, '<br>');

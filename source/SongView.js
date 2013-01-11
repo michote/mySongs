@@ -344,14 +344,16 @@ enyo.kind({
       }
       this.$.lyric.render();
       // Scroll Spacer
-      var x = this.$.lyric.node.lastChild.clientHeight;
-      var h = window.innerHeight-138-x;
-      if (h > 0) {
-        this.$.lyric.createComponent({
-          name: "scrollspacer",
-          style: "height:" + h + "px;width:100%;",
-          classes: "scrollspacer"
-        });
+      if (this.$.lyric.node.lastChild) {
+        var x = this.$.lyric.node.lastChild.clientHeight;
+        var h = window.innerHeight-138-x;
+        if (h > 0) {
+          this.$.lyric.createComponent({
+            name: "scrollspacer",
+            style: "height:" + h + "px;width:100%;",
+            classes: "scrollspacer"
+          });
+        }
       }
     }
     this.$.lyric.render();

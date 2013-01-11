@@ -24,9 +24,9 @@ enyo.kind({
     ]},
     {name: "footerToolbar", kind: "onyx.Toolbar", style: "text-align:center;", components: [
       {kind: "my.Grabber", ontap:"grabber"},
-      {kind: "onyx.Button", classes: "onyx-negative", style: "width: " + (Helper.phone() ? "32%" : "8rem") + "; margin: 0;", content: $L("Discard"), ontap: "closeThis"},
-      {style: "width: " + (Helper.phone() ? .25 : .75) + "rem;"},
-      {kind: "onyx.Button", classes: "onyx-affirmative", style: "width:  " + (Helper.phone() ? "32%" : "8rem") + "; margin: 0;", content: $L("Done"), ontap: "saveClicked"},
+      {kind: "onyx.Button", classes: "onyx-negative", style: "width: " + (Helper.phone() ? "45%" : "10rem") + "; margin: 0;", content: $L("Discard changes"), ontap: "closeThis"},
+      {style: "width: " + (Helper.phone() ? .5 : 1.25) + "rem; margin: 0;"},
+      {kind: "onyx.Button", classes: "onyx-affirmative", style: "width:  " + (Helper.phone() ? "25%" : "8rem") + "; margin: 0;", content: $L("Done"), ontap: "saveClicked"},
       {name: "add", kind: "onyx.IconButton", src: Helper.iconPath()+"add.png", style: "float: right;", ontap: "add"}
     ]}
   ],
@@ -57,6 +57,7 @@ enyo.kind({
   
   add: function() {
     this.owner.owner.$.infoPanels.setIndex(1);
+    //~ this.$[this.$.editPane.getIndex() ? "lyricsPane" : "metaPane"].saveModifications();
     this.owner.owner.$.sidePane.goToAdd(this.$.editPane.getIndex() ? "lyrics" : "meta");
   },
   

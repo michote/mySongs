@@ -78,7 +78,16 @@ function dropboxHelper() {}
       if (error) {
         callbackError(dropboxHelper.showError(error));
       }
-      callbackSuccess(stat.revisionTag, file,content, songt);  // data has the file's contents
+      callbackSuccess(stat.revisionTag, file, content, songt);
+    });
+  };
+  
+  dropboxHelper.deleteFile = function(file, callbackSuccess, callbackError) { 
+    dropboxHelper.client.remove(file, function(error, status) {
+      if (error) {
+        callbackError(dropboxHelper.showError(error));
+      }
+      callbackSuccess(status, file);  
     });
   };
   

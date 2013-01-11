@@ -12,13 +12,14 @@ function WriteXml() {}
 
   WriteXml.date = function() {
     var date = new Date();
-    var dateFmt = new enyo.g11n.DateFmt({
-      locale: enyo.g11n.currentLocale(),
-      date: "yyyy-MM-dd",
-      time: "HH:mm:ss"
-    });
-    
-    return dateFmt.format(date).replace(' ', 'T');
+    //~ var dateFmt = new enyo.g11n.DateFmt({
+      //~ locale: enyo.g11n.currentLocale(),
+      //~ date: "yyyy-MM-dd",
+      //~ time: "HH:mm:ss"
+    //~ });
+    //~ 
+    //~ return dateFmt.format(date).replace(' ', 'T');
+    return date.toISOString();
   };
   
   WriteXml.edit = function(xml, metadata, lyrics) {

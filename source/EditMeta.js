@@ -111,6 +111,8 @@ enyo.kind({
   
   // Adding new fields
   addNew: function(add) {
+    this.saveModifications();
+    this.metadataChanged();
     this["add" + add.charAt(0).toUpperCase() + add.slice(1)]();
   },
   
@@ -126,7 +128,7 @@ enyo.kind({
         ]},
       ]}
     );
-    this.$.titlebox.render();
+    this.$["titlehflex" + this.titleCount].render();
   },
   
   addAuthor: function() {
@@ -152,7 +154,7 @@ enyo.kind({
         ]}
       ]}
     );
-    this.$.authorbox.render();
+    this.$["authorhflex" + this.authorCount].render();
   },
   
   onchange_author: function(inSender, inEvent) {
@@ -174,7 +176,7 @@ enyo.kind({
         ]}
       ]}
     );
-    this.$.songbookbox.render();
+    this.$["songbookhflex" + this.songbookCount].render();
   },
   
   // Add existing data to UI
@@ -183,6 +185,7 @@ enyo.kind({
     for (i in this.single) {
       if (this.metadata[this.single[i]]) {
         this.$[this.single[i]].setValue(this.metadata[this.single[i]]);
+        enyo.log("set:", this.single[i], this.metadata[this.single[i]]);
       } else {
         this.$[this.single[i]].setValue("");
       };
@@ -275,8 +278,7 @@ enyo.kind({
   getAllFields: function() {
     for (i in this.single) {
       if (this.$[this.single[i]].getValue()) {
-        this.metadata[this.single[i]] = 
-        this.$[this.single[i]].getValue();
+        this.metadata[this.single[i]] = this.$[this.single[i]].getValue();
       };
     };
     
@@ -329,6 +331,7 @@ enyo.kind({
   
   saveModifications: function() {
     this.getAllFields();
+    enyo.log("save metadata modification");
     this.owner.setMetadata(this.metadata);
   }
   

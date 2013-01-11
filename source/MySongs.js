@@ -15,7 +15,6 @@ enyo.kind({
   realtimeFit: true,
   // Properties
   pathCount: {"a": [], "b": []},
-  errorList: [],
   dirPath: "/media/internal/MySongBook/",
   newSong: false,
   textSrce: "",
@@ -135,8 +134,8 @@ enyo.kind({
   gotFile: function(data, file) {
     var xml = ParseXml.parse_dom(data);
     if (ParseXml.get_titles(xml)) { // check for valid title before adding to library
-      this.dataList[file] = xml;
-      var a = {"file": file, "title": ParseXml.get_titles(xml)[0].title};
+      this.dataList[file.toLowerCase()] = xml;
+      var a = {"file": file.toLowerCase(), "title": ParseXml.get_titles(xml)[0].title};
       this.libraryList.content.push(a);
     }
     // only refresh and sort once
@@ -257,10 +256,12 @@ enyo.kind({
   
   writeFileSuccess: function(revision, file, content, songt) {
     enyo.log("File saved as revision " + revision);
+    this.$.infoPanels.setIndex(0);
+    file = file.toLowerCase();
     if (this.newSong) {
       enyo.log("append", file, "to librarylist and select it");
       this.libraryList.content.push({'file': file, 'title': songt});
-      this.dataList[file] = ParseXml.parse_dom(content);
+      this.dataList[file.toLowerCase()] = ParseXml.parse_dom(content);
       this.sortAndRefresh(file);
       this.newSong = false;
       // open for editing
@@ -301,26 +302,47 @@ enyo.kind({
   },
   
   testFilename: function(file) {
-    var l = this.libraryList.content;
-    for (i in l) {
-      if (l[i].file === file || l[i].file === file.toLowerCase()) {
+    var x = this.dataList;
+    var y = true;
+    while (y) {
+      if (x[file.toLowerCase()]) {
         enyo.log("filename already exist: ", file);
-        file = file.substring(0, file.length-4) + "(1).xml";
-        // refine and merge this to file(2).xml etc.
-        break;
+        var z = file.match(/\(([0-9]+)\)/);
+        if (z && parseInt(z[1],10) > 0) {
+          file = file.replace(z[0], "("+(parseInt(z[1],10)+1)+")");
+        } else {
+          file = file.substring(0, file.length-4) + "(1).xml";
+        }
+      } else {
+        y = false;
       }
     }
+      //~ if (l[i].file === file || l[i].file === file.toLowerCase()) {
+        //~ enyo.log("filename already exist: ", file);
+        //~ file = file.substring(0, file.length-4) + "(1).xml";
+        //~ // refine and merge this to file(2).xml etc.
+        //~ break;
+      //~ }
+    //~ }
     return file;
+  },
+  
+  importError: function(file) {
+    this.$.songListPane.showError($L("Error in importing: ") + file);
+    this.$.infoPanels.setIndex(0);
   },
   
   importSong: function(song) {
     this.newSong = true;
-    var songt = ParseXml.get_titles(ParseXml.parse_dom(song))[0].title;
-    var file = songt.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
-    file = this.testFilename(file);
-    enyo.log("create imported file:", file);
-    this.writeXml(file, song, songt);
-    this.$.infoPanels.setIndex(0);
+    var songt = ParseXml.get_titles(ParseXml.parse_dom(song))[0];
+    if (songt) {
+      var file = songt.title.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
+      file = this.testFilename(file);
+      enyo.log("create imported file:", file);
+      this.writeXml(file, song, songt.title);
+    } else {
+      this.importError(song);
+    }
   },
   
   createSong: function() {
