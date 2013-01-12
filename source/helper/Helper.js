@@ -6,14 +6,14 @@ function Helper() {}
   Helper.vers = "0.5";
 
   Helper.ratio = function() { 
-    var p = enyo.platform;
-    if (p.blackberry) {
-      return "2.0";
+    //~ var p = enyo.platform;
+    //~ if (p.blackberry) {
+      //~ return "2.0";
     //~ } else if (p.android > 3) {
       //~ return "1.5";
-    } else {
+    //~ } else {
       return "1.0";
-    }
+    //~ }
   };
 
   Helper.iconPath = function() { 
@@ -89,9 +89,9 @@ function Helper() {}
   Helper.orderLyrics = function(lyrics, order, lang) {
     var newLyrics = {};
     var order2 = this.handleDoubles(order);
-    //~ enyo.log("lyrics: " + lyrics);
-    //~ enyo.log("order: " + order);
-    //~ enyo.log("order2: " + order2);
+    //~ this.log("lyrics: " + lyrics);
+    //~ this.log("order: " + order);
+    //~ this.log("order2: " + order2);
     for (i = 0; i < order.length; i++) {
       if (!lang && lyrics[order[i]]) {
         newLyrics[order2[i]] = [order[i],lyrics[order[i]][1]];
@@ -142,7 +142,7 @@ function Helper() {}
   
   Helper.isIn = function(term, item) {
     var n = item.indexOf(term);
-    //~ enyo.log("found:", term, "in", item, "?:", (n >= 0))
+    //~ this.log("found:", term, "in", item, "?:", (n >= 0))
     return n >= 0;
   };
   
@@ -183,10 +183,16 @@ function Helper() {}
   };
   
   Helper.searchKeys = function(term, xml) {
-    var c = ParseXml.get_themes(xml).concat(ParseXml.get_comments(xml));
+    var t = ParseXml.get_themes(xml);
+    var c = ParseXml.get_comments(xml);
     var com = [];
-    for (j in c) {
-      com.push(c[j].toLowerCase());
+    for (j in t) {
+      //~ enyo.log(t[j]);
+      com.push(t[j].theme.toLowerCase());
+    }
+    for (k in c) {
+      //~ enyo.log(c[k]);
+      com.push(c[k].toLowerCase());
     }
     if (this.isIn(term, com.join())) {
       return true;

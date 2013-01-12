@@ -32,6 +32,7 @@ enyo.kind({
   ],
   
   toggleMeta: function() {
+    this.log();
     this.$.editPane.setIndex(0);
     this.$.lyrics.setValue(false);
     this.owner.owner.$.infoPanels.setIndex(0);
@@ -39,18 +40,21 @@ enyo.kind({
   },
   
   toggleLyrics: function() {
+    this.log();
     this.$.editPane.setIndex(1);
     this.$.meta.setValue(false);
     this.owner.owner.$.infoPanels.setIndex(0);
     this.$.metaPane.saveModifications();
   },
   
-  xmlChanged: function() {
+  populate: function() {
+    this.log();
     if (this.xml) {
       this.lyrics = ParseXml.editLyrics(this.xml);
       this.$.lyricsPane.setLyrics(this.lyrics);
       this.metadata = ParseXml.allMetadata(this.xml);
       this.$.metaPane.setMetadata(this.metadata);
+      this.$.metaPane.setFile(this.file);
       this.$.title.setContent(this.metadata.titles[0].title);
     }
   },
@@ -66,16 +70,20 @@ enyo.kind({
   },
   
   saveClicked: function(s) {
+    this.log();
     this.$.metaPane.saveModifications();
     this.$.lyricsPane.saveModifications();
-    //~ enyo.log("save:", WriteXml.edit(this.xml, this.metadata, this.lyrics));
+    //~ this.log("save:", WriteXml.edit(this.xml, this.metadata, this.lyrics));
     this.owner.owner.writeXml(this.file, WriteXml.edit(this.xml, this.metadata, this.lyrics), this.metadata.titles[0].title);
     this.owner.$.songViewPane.renderLyrics();
     this.owner.$.viewPanels.setIndex(1);
+    this.owner.owner.$.infoPanels.setIndex(0);
   },
   
   closeThis: function() {
+    this.log();
     this.setXml(undefined);
     this.owner.$.viewPanels.setIndex(1);
+    this.owner.owner.$.infoPanels.setIndex(0);
   }
 });

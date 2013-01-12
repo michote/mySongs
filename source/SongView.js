@@ -11,6 +11,7 @@
 enyo.kind({
   name: "SongView",
   kind: "FittableRows",
+  classes: "enyo-fit",
   // Properties
   defaultSongSecs: 200, // seconds for song
   songSecs: this.defaultSongSecs, 
@@ -102,7 +103,7 @@ enyo.kind({
           {style: "width: " + (Helper.phone() ? .75 : 2) + "rem;"},
           {name: "forthButton", kind: "onyx.IconButton", disabled: true, src: Helper.iconPath()+"forth.png", ontap: "textForth"}
         ]},
-        {kind: "FittableColumns", classes: "side", components: [
+        {name: "buttonfit", kind: "FittableColumns", classes: "side", stlye: "text-align: right;", components: [
           {name: "playButton", kind: "onyx.IconButton", toggling: true, src: Helper.iconPath()+"play.png", ontap: "togglePlay"},
           {fit: true},
           {name: "printButton", kind: "onyx.IconButton", src: Helper.iconPath()+"print.png", ontap: "print", showing: Helper.browser()},
@@ -126,11 +127,13 @@ enyo.kind({
   },
   
   buttons: function() {
+    this.log("redraw buttons");
     this.$.backButton.setShowing(this.showPrefs.showScroll);
     this.$.forthButton.setShowing(this.showPrefs.showScroll);
     this.$.transposergr.setShowing(this.showPrefs.showTransposer);
     this.$.playButton.setShowing(this.showPrefs.showAuto);
     this.$.printButton.setShowing(Helper.browser() ? this.showPrefs.showPrint : false);
+    this.$.buttonfit.resized();
   },
   
   start: function() {
@@ -139,9 +142,9 @@ enyo.kind({
   },
   
   renderLyrics: function() {
-    this.xml = this.owner.owner.dataList[this.file];
+    this.xml = this.owner.owner.dataList[this.file.toLowerCase()];
     this.lang = undefined;
-    //~ enyo.log("render lyrics of", this.file); 
+    this.log("render lyrics of", this.file); 
     this.buttons();
     this.$.transposeList.applyStyle("visibility", "hidden");
     var transposition = ParseXml.get_metadata(this.xml, "transposition");
@@ -155,6 +158,7 @@ enyo.kind({
       this.first = false;
     }
     this.data = ParseXml.parse(this.xml, this.showPrefs.showChords, this.showPrefs.showComments, this.transpose);
+    this.log("get data");
     if (this.data.titles !== undefined) {
       this.textIndex = 0; // reset index
       this.scroll = 0;    // reset scroller
@@ -197,6 +201,7 @@ enyo.kind({
   
   enableTransposer: function(key, chords, transp) {
     if (key && chords) {
+      this.log("enable Transposer");
       this.$.transminus.setDisabled(false);
       this.$.transplus.setDisabled(false);
       this.transposeList = (key.charAt(key.length-1) === "m") ? this.moll : this.dur;
@@ -209,6 +214,7 @@ enyo.kind({
       this.$.transposer.setContent(transp ? Transposer.transpose(key, transp) : key);
       this.$.transposer.show();
     } else if (!key && chords) {
+      this.log("enable Transposer without key");
       this.$.transminus.setDisabled(false);
       this.$.transplus.setDisabled(false);
       this.$.transposer.hide();
@@ -234,6 +240,7 @@ enyo.kind({
     } else if (value < -11) {
       value += 12;
     }
+    this.log(value);
     this.transpose = value;
     this.renderLyrics();    
   },
@@ -260,7 +267,7 @@ enyo.kind({
   },
   
   addLangToggle: function(l) {
-    //~ enyo.log("add", l, "toggle");
+    //~ this.log("add", l, "toggle");
     this.$.languagegr.createComponent(
       {name: l, kind: "onyx.IconButton", src: Helper.iconPath()+"flag.png", owner: this, components: [
         {content: l, classes: "flag-button"}
@@ -270,7 +277,7 @@ enyo.kind({
   
   toggleLang: function(inSender, inEvent) {
     if (inEvent.originator.getActive()) {
-      enyo.log("The \"" + inEvent.originator.name + "\" radio button is selected.");
+      this.log("The \"" + inEvent.originator.name + "\" radio button is selected.");
       this.lang = inEvent.originator.name;
       this.metaDataSet();
       this.lyricDataSet();
@@ -279,6 +286,7 @@ enyo.kind({
   
   // ### set Data ###
   metaDataSet: function() {
+    this.log();
     var d = this.data;
     //~ format and set title
     var t = ParseXml.titlesToString(d.titles, this.lang);
@@ -315,6 +323,7 @@ enyo.kind({
         }
         // Create lyric divs
         for (var i in formL) {
+          this.log("create element ", i);
           if (this.showPrefs.showName) {
             var t = $L(formL[i][0].charAt(0)).charAt(0)
               + formL[i][0].substring(1, formL[i][0].length) + ":";
@@ -361,6 +370,7 @@ enyo.kind({
 
   // ### Autoscroll ###
   togglePlay: function() { 
+    this.log();
     if (this.$.playButton.src === Helper.iconPath()+"play.png") { 
       // play
       if (this.lyricsCurrRow !== 0) {
@@ -397,6 +407,7 @@ enyo.kind({
   },
   
   movingLyrics: function() {
+    this.log();
     if ((this.lyricsCurrRow > this.halfHt) && (this.lyricsCurrRow < (this.rowsTraversed - this.halfHt))) {
       return true;
     } else {
@@ -405,6 +416,7 @@ enyo.kind({
   },
 
   resetCursorTiming: function() {
+    this.log();
     // adjust the position of the cursor
     var yAdj = event.offsetY - this.cursorRow;  
     var lyricsPrevRow = this.lyricsCurrRow;  // save for later
@@ -428,6 +440,7 @@ enyo.kind({
   },
   
   showLyrics: function() {
+    this.log();
     if (this.running) {
       if (this.movingLyrics()) {
         this.$.viewScroller.setScrollTop(this.lyricsCurrRow - this.cursorRow);
@@ -446,6 +459,7 @@ enyo.kind({
   },
 
   initCursor: function() {
+    this.log();
     this.cursorRow = 0;
     this.lyricsCurrRow = 0;
     this.$.viewScroller.setScrollTop(this.lyricsCurrRow);
@@ -470,6 +484,7 @@ enyo.kind({
   },
   
   initForTextPlay: function() {
+    this.log();
     var ctrls = this.$.lyric.getControls();
     this.rowsTraversed = this.$.lyric.node.clientHeight;
     for (i = 0; i < ctrls.length; i++) {
@@ -533,7 +548,7 @@ enyo.kind({
   handleKeyPress: function(inSender, inEvent) {
     if (!this.running) {
       k = inEvent.keyCode;
-      //~ enyo.log(k);
+      this.log(k);
       if ((k===33 || k===38 || k===37 || k===32) && this.textIndex > -2) { // PageUp
         this.textBack();
       } else if ((k===34 || k===40 || k===39 || k===13) && this.textIndex < this.data.verseOrder.length+1) { // PageDown
@@ -546,7 +561,7 @@ enyo.kind({
   nextSong: function() {
     var o = this.owner.owner;
     if (o.currentIndex >= 0 && o.currentIndex < o[o.currentList].content.length-1) {
-      enyo.log("next Song");
+      this.log("next Song");
       o.setCurrentIndex(o.currentIndex+1);
     }
   },
@@ -554,13 +569,14 @@ enyo.kind({
   prevSong: function() {
     var o = this.owner.owner;
     if (o.currentIndex > 0) {
-      enyo.log("prev Song");
+      this.log("prev Song");
       o.setCurrentIndex(o.currentIndex-1);
     }
   },
   
   // Swipe left and right
   songDragFinish: function(inSender, inEvent) {
+    this.log();
     if (+inEvent.dx > 120) {
       this.nextSong();
     }
@@ -590,6 +606,7 @@ enyo.kind({
   
   // Maximize view on doubleclick
   onDoubleClick: function() {
+    this.log("double tap: set fullscreen: ", !this.fullscreen);
     this.fullscreen = !this.fullscreen;
     if (this.fullscreen === true) {this.$.titleDrawer.setOpen(false);
       this.$.headerToolbar.hide(); 
@@ -611,19 +628,27 @@ enyo.kind({
   },
   
   showMenu: function() {
+    this.log("show menu");
     this.owner.owner.$.infoPanels.setIndex(1);
     this.owner.owner.$.sidePane.showMenu();
   },
   
   openEdit: function() {
+    this.log("open editmode for: ", this.file);
     this.owner.$.viewPanels.setIndex(3);
     this.owner.$.editToaster.setXml(this.xml);
     this.owner.$.editToaster.setFile(this.file);
+    this.owner.$.editToaster.populate();
   },
   
   showInfo: function() {
     this.owner.owner.$.infoPanels.setIndex(1);
     this.owner.owner.$.sidePane.showInfo(this.data);
+  },
+  
+  showFontDialog: function() {
+    this.owner.owner.$.infoPanels.setIndex(1);
+    this.owner.owner.$.sidePane.showFont();
   },
   
   //~ toggleLock: function() {
@@ -640,13 +665,10 @@ enyo.kind({
     //~ }
   //~ },
   
-  showFontDialog: function() {
-    this.owner.owner.$.infoPanels.setIndex(1);
-    this.owner.owner.$.sidePane.showFont();
-  },
   
   // ### Print ###
   print: function() {
+    this.log();
     this.printAdd();
     this.owner.owner.$.mainPanels.setAnimate(false);
     this.owner.owner.$.mainPanels.setIndex(1);
@@ -658,6 +680,7 @@ enyo.kind({
   },
   
   printAdd: function() { // add Copyright-box for printing
+    this.log();
     var printCopy = ParseXml.authorsToString(this.data.authors).join('<br>');
     printCopy += '<br>&copy; '
     if (this.data.released) { printCopy += this.data.released + ' ';}

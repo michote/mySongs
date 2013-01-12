@@ -1,8 +1,8 @@
 enyo.kind({
   name: "SidePane",
   kind: "FittableRows",
-  classes: "side-pane",
-  metaList: ["title", "author", "songbook"],
+  classes: "side-pane enyo-fit",
+  metaList: ["title", "author", "songbook", "comment"],
   lyricsList: ["v", "c", "b", "p", "e"],
   back: undefined,
   parts: [1],
@@ -55,6 +55,10 @@ enyo.kind({
           {name: "authorbox"},
           {name: "songboxdiv", classes: "divider", content: $L("Song"), showing: false},
           {name: "songbox"},
+          {name: "commentboxdiv", classes: "divider", content: $L("comments"), showing: false},
+          {name: "commentbox"},
+          //~ {name: "themeboxdiv", classes: "divider", content: $L("themes"), showing: false},
+          //~ {name: "themebox"},
         ]},
       ]},
       // ADD: Comments, Variant?
@@ -147,16 +151,19 @@ enyo.kind({
   
   // Menu
   showMenu: function() {
+    this.log("show menu");
     this.largePane();
     this.$.Pane.setIndex(0);
     this.$.title.setContent($L("Menu"));
   },
   
   showAbout: function() {
+    this.log((this.$.about.open ? "close" : "open") + " aboutDrawer");
     this.$.about.setOpen(!this.$.about.open);
   },
   
   showPreferences: function() {
+    this.log("opening Preferences");
     this.owner.$.viewPane.$.preferences.setOldIndex(this.owner.$.viewPane.$.viewPanels.index);
     this.owner.$.viewPane.$.preferences.setPrefs();
     this.owner.$.viewPane.$.viewPanels.setIndex(2);
@@ -170,11 +177,13 @@ enyo.kind({
   },
   
   newSong: function() {
+    this.log("create a new Song, opnening popup ...");
     this.owner.openCreateSong();
     this.owner.$.infoPanels.setIndex(0);
   },
   
   showHelp: function() {
+    this.log("show help panel")
     this.owner.$.viewPane.$.viewPanels.setIndex(0);
     this.owner.$.infoPanels.setIndex(0);
     this.owner.setCurrentIndex(undefined);
@@ -183,6 +192,7 @@ enyo.kind({
   
   // Info
   showInfo: function(data) {
+    this.log("show info panel")
     this.largePane();
     this.$.title.setContent($L("Song Info"));
     this.destroyInfo();
@@ -195,13 +205,18 @@ enyo.kind({
     this.$.copybox.destroyClientControls();
     this.$.authorbox.destroyClientControls();
     this.$.songbox.destroyClientControls();
+    this.$.commentbox.destroyClientControls();
+    //~ this.$.themebox.destroyClientControls();
     this.$.copyboxdiv.hide();
     this.$.authorboxdiv.hide();
     this.$.songboxdiv.hide();
+    this.$.commentboxdiv.hide();
+    //~ this.$.themeboxdiv.hide();
   },
 
   addDiv: function(box, cap, extra) {
     if (cap) {
+      this.log(cap);
       this.$[box + "div"].show();
       b = this.$[box];
       b.createComponent({
@@ -213,6 +228,7 @@ enyo.kind({
   },
 
   infoset: function(data) {
+    this.log();
     if (data.released) {
       this.addDiv("copybox", data.released + ":", "&copy; ");
     }
@@ -221,10 +237,10 @@ enyo.kind({
       this.addDiv("copybox", data.publisher, "");
     }
     var authors = ParseXml.authorsToString(data.authors);
-    for(i = 0; i < authors.length; i++) {
+    for (i = 0, l = authors.length; i < l; i++) {
       this.addDiv("authorbox", authors[i], "");
     };
-    for(j = 0; j < data.songbooks.length; j++) {
+    for (j = 0, l = data.songbooks.length; j < l; j++) {
       if (data.songbooks[j].no) {
         this.addDiv("songbox", data.songbooks[j].book + ': ' + 
           data.songbooks[j].no, "");
@@ -240,10 +256,14 @@ enyo.kind({
     }
     this.addDiv("songbox", data.duration, $L("duration") + ": ");
     this.addDiv("songbox", data.ccli, "CCLI: ");
+    for (k = 0, l = data.comments.length; k < l; k++) {
+      this.addDiv("commentbox", data.comments[k], "");
+    }
   },
   
   // Font 
   showFont: function() {
+    this.log("open Font Settings")
     this.largePane();
     this.$.Pane.setIndex(2);
     this.$.title.setContent($L("Font Settings"));
@@ -252,7 +272,7 @@ enyo.kind({
   },
   
   sliderChanged: function(inSender, inEvent) {
-    enyo.log(inSender.name + " changed to " + Math.round(inSender.getValue()));
+    this.log(inSender.name + " changed to " + Math.round(inSender.getValue()));
     this.css[inSender.name] = Math.round(inSender.getValue());
     this.owner.setFont(this.css);
   },
@@ -279,7 +299,7 @@ enyo.kind({
   },
   
   addTab: function(inSender, inEvent) {
-    enyo.log("add new:", this[this.back+"List"][inEvent.rowIndex]);
+    this.log("add new:", this[this.back+"List"][inEvent.rowIndex]);
     this.owner.$.viewPane.$.editToaster.$[this.back + "Pane"].addNew(this[this.back+"List"][inEvent.rowIndex]);
     this.owner.$.infoPanels.setIndex(0);
   },
@@ -297,7 +317,7 @@ enyo.kind({
   },
   
   elementChanged: function() {
-    enyo.log("edit element:", this.element);
+    this.log("edit element:", this.element);
     this.parts = [1];
     for (i in this.element) {
       if (i === "lines") {

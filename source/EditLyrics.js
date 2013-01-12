@@ -1,6 +1,7 @@
 enyo.kind({
   name: "EditLyrics",
   kind: "FittableRows",
+  classes: "enyo-fit",
   published: {
     lyrics: {},
     element: undefined
@@ -48,6 +49,7 @@ enyo.kind({
   
   // Add new elements
   addNew: function(add) {
+    this.log(add);
     this.saveModifications();
     var e = [];
     for (i in this.lyrics) {
@@ -71,7 +73,7 @@ enyo.kind({
   },
   
   saveModifications: function() {
-    enyo.log("save lyrics modification");
+    this.log("save lyrics modification");
     for (i in this.lyrics) {
       for (j in this.lyrics[i].lines) {
         var l = this.$[i+"text"+j].getValue().replace(/<div>/g, '').replace(/<\/div>/g, '<br>');
@@ -84,6 +86,7 @@ enyo.kind({
   
   // ### Edit Dialog ###
   openEdit: function(inSender) {
+    this.log();
     this.saveModifications();
     var i = inSender.name.replace("eB", "");
     this.el = i;
@@ -96,6 +99,7 @@ enyo.kind({
   },
   
   deleteElement: function() {
+    this.log();
     delete this.lyrics[this.el];
     this.lyricsChanged();
   },

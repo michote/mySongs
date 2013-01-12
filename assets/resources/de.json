@@ -24,6 +24,7 @@
     "Show Comments": "Zeige Kommentare",
     "Show elementname (e.g. V1:)": "Zeige den Elementnamen (z.B. S1:) an",
     
+    
     "Font Settings": "Schrift Einstellungen",
     "Font size:": "Schriftgröße",
     "Line spacing:": "Zeilenabstand",
@@ -49,12 +50,14 @@
     "music": "Musik",
     "words": "Text",
     "title": "Titel",
+    "comment": "Kommentar",
     
     "Song Info": "Informationen zum Lied",
     "Author(s)": "Autor(en)",
     "key: ": "Tonart: ",
     "tempo": "Tempo",
     "Song": "Lied",
+    "comments": "Kommentare",
     
     "Manage Lists": "Listen verwalten", 
     "New List": "Neue Liste", 
@@ -143,6 +146,8 @@
     "parts": "Abschnitte",
     "part": "Abschnitt",
     "delete element": "Element löschen",
+    "Delete file": "Lösche die Datei",
+    "Delete this songfile (irreversible!)": "Lösche die Lieddatei (unwiderruflich!)", 
     
     "Button Settings": "Button Einstellungen",
     "Show Transposer": "Zeige Transponierer",

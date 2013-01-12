@@ -3,9 +3,11 @@
 	This way, you can minify your application, and just remove the "source" folder for production
 */
 
+/*
 html {
-    font-size: 100%;
+    font-size: 200%;
 }
+*/
 
 .bg {
     background: url(../assets/images/paper.jpg); 

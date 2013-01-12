@@ -45,10 +45,10 @@ enyo.kind({
             {kind: "Image", src: Helper.iconPath()+"forth-help.png"},
             {tag: 'p', content: $L("scrolls lyrics forth depending on verseorder")}
           ]},
-          //~ {tag: 'il', components: [
-            //~ {kind: "Image", src: Helper.iconPath()+"play-help.png"},
-            //~ {tag: 'p', content: $L("start autoscroll")}
-          //~ ]},
+          {tag: 'il', components: [
+            {kind: "Image", src: Helper.iconPath()+"play-help.png"},
+            {tag: 'p', content: $L("start autoscroll")}
+          ]},
           //~ {tag: 'il', components: [
             //~ {kind: "Image", src: Helper.iconPath()+"edit-help.png"},
             //~ {tag: 'p', content: $L("edit current song")}

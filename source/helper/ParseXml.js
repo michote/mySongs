@@ -338,7 +338,7 @@ function ParseXml () {}
     //~ data.transposition = this.get_metadata(xml, "transposition"); 
     data.songbooks = this.get_songbooks(xml);
     //~ data.themes = this.get_themes(xml);
-    //~ data.comments = this.get_comments(xml);
+    data.comments = this.get_comments(xml);
     
     //~ enyo.log(this.get_lyrics(xml, data.verseOrder, showChords, showComments));
     var l = this.get_lyrics(xml, data.verseOrder, showChords, showComments,

@@ -11,7 +11,7 @@
 enyo.kind({
   name: "SongList",
   kind : "FittableRows",
-  classes: "bg",
+  classes: "bg enyo-fit",
   // Properties
   searchF: "titles",
   searchCount: {"a": [], "b": []},
@@ -133,9 +133,6 @@ enyo.kind({
   
   create: function() {
     this.inherited(arguments);
-    if (window.PalmSystem) {
-      this.$.prefsButton.hide();
-    };
   }, 
   
   // First use 
@@ -198,6 +195,7 @@ enyo.kind({
   },
   
   clearSearch: function() {
+    this.log();
     this.owner.currentList = "libraryList";
     this.goToLibrary();
     this.owner.findIndex();
@@ -214,7 +212,7 @@ enyo.kind({
   
   searchFilter: function(inSender, inEvent) {
     if (inEvent.originator.getActive() && this.$.searchBar.open) {
-      enyo.log("search for", inEvent.originator.name);
+      this.log("search for", inEvent.originator.name);
       this.searchF = inEvent.originator.name;
       this.$.searchBox.focus();
       this.startSearch();
@@ -222,19 +220,20 @@ enyo.kind({
   },
   
   startSearch: function () {
+    this.log();
     this.owner.searchList.content = [];
     if (this.$.searchBox.getValue() !== "") {
       term = this.$.searchBox.getValue().toLowerCase()
-      enyo.log("search term:", term);
+      this.log("search term:", term);
       this.$.searchSpinner.show();
       for (i in this.owner.libraryList.content) {
-        var x = this.owner.libraryList.content[i]
-        var w = Helper.filter(this.searchF, term, this.owner.dataList[x.file]);
+        var x = this.owner.libraryList.content[i];
+        var w = Helper.filter(this.searchF, term, this.owner.dataList[x.file.toLowerCase()]);
         if (w) {
           this.owner.searchList.content.push(x);
         };
       };
-      enyo.log("searchList:", this.owner.searchList);
+      this.log("searchList:", this.owner.searchList);
       this.owner.currentList = "searchList";
       this.$.title.setContent($L("Search List") + " (" + this.owner.searchList.content.length + ")");
       this.$.libraryList.setCount(this.owner.searchList.content.length);
@@ -252,6 +251,7 @@ enyo.kind({
   
   // ### Panes ###
   goToSync: function() {
+    this.log();
     this.$.newList.setOpen(false);
     this.$.searchBar.setOpen(false);
     this.owner.currentList = "libraryList";
@@ -267,6 +267,7 @@ enyo.kind({
   },
   
   goToLibrary: function() {
+    this.log();
     this.$.newList.setOpen(false);
     this.$.searchButton.setDisabled(false);
     this.owner.currentList = "libraryList";
@@ -282,6 +283,7 @@ enyo.kind({
   },
   
   goToList: function() {
+    this.log();
     this.$.newList.setOpen(false);
     this.$.searchBar.setOpen(false);
     this.$.searchButton.setDisabled(true);
@@ -302,6 +304,7 @@ enyo.kind({
   },
   
   openListManager: function() {
+    this.log();
     this.$.searchButton.setDisabled(true);
     this.$.addRem.setDisabled(false);
     this.$.listPane.setIndex(4);
@@ -314,7 +317,8 @@ enyo.kind({
     this.$.customListList.reset();
   },
   
-  noList: function() {    
+  noList: function() {
+    this.log();
     this.$.listPane.setIndex(3);
     this.$.title.setContent($L("List?"));
     this.$.addRem.setSrc(Helper.iconPath()+"add.png");
@@ -324,10 +328,11 @@ enyo.kind({
   },
   
   open: function() {
+    this.log();
     switch (this.$.listPane.getIndex()) {
       case 4: // Remove List
         if (this.listIndex >= 0) {
-          enyo.log("remove custom list:", this.owner.savedLists[this.listIndex].title);
+          this.log("remove custom list:", this.owner.savedLists[this.listIndex].title);
           this.owner.savedLists.splice(this.listIndex, 1);
           this.owner.customList = false;
           this.listIndex = undefined; 
@@ -342,10 +347,11 @@ enyo.kind({
   },
   
   addRem: function() {
+    this.log();
     switch (this.$.listPane.getIndex()) {
       case 2: // Remove from List
         if (this.owner.currentIndex >= 0) {
-          enyo.log("remove", this.owner.customList.content[this.owner.currentIndex].title, "from", this.owner.customList);
+          this.log("remove", this.owner.customList.content[this.owner.currentIndex].title, "from", this.owner.customList);
           this.owner.customList.content.splice(this.owner.currentIndex, 1);
           this.$.customList.setCount(this.owner.customList.content.length);
           this.$.customList.refresh();
@@ -369,6 +375,7 @@ enyo.kind({
   },
   
   addLists: function() {
+    this.log();
     if (this.owner.customList.content.length > 0) {
       for (i in this.owner.savedLists) {
         if (this.owner.savedLists[i].title === this.owner.customList.title) {
@@ -398,10 +405,11 @@ enyo.kind({
   },
   
   saveClicked: function(s) {
+    this.log();
     if (this.$.listName.getValue() !== "") { 
       for (i in this.owner.savedLists) {
         if (this.owner.savedLists[i].title === this.$.listName.getValue()) {
-          //~ enyo.log(this.$.listName.getValue());
+          this.log("Name already exist:", this.$.listName.getValue());
           this.$.errorContent.setContent($L("Name already exist"));
           this.$.errorContent.show();
           this.resized();

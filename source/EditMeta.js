@@ -1,13 +1,16 @@
 enyo.kind({
   name: "EditMeta",
   kind: "FittableRows",
+  classes: "enyo-fit",
   single: ["released", "copyright", "publisher", "key", "tempo", "transposition", "verseOrder", "duration"],
   titleCount: 1,
   authorCount: 1,
   songbookCount: 1,
+  commentCount: 1,
   published: {
     metadata: {},
-    button: []
+    button: [],
+    file: undefined
   },
   components: [
     {kind: "enyo.Scroller", fit: true, classes: "michote-scroller", horizontal: "hidden", components: [
@@ -19,7 +22,7 @@ enyo.kind({
               {name: "title1", kind: "Input", hint: $L("title")}
             ]},
             {kind: "onyx.InputDecorator", style: "width: 5rem;", components: [
-              {name: "titlelang1", kind: "Input", placeholder: "", autoCapitalize: "lowercase"}
+              {name: "titlelang1", kind: "Input", placeholder: ""}
             ]},
           ]}
         ]},
@@ -104,13 +107,27 @@ enyo.kind({
             ]}
           ]}
         ]},
-        {tag: 'br'}
+        {name: "commentbox", kind: "onyx.Groupbox", components:[
+          {kind: "onyx.GroupboxHeader", content: $L("comments")},
+          {kind: "onyx.InputDecorator", components: [
+            {name: "comment1", kind: "onyx.RichText", placeholder: $L("comment"),}
+          ]}
+        ]},
+        {tag: 'br'},
+        {kind: "onyx.Groupbox", components: [
+          {kind: "onyx.GroupboxHeader", content: $L("Delete file"), style: "background-color: rgba(158, 5, 8, 0.8)"},
+          {kind:"FittableColumns", style: "padding: .5rem;", components: [
+            {fit: 1, content:  $L("Delete this songfile (irreversible!)")},
+            {name: "delete", kind:"onyx.Button", content: $L("Delete file"), classes: "onyx-negative", ontap: "deleteFile"}
+          ]}
+        ]}
       ]}
     ]},
   ],
   
   // Adding new fields
   addNew: function(add) {
+    this.log();
     this.saveModifications();
     this.metadataChanged();
     this["add" + add.charAt(0).toUpperCase() + add.slice(1)]();
@@ -118,6 +135,7 @@ enyo.kind({
   
   addTitle: function() {
     this.titleCount += 1;
+    this.log(this.titleCount);
     this.$.titlebox.createComponent(
       {name: "titlehflex" + this.titleCount, kind: "FittableColumns", owner: this, components:[
         {kind: "onyx.InputDecorator", fit: true, components: [
@@ -133,6 +151,7 @@ enyo.kind({
   
   addAuthor: function() {
     this.authorCount += 1;
+    this.log(this.authorCount);
     this.$.authorbox.createComponent(
       {name: "authorhflex" + this.authorCount, kind: "FittableColumns", owner: this, components:[
         {kind: "onyx.InputDecorator", fit: true, components: [
@@ -164,6 +183,7 @@ enyo.kind({
   
   addSongbook: function() {
     this.songbookCount += 1;
+    this.log(this.songbookCount);
     this.$.songbookbox.createComponent(
       {name: "songbookhflex" + this.songbookCount, kind: "FittableColumns", owner: this, components:[
         {content: $L("songbook") + ":", style: "width: 6.5rem;", classes: "editlabel"},
@@ -179,13 +199,24 @@ enyo.kind({
     this.$["songbookhflex" + this.songbookCount].render();
   },
   
+  addComment: function() {
+    this.commentCount += 1;
+    this.log(this.commentCount);
+    this.$.commentbox.createComponent(
+      {name: "commenthflex" + this.commentCount, kind: "onyx.InputDecorator", owner: this, components: [
+        {name: "comment" + this.commentCount, kind: "onyx.RichText", placeholder: $L("comment"), owner: this}
+      ]}
+    );
+    this.$["commenthflex" + this.commentCount].render();
+  },
+  
   // Add existing data to UI
   metadataChanged: function() {
+    this.log();
     this.clear();
     for (i in this.single) {
       if (this.metadata[this.single[i]]) {
         this.$[this.single[i]].setValue(this.metadata[this.single[i]]);
-        enyo.log("set:", this.single[i], this.metadata[this.single[i]]);
       } else {
         this.$[this.single[i]].setValue("");
       };
@@ -221,12 +252,19 @@ enyo.kind({
           this.$["no" + i].setValue(this.metadata.songbooks[i-1].no ? this.metadata.songbooks[i-1].no : "");
       };
     };
+    // Comments
+    var l = this.metadata.comments.length + 1;
+    for (i=1; i < l; i++) {
+      if (i>1) { this.addComment() };
+      this.$["comment" + i].setValue(this.metadata.comments[i-1]);
+    };
   },
   
   buttonChanged: function() {
+    this.log();
     this.$.versehflex.destroyClientControls();
     for (i in this.button) {
-      //~ enyo.log("add button:", this.button[i]);
+      this.log("add button:", this.button[i]);
       this.$.versehflex.createComponent(
         {name: this.button[i], kind: "onyx.Button", content: this.button[i], classes: "verse-button", owner: this, ontap: "verseButton"}
       );
@@ -256,6 +294,7 @@ enyo.kind({
   
   // Remove extra fields
   clear: function() { // remove added stuff
+    this.log();
     for (j=2; j < this.titleCount+1; j++) {
       this.$["titlehflex"+j].destroy();
     };
@@ -272,10 +311,15 @@ enyo.kind({
     this.songbookCount = 1;
     this.$.songbook1.setValue("");
     this.$.no1.setValue("");
+    for (j=2; j < this.commentCount+1; j++) {
+      this.$["commenthflex"+j].destroy();
+    };
+    this.commentCount = 1;
   },
   
   // get all data from UI
   getAllFields: function() {
+    this.log();
     for (i in this.single) {
       if (this.$[this.single[i]].getValue()) {
         this.metadata[this.single[i]] = this.$[this.single[i]].getValue();
@@ -326,12 +370,45 @@ enyo.kind({
     };
     this.metadata.songbooks = books;
     
+    // Comments
+    var comments = [];
+    for (i=1; i < this.commentCount+1; i++) {
+      if (this.$["comment" + i].getValue()) {
+        comments.push(this.$["comment" + i].getValue());
+      };
+    };
+    this.metadata.comments = comments;
+    
     return true;
+  },
+  
+  // Delete file
+  deleteFile: function() {
+    this.log("delete ", this.file);
+    var success = enyo.bind(this, this.deleteSuccess);
+    var error = enyo.bind(this, this.owner.owner.owner.dropboxError);
+    setTimeout(dropboxHelper.deleteFile(this.file, success, error), 10);
+  },
+  
+  // delete file from library and data list
+  deleteSuccess: function() {
+    this.log(this.file, "deleted");
+    var o = this.owner.owner.owner
+    delete o.dataList[this.file.toLowerCase()];
+    for (i in o.libraryList.content) {
+      if (o.libraryList.content[i].file === this.file) {
+        o.libraryList.content.splice(i, 1);
+        break;
+      }
+    }
+    o.currentIndex = o.currentIndex-1;
+    o.sortAndRefresh();
+    o.$.viewPane.$.viewPanels.setIndex(1);
   },
   
   saveModifications: function() {
     this.getAllFields();
-    enyo.log("save metadata modification");
+    this.log("save metadata modification");
     this.owner.setMetadata(this.metadata);
   }
   
