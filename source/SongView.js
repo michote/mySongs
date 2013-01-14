@@ -36,7 +36,6 @@ enyo.kind({
     data: {},
     xml: undefined,
     first: true,
-    elWidth: 5,
     // Prefs
     showPrefs: {
       sortLyrics: true,
@@ -111,7 +110,7 @@ enyo.kind({
           {name: "infoButton", kind: "onyx.IconButton", src: Helper.iconPath()+"info.png", ontap: "showInfo"}
         ]}
       ]}
-    ]},
+    ]}
   ],
   
   create: function() {
@@ -267,7 +266,7 @@ enyo.kind({
   },
   
   addLangToggle: function(l) {
-    //~ this.log("add", l, "toggle");
+    this.log("add", l, "toggle");
     this.$.languagegr.createComponent(
       {name: l, kind: "onyx.IconButton", src: Helper.iconPath()+"flag.png", owner: this, components: [
         {content: l, classes: "flag-button"}
@@ -333,7 +332,7 @@ enyo.kind({
               fit: true,
               classes: Helper.phone() ? "lyric lyricmar-phone" : "lyric lyricmar",
               components: [
-                {content: t, classes: "element", style: "width: " + (2 + this.elWidth * 0.1) + "rem;"},
+                {content: t, classes: "element", style: "width: 2em;"},
                 {content: formL[i][1], fit: true, allowHtml: true}
             ]}, {owner: this});
           } else {
@@ -379,20 +378,17 @@ enyo.kind({
       } else { 
         // begining to play
         this.initForTextPlay();
+        this.$.cursorScrollBar.cursorOn();
         this.running = true;
         this.finished = false;
         var perRowMSecs = 1000*this.songSecs/this.rowsTraversed;
         this.intervalSong = window.setInterval(enyo.bind(this, "showLyrics"), perRowMSecs);
-        if (window.PalmSystem) {
-          enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {'blockScreenTimeout': true});
-        }
-        // this.$.cursorScrollBar.setBpmTimer(120);
       }
       this.$.playButton.setProperty("src", Helper.iconPath()+"pause.png");
       this.$.forthButton.setDisabled(false);
       this.$.forthButton.setDisabled(true);
       this.$.backButton.setDisabled(true);
-      //this.$.printButton.setDisabled(true);
+      this.$.printButton.setDisabled(true);
     } else { 
       //pause
       this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
@@ -440,8 +436,8 @@ enyo.kind({
   },
   
   showLyrics: function() {
-    this.log();
     if (this.running) {
+      this.log();
       if (this.movingLyrics()) {
         this.$.viewScroller.setScrollTop(this.lyricsCurrRow - this.cursorRow);
       } else {
@@ -464,18 +460,10 @@ enyo.kind({
     this.lyricsCurrRow = 0;
     this.$.viewScroller.setScrollTop(this.lyricsCurrRow);
     this.$.cursorScrollBar.setY(this.cursorRow);    
-    this.$.cursorScrollBar.clearCursor();
+    this.$.cursorScrollBar.cursorOff();
     window.clearInterval(this.intervalSong);
     this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
-    this.$.cursorScrollBar.$.cursor.color = this.$.cursorScrollBar.offColor;
     this.finished = false;
-    //~ if (window.PalmSystem && (this.$.lockButton.getIcon() === "assets/images/lock-open.png")) {
-      //~ enyo.windows.setWindowProperties(enyo.windows.getActiveWindow(), {'blockScreenTimeout': false});
-    //~ }
-    //~ if (this.data.titles) { 
-      //~ var theTitles = ParseXml.titlesToString(this.data.titles); 
-      //~ this.$.title.setContent(theTitles);
-    //~ }
     this.$.editButton.setDisabled(false);
     this.$.fontButton.setDisabled(false);
     this.$.forthButton.setDisabled(false);
@@ -500,7 +488,7 @@ enyo.kind({
     } else {
       this.songSecs = this.defaultSongSecs;
     }
-    this.$.cursorScrollBar.$.cursor.color = this.$.cursorScrollBar.onColor;
+    this.$.cursorScrollBar.cursorOff();
     this.$.cursorScrollBar.hasNode().height = this.$.viewScroller.node.clientHeight;
     this.$.editButton.setDisabled(true);
     this.$.fontButton.setDisabled(true);
@@ -668,30 +656,72 @@ enyo.kind({
   
   // ### Print ###
   print: function() {
-    this.log();
-    this.printAdd();
-    this.owner.owner.$.mainPanels.setAnimate(false);
-    this.owner.owner.$.mainPanels.setIndex(1);
-    this.$.viewScroller.setScrollTop(0);
-    window.print();
-    this.owner.owner.$.mainPanels.setIndex(0);
-    this.owner.owner.$.mainPanels.setAnimate(true);
-    this.renderLyrics();
+    var docURL = document.URL;
+    docURL = docURL.slice(0, docURL.lastIndexOf('/')+1);
+    var printWindow = window.open(docURL, 'Print Popup', 'width=800, height=600');
+    var printCopy = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+    printCopy += '<html><head><title>Print Popup</title>';
+    printCopy += '<link href="build/app.css" rel="stylesheet" />';
+    printCopy += '</head><body>';
+    printCopy += this.printHeader();
+    printCopy += this.$.lyric.node.innerHTML;
+    printCopy += this.printFooter();
+    printCopy += '</body></html>';
+    printWindow.document.write(printCopy);
+    var maxWidth = 0;
+    var thisTextEl = printWindow.document.getElementsByClassName("text");
+    for (i in thisTextEl) {
+      if (thisTextEl[i].clientWidth > maxWidth) {
+        maxWidth = thisTextEl[i].clientWidth;
+      }
+    }
+    var enlarge = (thisTextEl[0].parentElement.clientWidth - 30) / maxWidth;
+    var spacerEl = printWindow.document.getElementsByClassName("scrollspacer");
+    while (spacerEl.length > 0) {
+      spacerEl[0].parentNode.removeChild(spacerEl[0]);
+    }
+    printWindow.document.body.style.fontSize = 20*enlarge + "px"; 
+    var _this = this;
+    this.timer = window.setTimeout(function() {_this.printIt(printWindow);}, 500);  // allow time for changes to load
   },
   
-  printAdd: function() { // add Copyright-box for printing
-    this.log();
-    var printCopy = ParseXml.authorsToString(this.data.authors).join('<br>');
-    printCopy += '<br>&copy; '
+  printIt: function(theWindow) {
+    theWindow.print();
+    theWindow.close();
+  },  
+
+  printHeader: function() { // add Title(s) for printing
+    var printCopy = "";
+    if (this.data.titles != []) {
+      for (i=0; i<this.data.titles.length; ++i) {
+        var t = this.data.titles[i];
+        if (t.lang == this.lang || t.lang == null) {
+          printCopy += '<div class="printTitle">' + t.title + '</div>';
+        }
+      }
+    }
+    return printCopy;
+  },
+  
+  printFooter: function() { // add Copyright-box for printing
+    if (this.data.authors !== []) {
+      var a;
+      var printCopy = '<div class="printCopy">by<br>'; 
+      for (i=0; i<this.data.authors.length; ++i) {
+        var a = this.data.authors[i];
+        if (a.lang == this.lang || a.lang == undefined || a.lang == "") {
+          printCopy += "&nbsp;&nbsp;" + a.author;
+          if (a.type !== null) {
+            printCopy += " ("+ a.lang +" "+ a.type +")";
+          }
+        printCopy += "<br>";
+        }
+      }
+    }
     if (this.data.released) { printCopy += this.data.released + ' ';}
-    if (this.data.copyright) { printCopy += this.data.copyright;}
-    if (this.data.publisher) { printCopy += '<br>' + this.data.publisher;}
-    printCopy += '<br>---<br>Printed with mySongs'
-    this.$.lyric.createComponent({
-      classes: "printCopy",
-      allowHtml: true,
-      content: printCopy
-      });
-    this.$.lyric.render();
+    if (this.data.copyright) { printCopy += '&copy; ' + this.data.copyright + '<br>';}
+    if (this.data.publisher) { printCopy += this.data.publisher + '<br>';}
+    printCopy += '<br><br><center>Printed with mySongs</center></div>'
+    return printCopy;
   }
 });

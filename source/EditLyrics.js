@@ -7,7 +7,7 @@ enyo.kind({
     element: undefined
   },
   components: [
-    {kind: "enyo.Scroller", fit: 1, classes: "michote-scroller", horizontal: "hidden", components: [
+    {kind: "enyo.Scroller", fit: true, classes: "michote-scroller", horizontal: "hidden", components: [
       {name: "lyric", kind:"FittableRows", classes:"box-center"}
     ]},
   ],
@@ -36,7 +36,7 @@ enyo.kind({
         }
         this.$[i].createComponent(
           {kind: "onyx.InputDecorator", components: [
-            {name: i+"text"+j, kind: "onyx.RichText", value: this.lyrics[i].lines[j].text, placeholder: $L("type lyrics here"), owner: this}
+            {name: i+"text"+j, kind: "onyx.RichText", value: this.lyrics[i].lines[j].text, placeholder: $L("type lyrics here"), onblur: "storeFocus", owner: this}
           ]}
         );
       }
@@ -102,5 +102,41 @@ enyo.kind({
     this.log();
     delete this.lyrics[this.el];
     this.lyricsChanged();
+  },
+  
+  // Chord Picker
+  storeFocus: function(inSender) {
+    this.log();
+    if (inSender.getSelection) {
+        sel = inSender.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+            var range = sel.getRangeAt(0);
+        }
+    }
+    this.log(range);
+    
+    this.el = inSender.name;
+    this.elrange = inSender.name;
+  },
+  
+  restoreSelection: function(range, el) {
+    if (range) {
+      if (el.getSelection) {
+          sel = el.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+      }
+    }
+  },
+  
+  chordPick: function() {
+    if (this.el && this.elrange) {
+      this.$[this.el].parent.setAlwaysLooksFocused(true);
+      this.$[this.el].focus();
+      this.restoreSelection(this.elrange, this.el)
+      this.$[this.el].insertAtCursor("1234");
+    }
+    this.owner.owner.owner.$.infoPanels.setIndex(1);
+    this.owner.owner.owner.$.sidePane.openPicker();
   },
 });

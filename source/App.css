@@ -146,6 +146,7 @@ html {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    min-height: 1.25rem;
 }
 
 .item-not-selected {
@@ -373,4 +374,51 @@ a {
     padding: .5rem;
     min-width: 2.5rem;
     margin: 0 .25rem;
+}
+
+@page {
+  size : portrait;
+  margin: 0.5cm;
+}
+
+@media print { 
+    html, body {
+        font-family: Prelude, Arial;
+        display: inline-block; 
+        max-width: 100%;
+    }
+
+    .printTitle {
+        font-size: 2.25em;
+        font-weight: bold;
+        text-align: center;
+        max-width: 100%;
+    }
+    
+    .lyric {
+        page-break-inside: avoid;
+        font-size: 150%;
+        max-width: 100%;
+    }
+    
+    .text {
+        display: inline-block;
+    }
+
+    a {
+        text-decoration: underline;
+    }
+
+    .pageBreak {
+        display: block;
+        page-break-after: always;
+    }
+
+    .printCopy {
+        page-break-before: avoid;
+        text-align: right;
+        margin-right: 2em;
+        line-height: 1.5em;
+        font-size: 1.25em;
+    }
 }

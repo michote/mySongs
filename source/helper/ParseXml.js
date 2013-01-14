@@ -165,7 +165,7 @@ function ParseXml () {}
   ParseXml.parselines = function(line, haschords, showChords, showComments, transp) {
     var lines = "<div class='text'>";
     var trigger = true; // for line starting without chord
-    var commenttrigger = false; //remove br after comment
+    var commenttrigger = false; // remove br after comment
     for(j = 0, len8 = line.length; j < len8; j++) {
       // handle lyrics with chords 
       if (haschords && showChords) { 

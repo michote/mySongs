@@ -33,7 +33,7 @@ enyo.kind({
     {kind: "Panels", name:"infoPanels", classes:"enyo-fit", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
       {kind: "Panels", name:"mainPanels", classes:"app-panels inner-panels", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
         {name: "songListPane", kind: "SongList"},
-        {name:"viewPane", kind: "ViewPane"}
+        {name:"viewPane", kind: "ViewPane", style: "height: 100%;"}
       ]},
       {name: "sidePane", kind: "SidePane", style: "height: 100%;"}
     ]},
@@ -131,7 +131,7 @@ enyo.kind({
       for (i = 0; i < files.length; i++) {
         if (files[i].split('.').pop() === 'xml') { // only parse xml-files
           this.pathCount.a.push(i);
-          this.log("parsing file", i, "of", files.length);
+          this.log("parsing file", i+1, "of", files.length);
           setTimeout(dropboxHelper.readFile(files[i], success, error), 10);
         }
       }
@@ -143,6 +143,7 @@ enyo.kind({
     if (ParseXml.get_titles(xml)) { // check for valid title before adding to library
       this.dataList[file.toLowerCase()] = xml;
       var a = {"file": file, "title": ParseXml.get_titles(xml)[0].title};
+      this.log(file, "parsed");
       this.libraryList.content.push(a);
     }
     // only refresh and sort once
@@ -261,7 +262,6 @@ enyo.kind({
       this.log("set font css: size:", size, "space:", space);
       this.$.viewPane.$.songViewPane.$.lyric.applyStyle("font-size", size);
       this.$.viewPane.$.songViewPane.$.lyric.applyStyle("line-height", space);
-      this.$.viewPane.$.songViewPane.setElWidth(css.size);
       this.$.viewPane.$.songViewPane.lyricDataSet();
       this.$.viewPane.$.help.$.helpContent.applyStyle("font-size", size);
     }

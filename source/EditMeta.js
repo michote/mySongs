@@ -289,7 +289,6 @@ enyo.kind({
       var b = ' ';
     };    
     this.$.verseOrder.setValue(text.substring(0, index) + a + inSender.name + b + text.substring(index, text.length));
-
   },
   
   // Remove extra fields

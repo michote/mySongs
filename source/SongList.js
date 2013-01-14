@@ -33,7 +33,7 @@ enyo.kind({
     // Search Drawer
     {name: "searchBar", kind: "onyx.Drawer", open: false, classes: "searchbar", components: [
       {kind: "onyx.InputDecorator", alwaysLooksFocused: true, components: [
-        {name: "searchBox", kind: "onyx.Input", placeholder: $L("search for ..."), style: "min-width: 90%; max-width: 95%;", onchange: "startSearch"},
+        {name: "searchBox", kind: "onyx.Input", placeholder: $L("search for ..."), style: "min-width: 90%; max-width: 95%;", oninput: "startSearch"},
       ]},
       {style: "width: 100%;", components: [
         {kind: "onyx.RadioGroup", onActivate:"searchFilter", style: "background-color: rgba(0,0,0,0.5); border-bottom: .0625rem solid rgba(0, 0, 0, 0.8);", controlClasses: "onyx-tabbutton tbicongroup", components: [ 
@@ -328,7 +328,7 @@ enyo.kind({
   },
   
   open: function() {
-    this.log();
+    this.log(this.$.listPane.getIndex());
     switch (this.$.listPane.getIndex()) {
       case 4: // Remove List
         if (this.listIndex >= 0) {
@@ -347,7 +347,7 @@ enyo.kind({
   },
   
   addRem: function() {
-    this.log();
+    this.log(this.$.listPane.getIndex());
     switch (this.$.listPane.getIndex()) {
       case 2: // Remove from List
         if (this.owner.currentIndex >= 0) {
@@ -405,7 +405,7 @@ enyo.kind({
   },
   
   saveClicked: function(s) {
-    this.log();
+    this.log(this.$.listName.getValue());
     if (this.$.listName.getValue() !== "") { 
       for (i in this.owner.savedLists) {
         if (this.owner.savedLists[i].title === this.$.listName.getValue()) {

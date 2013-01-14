@@ -2,8 +2,11 @@ enyo.kind({
   name: "SidePane",
   kind: "FittableRows",
   classes: "side-pane enyo-fit",
+  // Data
   metaList: ["title", "author", "songbook", "comment"],
   lyricsList: ["v", "c", "b", "p", "e"],
+  baseChord: ["Ab", "A", "A#", "Bb", "B", "C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#"],
+  chordExten: [" ", "m", "m7", "maj7", "sus4", "0", "9", "maj", "sus", "dim", "+"],
   back: undefined,
   parts: [1],
   published: {
@@ -14,9 +17,9 @@ enyo.kind({
     {name: "headerToolbar", kind: "onyx.Toolbar", style: "text-align: center;", ondragfinish: "dragFinish", components: [
       {name: "title", classes: "title", content: $L("Song Info")}
     ]},
-    {name: "Pane", kind: "Panels", draggable: false, fit: 1, components: [
+    {name: "Pane", kind: "Panels", draggable: false, fit: true, components: [
       // Menu
-      {name: "menuScroller", kind: "enyo.Scroller", fit: 1, ondragfinish: "dragFinish", components: [ 
+      {name: "menuScroller", kind: "enyo.Scroller", fit: true, ondragfinish: "dragFinish", components: [ 
         {kind: "onyx.MenuItem", onSelect: "showPreferences", components: [ 
           {kind: "onyx.Icon", src: Helper.iconPath()+"menu-settings.png"},
           {content: $L("Preferences")}
@@ -47,7 +50,7 @@ enyo.kind({
         ]}
       ]},
       // InfoDialog
-      {name: "infoScroller", kind: "enyo.Scroller", fit: 1, ondragfinish: "dragFinish", components: [ 
+      {name: "infoScroller", kind: "enyo.Scroller", fit: true, ondragfinish: "dragFinish", components: [ 
         {classes: "deco", components: [
           {name: "copyboxdiv", classes: "divider", content: $L("Copyright"), showing: false},
           {name: "copybox"},
@@ -118,6 +121,20 @@ enyo.kind({
         ]}
       ]},
       
+      // Chordpicker
+      {kind: "FittableColumns", classes: "enyo-fit", components: [
+        {name: "baseList", kind: "List", ondragfinish: "dragFinish", style: "height: 100%; width: 5rem", onSetupItem: "getBase", components: [
+          {name: "baseItem", ontap: "addChord", components: [
+            {name: "baseTitle", classes: "item"}
+          ]}
+        ]},
+        {name: "extenList", kind: "List", ondragfinish: "dragFinish", style: "height: 100%; width: 5rem", onSetupItem: "getExten", components: [
+          {name: "extenItem", ontap: "addChord", components: [
+            {name: "extenTitle", classes: "item"}
+          ]}
+        ]}
+      ]},
+      
       // Import
       {kind: "enyo.Scroller", fit: true, classes: "michote-scroller", horizontal: "hidden", components: [
         {name: "box", kind:"FittableRows", classes:"box-center", components:[
@@ -166,9 +183,13 @@ enyo.kind({
     this.log("opening Preferences");
     this.owner.$.viewPane.$.preferences.setOldIndex(this.owner.$.viewPane.$.viewPanels.index);
     this.owner.$.viewPane.$.preferences.setPrefs();
+    this.log(1);
     this.owner.$.viewPane.$.viewPanels.setIndex(2);
+    this.log(2);
     this.owner.$.infoPanels.setIndex(0);
+    this.log(3);
     !Helper.phone() || this.owner.$.mainPanels.setIndex(1);
+    this.log(4);
   },
   
   refresh: function() {
@@ -369,7 +390,7 @@ enyo.kind({
               this.closeClicked();
               break;
               
-      case 5: this.$.closeButton.setContent($L("Close"));
+      case 6: this.$.closeButton.setContent($L("Close"));
               this.$.deleteButton.hide();
               break;
     }
@@ -396,6 +417,40 @@ enyo.kind({
     this.owner.$.viewPane.$.editToaster.$.lyricsPane.insertSamePlace(id, el);
   },
   
+  // ChordPicker
+  openPicker: function() {
+    this.applyStyle("min-width", "10rem");
+    this.applyStyle("max-width", "10rem");
+    this.$.title.setContent($L("Chord Picker"));
+    this.$.closeButton.setContent($L("Insert"));
+    this.$.baseList.setCount(this.baseChord.length);
+    this.$.baseList.refresh();
+    this.$.extenList.setCount(this.chordExten.length);
+    this.$.extenList.refresh();
+    this.$.Pane.setIndex(5);
+  },
+  
+  // populate Pickerlists
+  getBase: function(inSender, inEvent) {
+    var r = this.baseChord[inEvent.index];
+    var isRowSelected = inSender.isSelected(inEvent.index);
+    this.$.baseItem.addRemoveClass("item-selected", isRowSelected);
+    this.$.baseItem.addRemoveClass("item-not-selected-trans", !isRowSelected);
+    this.$.baseTitle.setContent(r);
+  },
+  
+  getExten: function(inSender, inEvent) {
+    var r = this.chordExten[inEvent.index];
+    var isRowSelected = inSender.isSelected(inEvent.index);
+    this.$.extenItem.addRemoveClass("item-selected", isRowSelected);
+    this.$.extenItem.addRemoveClass("item-not-selected-trans", !isRowSelected);
+    this.$.extenTitle.setContent(r);
+  },
+  
+  addChord: function(inSender, inEvent) {
+    this.log(this[inSender.name === "baseItem" ? "baseChord" : "chordExten"][inEvent.rowIndex]);
+  },
+  
   // Import
   showImport: function() {
     this.applyStyle("min-width", "100%");
@@ -403,7 +458,7 @@ enyo.kind({
     this.$.closeButton.setContent($L("Import"));
     this.$.deleteButton.setContent($L("Cancel"));
     this.$.deleteButton.show();
-    this.$.Pane.setIndex(5);
+    this.$.Pane.setIndex(6);
     this.$.importText.setValue("");
     this.$.title.setContent($L("Import"));
   },
@@ -439,6 +494,9 @@ enyo.kind({
               break;
               
       case 5: this.$.closeButton.setContent($L("Close"));
+              break;
+              
+      case 6: this.$.closeButton.setContent($L("Close"));
               this.$.deleteButton.hide();
               this.import();
               break;

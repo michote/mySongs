@@ -37,7 +37,8 @@ enyo.kind({
               {name: "copyright", content: $L("copyright"), active: true},
               {name: "authors", content: $L("author")},
               {name: "publisher", content: $L("publisher")}
-            ]}
+            ]},
+            {tag: "br", style: "clear:both;"}
           ]},
           {style: "padding: .5rem;", components: [
             {content: $L("Show Chords"), style: "display: inline-block; width: 75%;"},
@@ -95,9 +96,9 @@ enyo.kind({
   
   create: function() {
     this.inherited(arguments);
+    this.log();
     this.getPrefs();
     this.owner.$.songViewPane.setShowPrefs(this.showPrefs);
-    this.$.spinner.setDiameter(Helper.ratio() * 32);
   },
   
   // Dropbox Logout
@@ -137,6 +138,7 @@ enyo.kind({
         this.$[i].setValue(this.showPrefs[i]);
       }
     }
+    this.log(this);
   },
   
   savePrefs: function() {
