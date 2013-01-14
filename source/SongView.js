@@ -368,8 +368,7 @@ enyo.kind({
   },
 
   // ### Autoscroll ###
-  togglePlay: function() { 
-    this.log();
+  togglePlay: function() {
     if (this.$.playButton.src === Helper.iconPath()+"play.png") { 
       // play
       if (this.lyricsCurrRow !== 0) {
