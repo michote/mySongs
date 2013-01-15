@@ -6,7 +6,9 @@ enyo.kind({
   metaList: ["title", "author", "songbook", "comment"],
   lyricsList: ["v", "c", "b", "p", "e"],
   baseChord: ["Ab", "A", "A#", "Bb", "B", "C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#"],
-  chordExten: [" ", "m", "m7", "maj7", "sus4", "0", "9", "maj", "sus", "dim", "+"],
+  chordExten: ["", "m", "m7", "maj7", "sus4", "0", "9", "maj", "sus", "dim", "+"],
+  base: undefined,
+  exten: undefined,
   back: undefined,
   parts: [1],
   published: {
@@ -449,6 +451,19 @@ enyo.kind({
   
   addChord: function(inSender, inEvent) {
     this.log(this[inSender.name === "baseItem" ? "baseChord" : "chordExten"][inEvent.rowIndex]);
+    this[inSender.name === "baseItem" ? "base" : "exten"] = this[inSender.name === "baseItem" ? "baseChord" : "chordExten"][inEvent.rowIndex];
+  },
+  
+  getFullChord: function() {
+    if (this.base) {
+      var chord = "[" + this.base;
+      if (this.exten) {
+        chord = chord + this.exten;
+      }
+      return chord + "]";
+    } else {
+      return false;
+    }
   },
   
   // Import
@@ -494,6 +509,7 @@ enyo.kind({
               break;
               
       case 5: this.$.closeButton.setContent($L("Close"));
+              this.log(this.getFullChord());
               break;
               
       case 6: this.$.closeButton.setContent($L("Close"));

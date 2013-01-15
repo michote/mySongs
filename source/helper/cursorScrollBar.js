@@ -22,13 +22,6 @@ enyo.kind({
 
   create: function() {
     this.inherited(arguments);
-<<<<<<< HEAD
-  },
-  clearCursor: function() {
-    this.$.canvas.update();
-    this.$.cursor.clearBpmTimer();
-=======
->>>>>>> b5ae6a354a61b594860c752fda86fd26e9c75e2d
   },
   setY: function(Y) {
     this.$.cursor.cursorRow = Y;
@@ -45,8 +38,8 @@ enyo.kind({
 });
 
 enyo.kind({
-	name: "enyo.cursorImage",
-	kind: "enyo.canvas.Shape",
+  name: "enyo.cursorImage",
+  kind: "enyo.canvas.Shape",
   published: {
     color: "#D4D7AC",
     cursorRow: 10
@@ -60,10 +53,10 @@ enyo.kind({
     ctx.closePath();
     ctx.fill();
   },
-	create: function() {
-		this.inherited(arguments);
-	},
-	destroy: function() {
-		this.inherited(arguments);
-	}
+  create: function() {
+    this.inherited(arguments);
+  },
+  destroy: function() {
+    this.inherited(arguments);
+  }
 });
