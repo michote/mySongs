@@ -227,3 +227,30 @@ function Helper() {}
   Helper.html = function(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   };
+  
+  // log kind tree
+  // call using this.logKindTree(enyoObject, indentStep)
+  // indentStep is optional and defaults to 2
+  Helper.logKindTree = function(baseKind, indent) {
+    this.log("========================");
+    this.kindTree(baseKind, 0, indent);
+    this.log("========================");
+  },
+  
+  Helper.kindTree = function(baseKind, lvl, indent) {
+    if (!indent) {
+      indent = 2;
+    }
+    var spcs = indent * lvl;
+    var oStr = lvl +":" + baseKind.name;
+    for (i=0; i<spcs; ++i) {
+      oStr = " " + oStr;
+    }
+    this.log(oStr);
+    var i=0;
+    while (i<baseKind.children.length) {
+      this.kindTree(baseKind.children[i], lvl+1, indent);
+      ++i;
+    }
+  }
+

@@ -88,6 +88,7 @@ enyo.kind({
     this.log();
     this.$.metaPane.saveModifications();
     this.$.lyricsPane.saveModifications();
+    this.$.lyricsPane.setChord(undefined);
     //~ this.log("save:", WriteXml.edit(this.xml, this.metadata, this.lyrics));
     this.owner.owner.writeXml(this.file, WriteXml.edit(this.xml, this.metadata, this.lyrics), this.metadata.titles[0].title);
     this.owner.$.songViewPane.renderLyrics();
@@ -98,6 +99,7 @@ enyo.kind({
   closeThis: function() {
     this.log();
     this.setXml(undefined);
+    this.$.lyricsPane.setChord(undefined);
     this.owner.$.viewPanels.setIndex(1);
     this.owner.owner.$.infoPanels.setIndex(0);
   }
