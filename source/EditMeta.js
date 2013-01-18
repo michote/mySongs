@@ -321,7 +321,7 @@ enyo.kind({
     this.log();
     for (i in this.single) {
       if (this.$[this.single[i]].getValue()) {
-        this.metadata[this.single[i]] = this.$[this.single[i]].getValue();
+        Helper.html(this.metadata[this.single[i]] = this.$[this.single[i]].getValue());
       };
     };
     
@@ -330,11 +330,9 @@ enyo.kind({
     for (i=1; i < this.titleCount+1; i++) {
       if (this.$["title" + i].getValue()) {
         if (this.$["titlelang" + i].getValue()) {
-          titles.push({"title": this.$["title" + i].getValue(), 
-            "lang": this.$["titlelang" + i].getValue()});
+          titles.push({"title": Helper.html(this.$["title" + i].getValue()), "lang": this.$["titlelang" + i].getValue()});
         } else {
-          titles.push({"title": this.$["title" + i].getValue(), 
-            "lang": null});
+          titles.push({"title": Helper.html(this.$["title" + i].getValue()), "lang": null});
         };
       };
     };
@@ -346,9 +344,9 @@ enyo.kind({
       if (this.$["author" + i].getValue()) {
         var t = this.$["authorSwitch" + i].getSelected().value;
         if (t === "translation") {
-          names.push({"type":t, "author": this.$["author" + i].getValue(), "lang": this.$["authorlang" + i].getValue()});
+          names.push({"type": t, "author": Helper.html(this.$["author" + i].getValue()), "lang": this.$["authorlang" + i].getValue()});
         } else {
-          names.push({"type":t, "author": this.$["author" + i].getValue()});
+          names.push({"type": t, "author": Helper.html(this.$["author" + i].getValue())});
         };
       };
     };
@@ -359,11 +357,9 @@ enyo.kind({
     for (i=1; i < this.songbookCount+1; i++) {
       if (this.$["songbook" + i].getValue()) {
         if (this.$["no" + i].getValue()) {
-          books.push({"book": this.$["songbook" + i].getValue(),
-          "no": this.$["no" + i].getValue()});
+          books.push({"book": Helper.html(this.$["songbook" + i].getValue()), "no": this.$["no" + i].getValue()});
         } else {
-          books.push({"book": this.$["songbook" + i].getValue(),
-          "no": null});
+          books.push({"book": Helper.html(this.$["songbook" + i].getValue()), "no": null});
         };
       };
     };
@@ -373,7 +369,7 @@ enyo.kind({
     var comments = [];
     for (i=1; i < this.commentCount+1; i++) {
       if (this.$["comment" + i].getValue()) {
-        comments.push(this.$["comment" + i].getValue());
+        comments.push(Helper.html(this.$["comment" + i].getValue()));
       };
     };
     this.metadata.comments = comments;

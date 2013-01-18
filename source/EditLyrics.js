@@ -4,7 +4,8 @@ enyo.kind({
   classes: "enyo-fit",
   published: {
     lyrics: {},
-    element: undefined
+    element: undefined,
+    chord: undefined,
   },
   components: [
     {kind: "enyo.Scroller", fit: true, classes: "michote-scroller", horizontal: "hidden", components: [
@@ -36,7 +37,7 @@ enyo.kind({
         }
         this.$[i].createComponent(
           {kind: "onyx.InputDecorator", components: [
-            {name: i+"text"+j, kind: "onyx.RichText", value: this.lyrics[i].lines[j].text, placeholder: $L("type lyrics here"), onblur: "storeFocus", owner: this}
+            {name: i+"text"+j, kind: "onyx.RichText", value: this.lyrics[i].lines[j].text, placeholder: $L("type lyrics here"), ontap: "storeEditEl", owner: this}
           ]}
         );
       }
@@ -104,39 +105,29 @@ enyo.kind({
     this.lyricsChanged();
   },
   
-  // Chord Picker
-  storeFocus: function(inSender) {
+  // Chord Picker 
+  storeEditEl: function(inSender) {
+    if (Helper.browser()) {
+      !this.chord || inSender.insertAtCursor(this.chord);
+    } else {
+      this.el = inSender.name;
+      this.log(this.el);
+    }
+  },
+  
+  storeRange: function() {
     this.log();
-    if (inSender.getSelection) {
-        sel = inSender.getSelection();
+    if (this.el) {
+      var elObj = this.$[this.el];
+      elObj.focus();
+      if (elObj.getSelection) {
+        sel = elObj.getSelection();
         if (sel.getRangeAt && sel.rangeCount) {
-            var range = sel.getRangeAt(0);
+          var range = sel.getRangeAt(0);
         }
-    }
+      }  
     this.log(range);
-    
-    this.el = inSender.name;
-    this.elrange = inSender.name;
-  },
-  
-  restoreSelection: function(range, el) {
-    if (range) {
-      if (el.getSelection) {
-          sel = el.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
-      }
+    this.elrange = range;
     }
-  },
-  
-  chordPick: function() {
-    if (this.el && this.elrange) {
-      this.$[this.el].parent.setAlwaysLooksFocused(true);
-      this.$[this.el].focus();
-      this.restoreSelection(this.elrange, this.el)
-      this.$[this.el].insertAtCursor("1234");
-    }
-    this.owner.owner.owner.$.infoPanels.setIndex(1);
-    this.owner.owner.owner.$.sidePane.openPicker();
   },
 });

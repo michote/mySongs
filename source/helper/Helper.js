@@ -17,7 +17,8 @@ function Helper() {}
   };
 
   Helper.iconPath = function() { 
-      return "assets/images/" + this.ratio() +"/"; 
+      //~ return "assets/images/" + this.ratio() +"/"; 
+      return "assets/images/1.0/"; 
   }; 
 
   // small Screen on Phone
@@ -220,4 +221,9 @@ function Helper() {}
         height: o.height
       };
     }
+  };
+  
+  // escape HTML
+  Helper.html = function(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   };

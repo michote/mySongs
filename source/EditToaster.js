@@ -24,7 +24,7 @@ enyo.kind({
     ]},
     {name: "footerToolbar", kind: "onyx.Toolbar", style: "text-align:center;", components: [
       {kind: "my.Grabber", ontap:"grabber", classes: "quer"},
-      {name: "chordpicker", kind: "onyx.IconButton", src: Helper.iconPath()+"chordpicker.png", style: "float: left;", ontap: "chordPick", showing: false},
+      {name: "chordpicker", kind: "onyx.IconButton", src: Helper.iconPath()+"chordpicker.png", style: "float: left;", onmousedown: "chordPick", showing: false},
       {kind: "onyx.Button", classes: "onyx-negative", style: "width: " + (Helper.phone() ? "45%" : "10rem") + "; margin: 0;", content: $L("Discard changes"), ontap: "closeThis"},
       {style: "width: " + (Helper.phone() ? .5 : 1.25) + "rem; margin: 0;"},
       {kind: "onyx.Button", classes: "onyx-affirmative", style: "width:  " + (Helper.phone() ? "25%" : "8rem") + "; margin: 0;", content: $L("Done"), ontap: "saveClicked"},
@@ -52,7 +52,14 @@ enyo.kind({
   
   chordPick : function() {
     this.log();
-    this.$.lyricsPane.chordPick();
+    if (!Helper.browser() && this.$.lyricsPane.el) {
+      this.$.lyricsPane.storeRange(); 
+      this.owner.owner.$.infoPanels.setIndex(1);
+      this.owner.owner.$.sidePane.openPicker();
+    } else {
+      this.owner.owner.$.infoPanels.setIndex(1);
+      this.owner.owner.$.sidePane.openPicker();
+    }
   },
   
   populate: function() {

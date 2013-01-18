@@ -6,7 +6,7 @@ enyo.kind({
   metaList: ["title", "author", "songbook", "comment"],
   lyricsList: ["v", "c", "b", "p", "e"],
   baseChord: ["Ab", "A", "A#", "Bb", "B", "C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#"],
-  chordExten: ["", "m", "m7", "maj7", "sus4", "0", "9", "maj", "sus", "dim", "+"],
+  chordExten: ["", "m", "7", "m7", "maj7", "sus4", "0", "9", "maj", "sus", "dim", "+", "11"],
   base: undefined,
   exten: undefined,
   back: undefined,
@@ -424,7 +424,7 @@ enyo.kind({
     this.applyStyle("min-width", "10rem");
     this.applyStyle("max-width", "10rem");
     this.$.title.setContent($L("Chord Picker"));
-    this.$.closeButton.setContent($L("Insert"));
+    Helper.browser() || this.$.closeButton.setContent($L("Insert"));
     this.$.baseList.setCount(this.baseChord.length);
     this.$.baseList.refresh();
     this.$.extenList.setCount(this.chordExten.length);
@@ -452,18 +452,38 @@ enyo.kind({
   addChord: function(inSender, inEvent) {
     this.log(this[inSender.name === "baseItem" ? "baseChord" : "chordExten"][inEvent.rowIndex]);
     this[inSender.name === "baseItem" ? "base" : "exten"] = this[inSender.name === "baseItem" ? "baseChord" : "chordExten"][inEvent.rowIndex];
+    this.owner.$.viewPane.$.editToaster.$.lyricsPane.setChord(this.getFullChord());
   },
   
   getFullChord: function() {
     if (this.base) {
       var chord = "[" + this.base;
-      if (this.exten) {
-        chord = chord + this.exten;
-      }
+      if (this.exten) { chord += this.exten };
       return chord + "]";
     } else {
       return false;
     }
+  },
+  
+  restoreSelection: function(range, toObj) {
+    var el = toObj.el;
+    toObj.$[el].focus();
+    if (range) {
+      if (toObj.$[el].getSelection) {
+          toObj.$[el].focus();
+          sel = toObj.$[el].getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+      }
+    }
+  },
+
+  closeChordSelect: function() {
+    var editEl = this.owner.$.viewPane.$.editToaster.$.lyricsPane;
+    editEl.$[editEl.el].focus();
+    this.restoreSelection(editEl.elrange, editEl)
+    editEl.$[editEl.el].insertAtCursor(this.getFullChord());
+    editEl.el = undefined;
   },
   
   // Import
@@ -499,6 +519,7 @@ enyo.kind({
   
   // close
   closeClicked: function(sender) {
+    this.log(this.$.Pane.getIndex());
     switch (this.$.Pane.getIndex()) {
       case 2: this.owner.saveCss(this.css);
               break;
@@ -509,7 +530,8 @@ enyo.kind({
               break;
               
       case 5: this.$.closeButton.setContent($L("Close"));
-              this.log(this.getFullChord());
+              Helper.browser() || this.closeChordSelect();
+              this.owner.$.viewPane.$.editToaster.$.lyricsPane.setChord(undefined);
               break;
               
       case 6: this.$.closeButton.setContent($L("Close"));
