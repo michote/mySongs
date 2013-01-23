@@ -148,7 +148,7 @@ enyo.kind({
             {name: "importHelp", kind: "onyx.Drawer", open: false, components: [
               {content: "The first single line is interpretted as the title.Subsequent single lines (followed by a blank line) can contain the properties values of the OpenLyrics specification: eg author(s), Release Date etc.<br><br>If the title line is present then a complete OpenLyrics song file is produced.<br><br>The lyrics blocks can optionally include chord lines. A chord line is defined as a line containing more than 50% of valid OpenLyrics chord names or two of them separated by a '/' . If present a chord line is expected to be followed by the corresponding lyrics line.<br><br>Chords can also be embedded in the lyrics lines in ChordPro format ie [A].<br><br>Verses are separated by a single blank line or a line containing [x] where x can be v, b, c, e, p under the OpenLyrics specification and will become a verse label which will have sequential numbers added to it to identify each verse. A blank line defaults to a [v] label.<br><br>The generator will also generate OpenLyrics lyrics blocks from OpenSong and ChordPro formatted lyric lists.", allowHtml: true, style: "padding: .5rem; color: #fff; background-color: rgba(0,0,0,0.7); line-height: normal;"}
             ]},
-            {kind: "onyx.InputDecorator", style: "min-height: 20rem; max-width: 800px", alwaysLooksFocused: true, ontap: "importFocus", components: [
+            {kind: "onyx.InputDecorator", style: "min-height: 20rem; max-width: 800px; font-family: Courier;", alwaysLooksFocused: true, ontap: "importFocus", components: [
               {name: "importText", kind: "onyx.RichText", allowHtml: false}
               
             ]}
@@ -387,13 +387,16 @@ enyo.kind({
   },
   
   deleteElement: function() {
+    this.log(this.$.Pane.getIndex());
     switch (this.$.Pane.getIndex()) {
-      case 4: this.owner.$.viewPane.$.editToaster.$.lyricsPane.deleteElement();
+      
+      case 4: this.owner.$.viewPane.$.editToaster.$.lyricsPane.deleteElement(); // delete element
               this.closeClicked();
               break;
               
-      case 6: this.$.closeButton.setContent($L("Close"));
+      case 6: this.$.closeButton.setContent($L("Close")); // Import
               this.$.deleteButton.hide();
+              this.owner.$.infoPanels.setIndex(0);
               break;
     }
   },
@@ -521,20 +524,20 @@ enyo.kind({
   closeClicked: function(sender) {
     this.log(this.$.Pane.getIndex());
     switch (this.$.Pane.getIndex()) {
-      case 2: this.owner.saveCss(this.css);
+      case 2: this.owner.saveCss(this.css); // Font settings
               break;
-              
-      case 4: this.$.closeButton.setContent($L("Close"));
+               
+      case 4: this.$.closeButton.setContent($L("Close")); // Edit element
               this.$.deleteButton.hide();
               this.closeEdit();
               break;
               
-      case 5: this.$.closeButton.setContent($L("Close"));
+      case 5: this.$.closeButton.setContent($L("Close")); // Chord Picker
               Helper.browser() || this.closeChordSelect();
               this.owner.$.viewPane.$.editToaster.$.lyricsPane.setChord(undefined);
               break;
               
-      case 6: this.$.closeButton.setContent($L("Close"));
+      case 6: this.$.closeButton.setContent($L("Close")); // Import
               this.$.deleteButton.hide();
               this.import();
               break;

@@ -246,7 +246,7 @@ function Helper() {}
     for (i=0; i<spcs; ++i) {
       oStr = " " + oStr;
     }
-    this.log(oStr);
+    this.log(oStr + ", " + baseKind.kind);
     var i=0;
     while (i<baseKind.children.length) {
       this.kindTree(baseKind.children[i], lvl+1, indent);

@@ -6,6 +6,6 @@ enyo.depends(
     "cursorScrollBar.js",
     "XMLWriter-1.0.0-min.js",
     "txtConverter.js",
-    "dropbox.js",
+    "dropbox.min.js",
     "dropboxHelper.js"
 );

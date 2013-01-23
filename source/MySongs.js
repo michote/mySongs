@@ -77,11 +77,15 @@ enyo.kind({
   connectError: function(error) {
     this.$.songListPane.showError($L("Connection error: ") + error);
     enyo.error("Connection error: ", error);
+    this.$.songListPane.goToLibrary();
+    this.$.songListPane.$.library.setValue(false);
   },
   
   dropboxError: function(error) {
     this.$.songListPane.showError($L("Dropbox error: ") + error);
     enyo.error("Dropbox error: ", error);
+    this.$.songListPane.goToLibrary();
+    this.$.songListPane.$.library.setValue(false);
   },
   
   // Dropbox Logout
@@ -99,10 +103,14 @@ enyo.kind({
   
   // Refresh Library
   refreshLibrary: function() {
-    this.log("refreshing library ...");
-    this.libraryList.content = [];
-    this.$.songListPane.goToSync();
-    this.readDirectory();
+    if (this.libraryList.content.length == []) {
+      this.connectToDropbox();
+    } else {
+      this.log("refreshing library ...");
+      this.libraryList.content = [];
+      this.$.songListPane.goToSync();
+      this.readDirectory();
+    }
   },
   
   // Reading files in Dropbox App-Folder

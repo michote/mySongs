@@ -14,16 +14,17 @@ function dropboxHelper() {}
     client.authenticate(function(error, client) {
       if (error) {
         callbackError(_this.showError(error));
+      } else {
+        _this.client = client;
+        client.getUserInfo(function(error, userInfo) {
+          if (error) {
+            callbackError(_this.showError(error));
+          } else {
+            enyo.log(userInfo.name + $L(" connected to Dropbox"));
+            callbackSuccess();
+          }
+        });
       }
-      _this.client = client;
-      client.getUserInfo(function(error, userInfo) {
-        if (error) {
-          callbackError(_this.showError(error));
-        } else {
-          enyo.log(userInfo.name + $L(" connected to Dropbox"));
-          callbackSuccess();
-        }
-      });
     });
   };
 
@@ -59,8 +60,9 @@ function dropboxHelper() {}
     dropboxHelper.client.readdir("/", function(error, entries) {
       if (error) {
         callbackError(dropboxHelper.showError(error));
-      }
-      callbackSuccess(entries);
+      } else {
+        callbackSuccess(entries);
+      }  
     });
   };
   
