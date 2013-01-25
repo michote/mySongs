@@ -303,6 +303,7 @@ enyo.kind({
     };
     this.authorCount = 1;
     this.$.author1.setValue("");
+    this.$.authorDrawer1.setOpen(false);
     this.$.authorSwitch1.setSelected(this.$.null1);
     for (j=2; j < this.songbookCount+1; j++) {
       this.$["songbookhflex"+j].destroy();
@@ -314,6 +315,7 @@ enyo.kind({
       this.$["commenthflex"+j].destroy();
     };
     this.commentCount = 1;
+    this.$.comment1.setValue("");
   },
   
   // get all data from UI

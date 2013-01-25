@@ -57,7 +57,7 @@ enyo.kind({
     ]},
     // Error Drawer
     {name: "error", kind: "onyx.Drawer", open: false, classes: "searchbar", components: [
-      {style: "color: #fff; padding: .5rem; background-color: #9E0508; text-align: center;", components: [
+      {style: "color: #fff; padding: .5rem; background-color: #9E0508; text-align: center; max-height: 20rem;", components: [
         {name: "errorText"},
         {tag: "br"},
         {kind: "onyx.Button", classes: "onyx-negative", style: "width: 80%;", content: $L("Close"), ontap: "close"}
