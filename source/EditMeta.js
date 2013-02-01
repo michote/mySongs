@@ -382,9 +382,35 @@ enyo.kind({
   // Delete file
   deleteFile: function() {
     this.log("delete ", this.file);
-    var success = enyo.bind(this, this.deleteSuccess);
-    var error = enyo.bind(this, this.owner.owner.owner.dropboxError);
-    setTimeout(dropboxHelper.deleteFile(this.file, success, error), 10);
+    if (this.owner.owner.owner.dropboxOk) {
+      var error = enyo.bind(this, this.owner.owner.owner.dropboxError);
+      var success = enyo.bind(this, this.deleteFromDbase);
+      setTimeout(dropboxHelper.deleteFile(this.file, success, error), 10);
+    } else {
+      this.deleteFromDbase();
+    }
+  },
+  
+  deleteFromDbase: function() {
+    var _this = this.owner.owner.owner; 
+    var error = enyo.bind(this, _this.dbError);
+    var success = enyo.bind(this, this.deleteUpdateChanges, this.file);
+    var sqlObj = _this.db.getDelete("songs", {"filename": this.file});
+    _this.db.query(sqlObj, {"onSuccess": success, "onError": error});
+  },
+
+  deleteUpdateChanges: function(filename) {
+    // if dropBox off make changes entry
+    var _this = this.owner.owner.owner; 
+    if (!_this.dropboxOk) {
+      var error = enyo.bind(this, _this.dbError);
+      var success = enyo.bind(this, this.deleteSuccess);
+      var sqlObj = _this.db.getDelete("changes", {"filename": this.file});
+      _this.db.query(sqlObj);
+      _this.db.insertData({"table":"changes", data: {"filename": filename, "action":"deleted"}}, {"onSuccess": success, "onError": error});
+    } else {
+      this.deleteSuccess();
+    }
   },
   
   // delete file from library and data list
