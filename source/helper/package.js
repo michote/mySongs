@@ -7,5 +7,6 @@ enyo.depends(
     "XMLWriter-1.0.0-min.js",
     "txtConverter.js",
     "dropbox.js",
-    "dropboxHelper.js"
+    "dropboxHelper.js",
+    "database-enyo.js"
 );

@@ -90,7 +90,13 @@ enyo.kind({
     this.$.lyricsPane.saveModifications();
     this.$.lyricsPane.setChord(undefined);
     //~ this.log("save:", WriteXml.edit(this.xml, this.metadata, this.lyrics));
-    this.owner.owner.writeXml(this.file, WriteXml.edit(this.xml, this.metadata, this.lyrics), this.metadata.titles[0].title);
+    var xml = WriteXml.edit(this.xml, this.metadata, this.lyrics);
+    if (this.owner.owner.dropboxOk) {
+      this.owner.owner.writeXml(this.file, xml, this.metadata.titles[0].title);
+    }
+    var modDate = xml.slice(xml.indexOf("modifiedDate")+14);
+    modDate = modDate.substring(0,modDate.indexOf('"',1));
+    this.owner.owner.dbWriteXml(this.file, xml, Date.parse(modDate), this.metadata.titles[0].title);
     this.owner.$.songViewPane.renderLyrics();
     this.owner.$.viewPanels.setIndex(1);
     this.owner.owner.$.infoPanels.setIndex(0);
