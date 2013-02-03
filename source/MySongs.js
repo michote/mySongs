@@ -548,7 +548,8 @@ enyo.kind({
       this.db.insertData(
         {"table":"songs", 
           data: {
-            "filename": file, 
+            "filename": file,
+            "title": songt,
             "xml": content, 
             "date": date
           }
@@ -562,15 +563,13 @@ enyo.kind({
   },
   
   dbWriteToChanges: function(rev, file, content, songt) {
-    // if no Dropbox write created to changes table
+    // if no Dropbox write created to changes table and update program data
     if (!this.dropboxOk) {
       this.log(file);
       var sqlObj = this.db.getDelete("changes", {"filename": file});
       this.db.query(sqlObj);
       var success = enyo.bind(this, this.writeFileSuccess, rev, file, content, songt);
       this.db.insertData({"table":"changes", data: {"filename": file, "action":"created"}}, {"onSuccess": success});
-    } else {
-      this.writeFileSuccess(rev, file, content, songt);
     }
   },
   
@@ -578,7 +577,7 @@ enyo.kind({
     this.log("dropbox write file", file);
     var success = enyo.bind(this, this.writeFileSuccess);
     var error = enyo.bind(this, this.dropboxError);
-    setTimeout(dropboxHelper.writeFile(file, content, songt, success, error), 10);
+    dropboxHelper.writeFile(file, content, songt, success, error);
   },
   
   writeFileSuccess: function(revision, file, content, songt) {
@@ -667,13 +666,40 @@ enyo.kind({
     file = this.testFilename(file);
     this.log("create file:", file);
     this.newSong = true;
-    var xml = WriteXml.create(songt);
+    // Try txt file
+    if (this.dropboxOk) {
+      var success = enyo.bind(this, this.gotTxtFile, file, songt);
+      var error = enyo.bind(this, this.contCreateSong, file, songt, "");
+      dropboxHelper.readFile(songt + ".txt", success, error);
+    } else {
+      this.contCreateSong(file, songt, "");
+    }
+  },
+
+  gotTxtFile: function(filenm, songt, data, file) {
+    this.log(file);
+    if (data) {
+      this.contCreateSong(filenm, songt, data);
+    } else {
+      this.contCreateSong(filenm, songt, "");
+    }
+  },
+  
+  contCreateSong: function(file, songt, data) {
+    this.log(songt);
+    if (data === "") {
+      var xml = WriteXml.create(songt);
+    } else {
+      var xml = convLyrics(data);
+    }
+     // write file skeleton database file
+    var modDate = xml.slice(xml.indexOf("modifiedDate")+14);
+    modDate = modDate.substring(0,modDate.indexOf("Z")+1);
+    this.dbWriteXml(file, xml, Date.parse(modDate), songt);
     if (this.dropboxOk) {
       this.writeXml(file, xml, songt);  // write file skeleton dropbox
     }
-    var modDate = xml.slice(xml.indexOf("modifiedDate")+14);
-    modDate = modDate.substring(0,modDate.indexOf("Z")+1);
-    this.dbWriteXml(file, xml, Date.parse(modDate), songt); // write file skeleton database file
     this.$.newSongDialog.hide();
   },
+  
 });
