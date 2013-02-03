@@ -29,9 +29,10 @@ enyo.kind({
     currentIndex: undefined,
     dropboxDate: 0,
     db: undefined,
-    DropboxOk: undefined
+    DropboxOk: undefined,
   },
   components: [
+    {kind: "Signals", ondeviceready: "deviceReady"},
     // Layout
     {kind: "Panels", name:"infoPanels", classes:"enyo-fit", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
       {kind: "Panels", name:"mainPanels", classes:"app-panels inner-panels", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
@@ -62,6 +63,18 @@ enyo.kind({
       debug: true
     }
   ],
+  
+  deviceReady: function() {
+    // respond to deviceready event
+  },
+  
+  isOnline: function() {
+    if (Helper.browser) {
+      return window.navigator.onLine;
+    } else {
+      // return phonegap online?
+    }
+  }
 
   create: function() {
     enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
@@ -70,6 +83,7 @@ enyo.kind({
     this.openDatabase();
     this.getPreferences();
     this.log("platform", enyo.platform);
+    this.log("online:", window.navigator.onLine);
   },
 
   openDatabase: function() {
@@ -78,7 +92,7 @@ enyo.kind({
     //this.db.query('DROP TABLE IF EXISTS "changes"');
     this.db.query("SELECT COUNT(*) FROM `ms_database`;" , {
       onError: enyo.bind(this, function(error){
-        enyo.log("Error: ("+error.message+") Need to create tables from JSON now");     
+        this.log("Error: ("+error.message+") Need to create tables from JSON now");     
         this.db.setSchema(
           [
             {
@@ -286,7 +300,6 @@ enyo.kind({
   
   processDbRecord: function(dboxFileObj, result) {
     // result[] contains the database record corresponsing to dboxFileObj
-    this.log();
     if (result.length !== 0) {
       this.log(dboxFileObj.filename);
       var success = enyo.bind(this, this.fileDone, dboxFileObj.xml, result[0].title);
