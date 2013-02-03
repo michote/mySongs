@@ -70,8 +70,9 @@ function dropboxHelper() {}
     dropboxHelper.client.readFile(file, function(error, data) {
       if (error) {
         callbackError(dropboxHelper.showError(error));
+      } else {
+        callbackSuccess(data, file);  // data has the file's contents
       }
-      callbackSuccess(data, file);  // data has the file's contents
     });
   };
   
@@ -79,8 +80,9 @@ function dropboxHelper() {}
     dropboxHelper.client.writeFile(file, content, function(error, stat) {
       if (error) {
         callbackError(dropboxHelper.showError(error));
+      } else {
+        callbackSuccess(stat.revisionTag, file, content, songt);
       }
-      callbackSuccess(stat.revisionTag, file, content, songt);
     });
   };
   
@@ -88,8 +90,9 @@ function dropboxHelper() {}
     dropboxHelper.client.remove(file, function(error, status) {
       if (error) {
         callbackError(dropboxHelper.showError(error));
+      } else {
+        callbackSuccess(status, file);  
       }
-      callbackSuccess(status, file);  
     });
   };
   
@@ -98,7 +101,8 @@ function dropboxHelper() {}
     return this.client.signOut(function(error) {
       if (error) {
         enyo.log(dropboxHelper.showError(error));
+      } else {
+        callbackSuccess();
       }
-      callbackSuccess();
     });
   };
