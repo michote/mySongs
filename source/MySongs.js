@@ -201,6 +201,8 @@ enyo.kind({
   //Reading files in database
   readFilesFromDatabase: function() {
     this.log("reading filenames from database...");
+    this.pathCount.a = [];
+    this.pathCount.b = [];
     this.$.songListPane.$.readProgress.animateProgressTo(2);
     var sqlObj = this.db.getSelect("songs", ["filename"]);
     var success = enyo.bind(this, this.handleDatabaseFiles);
@@ -241,7 +243,7 @@ enyo.kind({
     var a = {"file": file, "title": title};
     this.log(file, "parsed");
     this.libraryList.content.push(a);
-    this.fileDone(data, a.title);    
+    this.fileDone(a.title);    
   },
   
   dbFileNotRead: function() {
@@ -251,6 +253,8 @@ enyo.kind({
   // Reading files in Dropbox App-Folder
   readDirectory: function() {
     this.dropboxOk = true;
+    this.pathCount.a = [];
+    this.pathCount.b = [];
     this.log("reading app directory...");
     this.$.viewPane.$.preferences.setDropboxClient(true); // Show Logout Button 
     this.$.songListPane.$.readProgress.animateProgressTo(2);
@@ -275,7 +279,7 @@ enyo.kind({
       for (i = 0; i < files.length; i++) {
         if (files[i].split('.').pop() === 'xml') { // only parse xml-files
           this.pathCount.a.push(i);
-          this.log("parsing dropbox file", i+1, "of", files.length);
+          this.log("parsing dropbox file", i+1, "of", files.length, files[i]);
           dropboxHelper.readFile(files[i], success, error);
         }
       }
@@ -300,9 +304,10 @@ enyo.kind({
   
   processDbRecord: function(dboxFileObj, result) {
     // result[] contains the database record corresponsing to dboxFileObj
+    this.log();
     if (result.length !== 0) {
       this.log(dboxFileObj.filename);
-      var success = enyo.bind(this, this.fileDone, dboxFileObj.xml, result[0].title);
+      var success = enyo.bind(this, this.fileDone, result[0].title);
       if (result[0].date < dboxFileObj.date) {
         // dropbox file newer
         this.log("Upating database with newer ", dboxFileObj.filename);
@@ -315,10 +320,10 @@ enyo.kind({
         var error = enyo.bind(this, this.dropboxError);
         dropboxHelper.writeFile(dboxFileObj.filename, dboxFileObj.xml, dboxFileObj.title, success, error);
       } else if (result[0].date === dboxFileObj.date) {
-        this.fileDone(dboxFileObj.xml, dboxFileObj.title);  // same date or not in database
+        this.fileDone(dboxFileObj.title);  // same date or not in database
       }
     } else {
-        this.log("May write to database with ", dboxFileObj.filename);
+        this.log("Extra Dropbox file ", dboxFileObj.filename);
         var sqlObj = this.db.getSelect("changes", '', {"filename": dboxFileObj.filename, "action": "deleted"});
         var success = enyo.bind(this, this.checkDbDelete, dboxFileObj);
         this.db.query(sqlObj, {"onSuccess": success});
@@ -349,13 +354,13 @@ enyo.kind({
     var i = 0;
     while (i < this.libraryList.content.length && !found) {
       if (this.libraryList.content[i].file === file) {
-        this.libraryList.content = this.libraryList.content.splice(i,1);
-        this.pathCount.b = this.pathCount.b.splice(i,1);
+        this.libraryList.content.splice(i,1);
+        this.pathCount.a.splice(i,1);
         found = true;
       }  
     i++
     }
-  var success = enyo.bind(this, this.dbSuccess);
+  var success = enyo.bind(this, this.checkAllDone);
   var sqlObj = this.db.getDelete("changes", {"filename": file});
   this.db.query(sqlObj, {"onSuccess": success});
   },
@@ -368,10 +373,14 @@ enyo.kind({
     this.log(file);
   },
   
-  fileDone: function(data, songt) {
+  fileDone: function(songt) {
     this.pathCount.b.push(1);
     this.log(this.pathCount.b.length, songt);
     this.$.songListPane.$.readProgress.animateProgressTo(this.pathCount.a.length);
+    this.checkAllDone();
+  },
+
+  checkAllDone: function() {
     if (this.pathCount.b.length === this.pathCount.a.length) {  // loaded all files from source
       this.sortAndRefresh();
       if (this.dropboxOk) { // update the database
