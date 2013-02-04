@@ -30,6 +30,7 @@ enyo.kind({
     dropboxDate: 0,
     db: undefined,
     DropboxOk: undefined,
+    online: undefined
   },
   components: [
     {kind: "Signals", ondeviceready: "deviceReady"},
@@ -67,14 +68,6 @@ enyo.kind({
   deviceReady: function() {
     // respond to deviceready event
   },
-  
-  isOnline: function() {
-    if (Helper.browser) {
-      return window.navigator.onLine;
-    } else {
-      // return phonegap online?
-    }
-  }
 
   create: function() {
     enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
@@ -83,7 +76,16 @@ enyo.kind({
     this.openDatabase();
     this.getPreferences();
     this.log("platform", enyo.platform);
-    this.log("online:", window.navigator.onLine);
+    // online status
+    var online = enyo.bind(this, this.isOnline);
+    window.addEventListener("offline", online);
+    window.addEventListener("online", online);
+    this.online = window.navigator.onLine;
+  },
+
+  isOnline: function(x) {
+    this.log("now", x.type);
+    this.setOnline(x.type === "online" ? true : false);
   },
 
   openDatabase: function() {
