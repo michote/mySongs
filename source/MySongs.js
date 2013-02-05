@@ -29,8 +29,7 @@ enyo.kind({
     currentIndex: undefined,
     dropboxDate: 0,
     db: undefined,
-    DropboxOk: undefined,
-    online: undefined
+    online: undefined,
   },
   components: [
     {kind: "Signals", ondeviceready: "deviceReady"},
@@ -71,21 +70,26 @@ enyo.kind({
 
   create: function() {
     enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
-    this.inherited(arguments);
-    this.connectToDropbox();
-    this.openDatabase();
-    this.getPreferences();
-    this.log("platform", enyo.platform);
     // online status
     var online = enyo.bind(this, this.isOnline);
     window.addEventListener("offline", online);
     window.addEventListener("online", online);
     this.online = window.navigator.onLine;
+    this.inherited(arguments);
+    if (this.online) {
+      this.connectToDropbox();
+    }
+    this.openDatabase();
+    this.getPreferences();
+    this.log("platform", enyo.platform);
+    if (!this.online) {
+      this.initDatabaseRead();
+    }
   },
 
   isOnline: function(x) {
     this.log("now", x.type);
-    this.setOnline(x.type === "online" ? true : false);
+//    this.setOnline(x.type === "online" ? true : false);
   },
 
   openDatabase: function() {
@@ -156,7 +160,7 @@ enyo.kind({
     enyo.error("Connection error: ", error);
     this.$.songListPane.goToLibrary();
     this.$.songListPane.$.library.setValue(false);
-    this.dropboxOk = false;
+    this.online = false;
     this.readFilesFromDatabase();
   },
   
@@ -165,7 +169,7 @@ enyo.kind({
     enyo.error("Dropbox error: ", error);
     this.$.songListPane.goToLibrary();
     this.$.songListPane.$.library.setValue(false);
-    this.dropboxOk = false;
+    this.online = false;
   },
   
   dbError: function(transaction, error) {
@@ -193,7 +197,7 @@ enyo.kind({
     this.log("refreshing library ...");
     this.libraryList.content = [];
     this.$.songListPane.goToSync();
-    if (this.dropboxOk) {
+    if (this.online) {
       this.readDirectory();
     } else {
       this.readFilesFromDatabase();
@@ -201,6 +205,16 @@ enyo.kind({
   },
   
   //Reading files in database
+  initDatabaseRead: function() {   // no Dropbox
+    this.$.songListPane.$.readFiles.setContent($L("Connecting..."));
+    this.$.songListPane.$.readProgress.setMax(3);
+    this.$.songListPane.$.readProgress.animateProgressTo(1);
+    this.$.songListPane.$.listPane.setIndex(0);
+    this.libraryList.content = []
+    this.readFilesFromDatabase();
+  },
+  
+  
   readFilesFromDatabase: function() {
     this.log("reading filenames from database...");
     this.pathCount.a = [];
@@ -254,7 +268,6 @@ enyo.kind({
   
   // Reading files in Dropbox App-Folder
   readDirectory: function() {
-    this.dropboxOk = true;
     this.pathCount.a = [];
     this.pathCount.b = [];
     this.log("reading app directory...");
@@ -385,7 +398,7 @@ enyo.kind({
   checkAllDone: function() {
     if (this.pathCount.b.length === this.pathCount.a.length) {  // loaded all files from source
       this.sortAndRefresh();
-      if (this.dropboxOk) { // update the database
+      if (this.online) { // update the database
         // get dbase entries (filename, title, xml, date)
         var sqlObj = this.db.getSelect("songs", '');
         var success = enyo.bind(this, this.doExtraDbFiles);
@@ -588,7 +601,7 @@ enyo.kind({
   
   dbWriteToChanges: function(rev, file, content, songt) {
     // if no Dropbox write created to changes table and update program data
-    if (!this.dropboxOk) {
+    if (!this.online) {
       this.log(file);
       var sqlObj = this.db.getDelete("changes", {"filename": file});
       this.db.query(sqlObj);
@@ -691,7 +704,7 @@ enyo.kind({
     this.log("create file:", file);
     this.newSong = true;
     // Try txt file
-    if (this.dropboxOk) {
+    if (this.online) {
       var success = enyo.bind(this, this.gotTxtFile, file, songt);
       var error = enyo.bind(this, this.contCreateSong, file, songt, "");
       dropboxHelper.readFile(songt + ".txt", success, error);
@@ -720,7 +733,7 @@ enyo.kind({
     var modDate = xml.slice(xml.indexOf("modifiedDate")+14);
     modDate = modDate.substring(0,modDate.indexOf("Z")+1);
     this.dbWriteXml(file, xml, Date.parse(modDate), songt);
-    if (this.dropboxOk) {
+    if (this.online) {
       this.writeXml(file, xml, songt);  // write file skeleton dropbox
     }
     this.$.newSongDialog.hide();
