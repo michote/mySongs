@@ -89,7 +89,7 @@ enyo.kind({
 
   isOnline: function(x) {
     this.log("now", x.type);
-//    this.setOnline(x.type === "online" ? true : false);
+    this.setOnline(x.type === "online" ? true : false);
   },
 
   openDatabase: function() {
