@@ -37,6 +37,10 @@
 @onyx-spinner-image-width: 3.6875rem;
 @onyx-spinner-image-height: 3.625rem;
 
+@onyx-slider-knob-image: url(../assets/images/slider-handle.png);
+@onyx-gradient: url(../assets/images/gradient.png);
+@onyx-gradient-invert: url(../assets/images/gradient-invert.png);
+
 /* Custom: */
 /* ---------------------------------------*/
 @onyx-toolbar-background: rgba(0,0,0,0.7);
@@ -69,6 +73,7 @@
     padding: .5625rem .5rem .625rem .5rem;
     border: .0625rem solid #3A3A3A;
 }
+
 .onyx-toolbar-inline > *, .enyo-fittable-columns-layout.onyx-toolbar-inline > * {
     margin: .25rem .375rem .3125rem;
 }
@@ -187,7 +192,7 @@
 }
 
 .onyx-slider-knob.active, .onyx-slider-knob:active:hover {
-    background-position: 0 0;
+    background-position: 0 -2.5rem;
 }
 
 /* ButtonColors.css */

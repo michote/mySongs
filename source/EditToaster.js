@@ -91,7 +91,7 @@ enyo.kind({
     this.$.lyricsPane.setChord(undefined);
     //~ this.log("save:", WriteXml.edit(this.xml, this.metadata, this.lyrics));
     var xml = WriteXml.edit(this.xml, this.metadata, this.lyrics);
-    if (this.owner.owner.dropboxOk) {
+    if (this.owner.owner.online) {
       this.owner.owner.writeXml(this.file, xml, this.metadata.titles[0].title);
     }
     var modDate = xml.slice(xml.indexOf("modifiedDate")+14);

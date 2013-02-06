@@ -72,8 +72,8 @@ enyo.kind({
     enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
     // online status
     var online = enyo.bind(this, this.isOnline);
-    window.addEventListener("offline", online);
-    window.addEventListener("online", online);
+    window.addEventListener("offline", online, false);
+    window.addEventListener("online", online, false);
     this.online = window.navigator.onLine;
     this.inherited(arguments);
     if (this.online) {
@@ -81,7 +81,6 @@ enyo.kind({
     }
     this.openDatabase();
     this.getPreferences();
-    this.log("platform", enyo.platform);
     if (!this.online) {
       this.initDatabaseRead();
     }
@@ -509,9 +508,11 @@ enyo.kind({
   },
   
   handleSidepane: function() {
-    //~ this.log("sidepane: ", this.$.sidePane.$.Pane.getIndex());
+    this.log("sidepane: ", this.$.sidePane.$.Pane.getIndex());
     switch(this.$.sidePane.$.Pane.getIndex()) {
-      case 1: this.$.viewPane.$.songViewPane.showInfo();
+      case 1: if (this.$.infoPanels.getIndex() === 1) {
+                this.$.viewPane.$.songViewPane.showInfo();
+              }
               break;
               
       case 2: break;
@@ -558,7 +559,7 @@ enyo.kind({
   // Adjust Font
   setFont: function(css) {
     if (css) {
-      var size = (css.size * 4 * Helper.ratio() + 100) + "%";
+      var size = (css.size * 10 * Helper.ratio() + 80) + "%";
       var space = (css.space * 8 + 100) + "%";
       this.log("set font css: size:", size, "space:", space);
       this.$.viewPane.$.songViewPane.$.lyric.applyStyle("font-size", size);
