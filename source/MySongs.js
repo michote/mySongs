@@ -330,9 +330,10 @@ enyo.kind({
         this.db.query(sqlObj, {"onSuccess": success, "onError": error});
       } else if (result[0].date > dboxFileObj.date) {
         // dropbox file older
-        this.log("Upating dropbox with newer ", dboxFileObj.filename);
+        this.log("Upating dropbox with newer ", result[0].filename);
         var error = enyo.bind(this, this.dropboxError);
-        dropboxHelper.writeFile(dboxFileObj.filename, dboxFileObj.xml, dboxFileObj.title, success, error);
+        dropboxHelper.writeFile(result[0].filename, result[0].xml, result[0].title, success, error);
+        this.dataList[result[0].filename.toLowerCase()] = ParseXml.parse_dom(result[0].xml);
       } else if (result[0].date === dboxFileObj.date) {
         this.fileDone(dboxFileObj.title);  // same date or not in database
       }
