@@ -402,7 +402,7 @@ enyo.kind({
   deleteUpdateChanges: function(filename) {
     // if dropBox off make changes entry
     var _this = this.owner.owner.owner; 
-    if (!_this.dropboxOk) {
+    if (!_this.online) {
       var error = enyo.bind(this, _this.dbError);
       var success = enyo.bind(this, this.deleteSuccess);
       var sqlObj = _this.db.getDelete("changes", {"filename": this.file});
