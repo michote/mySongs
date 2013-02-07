@@ -88,7 +88,12 @@ enyo.kind({
 
   isOnline: function(x) {
     this.log("now", x.type);
-    this.setOnline(x.type === "online" ? true : false);
+    if (x.type === "online") {
+      this.setOnline(true);
+      // sync Database with Dropbox?
+    } else {
+      this.setOnline(false);
+    }
   },
 
   openDatabase: function() {
