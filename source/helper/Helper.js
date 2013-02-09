@@ -232,9 +232,9 @@ function Helper() {}
   // call using this.logKindTree(enyoObject, indentStep)
   // indentStep is optional and defaults to 2
   Helper.logKindTree = function(baseKind, indent) {
-    this.log("========================");
-    this.kindTree(baseKind, 0, indent);
-    this.log("========================");
+    baseKind.log("========================");
+    Helper.kindTree(baseKind, 0, indent);
+    baseKind.log("========================");
   },
   
   Helper.kindTree = function(baseKind, lvl, indent) {
@@ -246,11 +246,10 @@ function Helper() {}
     for (i=0; i<spcs; ++i) {
       oStr = " " + oStr;
     }
-    this.log(oStr + ", " + baseKind.kind);
+    baseKind.log(oStr + ", " + baseKind.kind);
     var i=0;
     while (i<baseKind.children.length) {
       this.kindTree(baseKind.children[i], lvl+1, indent);
       ++i;
     }
   }
-
