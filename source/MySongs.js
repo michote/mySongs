@@ -30,6 +30,7 @@ enyo.kind({
     dropboxDate: 0,
     db: undefined,
     online: undefined,
+    wasOffline: false,
   },
   components: [
     {kind: "Signals", ondeviceready: "deviceReady"},
@@ -78,6 +79,7 @@ enyo.kind({
     this.inherited(arguments);
     if (this.online) {
       this.connectToDropbox();
+      this.wasOffline = false;
     }
     this.openDatabase();
     this.getPreferences();
@@ -88,11 +90,10 @@ enyo.kind({
 
   isOnline: function(x) {
     this.log("now", x.type);
-    if (x.type === "online") {
-      this.setOnline(true);
-      // sync Database with Dropbox?
-    } else {
-      this.setOnline(false);
+    this.setOnline(x.type === "online");
+    this.online = window.navigator.onLine;
+    if (this.online && this.wasOffline) {
+      this.connectToDropbox();    // sync Database with Dropbox
     }
   },
 
@@ -148,12 +149,13 @@ enyo.kind({
   },
 
   connectToDropbox: function() {
-    this.log("Connecting to Dropbox, please confirm the popup");
-    this.$.songListPane.$.readFiles.setContent($L("Connecting..."));
-    this.$.songListPane.$.readProgress.setMax(3);
-    this.$.songListPane.$.readProgress.animateProgressTo(1);
-    this.$.songListPane.$.listPane.setIndex(0);
-    this.libraryList.content = []
+    if (!this.wasOffline) {
+      this.log("Connecting to Dropbox, please confirm the popup");
+      this.$.songListPane.$.readFiles.setContent($L("Connecting..."));
+      this.$.songListPane.$.readProgress.setMax(3);
+      this.$.songListPane.$.readProgress.animateProgressTo(1);
+      this.$.songListPane.$.listPane.setIndex(0);
+    }
     var success = enyo.bind(this, this.readDirectory);
     var error = enyo.bind(this, this.connectError);
     setTimeout(dropboxHelper.connect(success, error), 50);
@@ -223,6 +225,7 @@ enyo.kind({
     this.log("reading filenames from database...");
     this.pathCount.a = [];
     this.pathCount.b = [];
+    this.libraryList.content = []
     this.$.songListPane.$.readProgress.animateProgressTo(2);
     var sqlObj = this.db.getSelect("songs", ["filename"]);
     var success = enyo.bind(this, this.handleDatabaseFiles);
@@ -242,7 +245,7 @@ enyo.kind({
       this.$.songListPane.$.readFiles.setContent($L("Reading files..."));
       for (i = 0; i < select.length; i++) {
         if (select[i].filename.split('.').pop() === 'xml') { // only parse xml-files
-          this.pathCount.a.push(i);
+          this.pathCount.a.push({"idx":i, "file": select[i].filename});
           this.log("reading dbase file", i+1, "of", select.length);
           var sqlObj = this.db.getSelect("songs", '', {"filename": select[i].filename});
           var success = enyo.bind(this, this.gotDatabaseFile);
@@ -274,9 +277,12 @@ enyo.kind({
   readDirectory: function() {
     this.pathCount.a = [];
     this.pathCount.b = [];
-    this.log("reading app directory...");
+    if (!this.wasOffline) {
+      this.libraryList.content = []
+      this.log("reading app directory...");
+      this.$.songListPane.$.readProgress.animateProgressTo(2);
+    }
     this.$.viewPane.$.preferences.setDropboxClient(true); // Show Logout Button 
-    this.$.songListPane.$.readProgress.animateProgressTo(2);
     var success = enyo.bind(this, this.handleDropboxfiles);
     var error = enyo.bind(this, this.dropboxError);
     setTimeout(dropboxHelper.readDir(success, error), 10);
@@ -284,20 +290,24 @@ enyo.kind({
   
   handleDropboxfiles: function(files) {
     this.log();
-    this.$.songListPane.$.readProgress.animateProgressTo(3);
+    if (!this.wasOffline) {
+      this.$.songListPane.$.readProgress.animateProgressTo(3);
+    }  
     if (files.length === 0) {
       this.log("no files in Dropbox: first use?");
       this.$.songListPane.$.listPane.setIndex(5);
     } else {
       this.log(files.length + " files to parse ...");
-      this.$.songListPane.$.readProgress.setProgress(0);
-      this.$.songListPane.$.readProgress.setMax(files.length+1);
-      this.$.songListPane.$.readFiles.setContent($L("Reading Files..."));
+      if (!this.wasOffline) {
+        this.$.songListPane.$.readProgress.setProgress(0);
+        this.$.songListPane.$.readProgress.setMax(files.length+1);
+        this.$.songListPane.$.readFiles.setContent($L("Reading Files..."));
+      }
       var success = enyo.bind(this, this.gotDropboxFile);
       var error = enyo.bind(this, this.dropboxError);
       for (i = 0; i < files.length; i++) {
         if (files[i].split('.').pop() === 'xml') { // only parse xml-files
-          this.pathCount.a.push(i);
+          this.pathCount.a.push({"idx":i, "file": files[i]});
           this.log("parsing dropbox file", i+1, "of", files.length, files[i]);
           dropboxHelper.readFile(files[i], success, error);
         }
@@ -310,8 +320,10 @@ enyo.kind({
     if (ParseXml.get_titles(xml)) { // check for valid title before adding to library
       this.dataList[file.toLowerCase()] = xml;
       var a = {"file": file, "title": ParseXml.get_titles(xml)[0].title};
-      this.libraryList.content.push(a);
-      this.log(file, "parsed", this.libraryList.content.length);
+      if (!this.wasOffline) {
+        this.libraryList.content.push(a);
+        this.log(file, "parsed", this.libraryList.content.length);
+      }  
       var modDate = xml.childNodes[0].attributes["modifiedDate"].value;
       var dropboxFileObj = {"filename": file, "title": a.title, "xml": data,"date": Date.parse(modDate)}; 
       var sqlObj = this.db.getSelect("songs", '', {"filename": file});
@@ -327,7 +339,7 @@ enyo.kind({
     if (result.length !== 0) {
       this.log(dboxFileObj.filename);
       var success = enyo.bind(this, this.fileDone, result[0].title);
-      if (result[0].date < dboxFileObj.date) {
+      if (result[0].date < dboxFileObj.date  && !this.wasOffline) {
         // dropbox file newer
         this.log("Upating database with newer ", dboxFileObj.filename);
         var error = enyo.bind(this, this.dbfileNotUpdated, dboxFileObj.filename);
@@ -343,10 +355,10 @@ enyo.kind({
         this.fileDone(dboxFileObj.title);  // same date or not in database
       }
     } else {
-        this.log("Extra Dropbox file ", dboxFileObj.filename);
-        var sqlObj = this.db.getSelect("changes", '', {"filename": dboxFileObj.filename, "action": "deleted"});
-        var success = enyo.bind(this, this.checkDbDelete, dboxFileObj);
-        this.db.query(sqlObj, {"onSuccess": success});
+      this.log("Extra Dropbox file ", dboxFileObj.filename);
+      var sqlObj = this.db.getSelect("changes", '', {"filename": dboxFileObj.filename, "action": "deleted"});
+      var success = enyo.bind(this, this.checkDbDelete, dboxFileObj);
+      this.db.query(sqlObj, {"onSuccess": success});
     }
   },
 
@@ -355,12 +367,20 @@ enyo.kind({
     this.log();
     if (select.length !== 0) {
       this.log(dboxFileObj.filename, " was deleted offline, deleting from Dropbox");
-      var success = enyo.bind(this, this.adjustLibrary, dboxFileObj.filename);
+      if (this.wasOffline) {
+        var success = enyo.bind(this, this.deleteChangesRec, dboxFileObj.filename);
+      } else {
+        var success = enyo.bind(this, this.adjustLibrary, dboxFileObj.filename);
+      }
       var error = enyo.bind(this, this.dropboxError);
       dropboxHelper.deleteFile(dboxFileObj.filename, success, error);
     } else {
       this.log(dboxFileObj.filename, " not deleted offline, being added to the database");
-      var success = enyo.bind(this, this.dbSuccess);
+      if (!this.wasOffline) { 
+        var success = enyo.bind(this, this.fileDone);
+      } else {
+        var success = enyo.bind(this, this.dbSuccess);
+      }
       var modDate = dboxFileObj.xml.slice(dboxFileObj.xml.indexOf("modifiedDate")+14);
       modDate = modDate.substring(0,modDate.indexOf('"',1));
       dboxFileObj.date = Date.parse(modDate);
@@ -380,6 +400,10 @@ enyo.kind({
       }  
     i++
     }
+  this.deleteChangesRec(file)
+  },
+  
+  deleteChangesRec: function(file) {
   var success = enyo.bind(this, this.checkAllDone);
   var sqlObj = this.db.getDelete("changes", {"filename": file});
   this.db.query(sqlObj, {"onSuccess": success});
@@ -396,68 +420,77 @@ enyo.kind({
   fileDone: function(songt) {
     this.pathCount.b.push(1);
     this.log(this.pathCount.b.length, songt);
-    this.$.songListPane.$.readProgress.animateProgressTo(this.pathCount.a.length);
+    if (!this.wasOffline) {
+      this.$.songListPane.$.readProgress.animateProgressTo(this.pathCount.a.length);
+    }
     this.checkAllDone();
   },
 
   checkAllDone: function() {
     if (this.pathCount.b.length === this.pathCount.a.length) {  // loaded all files from source
-      this.sortAndRefresh();
+      if (!this.wasOffline) {
+        this.sortAndRefresh();
+      }  
       if (this.online) { // update the database
         // get dbase entries (filename, title, xml, date)
         var sqlObj = this.db.getSelect("songs", '');
-        var success = enyo.bind(this, this.doExtraDbFiles);
+        var success = enyo.bind(this, this.doExtraDbFiles, this.wasOffline);
         this.db.query(sqlObj, {"onSuccess": success});
       }
+    this.wasOffline = !this.online;  // all loaded 
     }
   },
   
-  doExtraDbFiles: function(select) {
+  doExtraDbFiles: function(t_wasOffline, select) {
     // select[] is all dbase files
     for (i in select) { 
       var found = false; 
-      for (j in this.libraryList.content) { // each dropbox file
-        if (select[i].filename === this.libraryList.content[j].file) {
+      for (j in this.pathCount.a) { // each dropbox file
+        if (select[i].filename === this.pathCount.a[j].file) {
           found = true;
         }
       }
       if (!found) { //extra db file 
         // dbase file not in dropbox is it in changes table as created
         var sqlObj = this.db.getSelect("changes", '', {"filename": select[i].filename, "action": "created"});
-        var success = enyo.bind(this, this.checkDbCreate, select[i]);
+        var success = enyo.bind(this, this.checkDbCreate, select[i], t_wasOffline);
         this.db.query(sqlObj, {"onSuccess": success});
       }
     }
   },
   
-  checkDbCreate: function(dbFile, select) {
+  checkDbCreate: function(dbFile, t_wasOffline, select) {
     // select[] is changes.created record
     this.log();
     if (select.length !== 0) {
       this.log(dbFile.filename, " was created offline, adding to Dropbox");
       var error = enyo.bind(this, this.dropboxError);
-      var success = enyo.bind(this, this.dboxFileAdded, dbFile);
+      var success = enyo.bind(this, this.dboxFileAdded, dbFile, t_wasOffline);
       dropboxHelper.writeFile(dbFile.filename, dbFile.xml, dbFile.title, success, error);
-    } else {
+    } else if (!t_wasOffline) {
       this.log(dbFile.filename, " was not created offline, deleting from database");
-      var success = enyo.bind(this, this.dbSuccess);
+      var success = enyo.bind(this, this.dbSuccess, t_wasOffline);
       var sqlObj = this.db.getDelete("songs", {"filename": dbFile.filename});
       this.db.query(sqlObj, {"onSuccess": success});
     }  
   },
 
-  dboxFileAdded: function(dbFile) {
+  dboxFileAdded: function(dbFile, t_wasOffline) {
     this.log();
-    this.libraryList.content.push({'file': dbFile.filename, 'title': dbFile.title});
-    this.dataList[dbFile.filename.toLowerCase()] = ParseXml.parse_dom(dbFile.xml);
-    var success = enyo.bind(this, this.dbSuccess);
+    if (!t_wasOffline) {
+      this.libraryList.content.push({'file': dbFile.filename, 'title': dbFile.title});
+      this.dataList[dbFile.filename.toLowerCase()] = ParseXml.parse_dom(dbFile.xml);
+    }
+    var success = enyo.bind(this, this.dbSuccess, t_wasOffline);
     var sqlObj = this.db.getDelete("changes", {"filename": dbFile.filename});
     this.db.query(sqlObj, {"onSuccess": success});
   },
     
-  dbSuccess: function() {
+  dbSuccess: function(t_wasOffline) {
     this.log();
-    this.sortAndRefresh();
+    if (!t_wasOffline) {
+      this.sortAndRefresh();
+    }
   },
   
   // Sort Library alphabetically
