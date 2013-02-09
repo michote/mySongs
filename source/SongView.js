@@ -587,7 +587,7 @@ enyo.kind({
   
   closeTitle: function() {
     if (!this.running) {
-      this.$.titleDrawer.setOpen(false);this.$.titleDrawer.setOpen(false);
+      this.$.titleDrawer.setOpen(false);
     }
   },
   
@@ -598,11 +598,12 @@ enyo.kind({
     if (this.fullscreen === true) {this.$.titleDrawer.setOpen(false);
       this.$.headerToolbar.hide(); 
       this.$.footerToolbar.hide();
+      this.$.titleDrawer.setOpen(false);
       this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
     } else {
       this.$.headerToolbar.show(); 
       this.$.footerToolbar.show();
-      this.owner.owner.$.mainPanels.setIndethis.$.titleDrawer.setOpen(false);x(this.owner.owner.$.mainPanels.index ? 0 : 1);
+      this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
     }
     if (window.PalmSystem) {
       enyo.setFullScreen(this.fullscreen);
