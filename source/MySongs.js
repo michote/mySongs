@@ -18,6 +18,9 @@ enyo.kind({
   dirPath: "/media/internal/MySongBook/",
   newSong: false,
   textSrce: "",
+  online: undefined,
+  wasOffline: false,
+  silent: false,
   published: {
     dataList: {},
     libraryList: {"content": []},
@@ -29,8 +32,6 @@ enyo.kind({
     currentIndex: undefined,
     dropboxDate: 0,
     db: undefined,
-    online: undefined,
-    wasOffline: false,
   },
   components: [
     {kind: "Signals", ondeviceready: "deviceReady"},
@@ -77,24 +78,35 @@ enyo.kind({
     window.addEventListener("online", online, false);
     this.online = window.navigator.onLine;
     this.inherited(arguments);
+    this.openDatabase();
+    this.getPreferences();
     if (this.online) {
       this.connectToDropbox();
       this.wasOffline = false;
-    }
-    this.openDatabase();
-    this.getPreferences();
-    if (!this.online) {
+    } else {
       this.initDatabaseRead();
+      this.wasOffline = true;
     }
   },
 
   isOnline: function(x) {
     this.log("now", x.type);
-    this.setOnline(x.type === "online");
-    this.online = window.navigator.onLine;
+    this.online = (x.type === "online");
+    this.log("wasOffline", this.wasOffline);
     if (this.online && this.wasOffline) {
-      this.connectToDropbox();    // sync Database with Dropbox
+      this.log("upload offline changes to Dropbox");
+      this.silent = true;
+      if (dropboxHelper.client.uid) { // already connected to Dropbox
+        var success = enyo.bind(this, this.readDirectory);
+        setTimeout(success, 1000);
+      } else { // first time online => connect to Dropbox
+        var success = enyo.bind(this, this.connectToDropbox);
+        setTimeout(success, 1000);
+      }
+    } else {
+      this.silent = false;
     }
+    this.wasOffline = (x.type === "offline");
   },
 
   openDatabase: function() {
@@ -149,12 +161,14 @@ enyo.kind({
   },
 
   connectToDropbox: function() {
-    if (!this.wasOffline) {
+    if (!this.silent) {
       this.log("Connecting to Dropbox, please confirm the popup");
       this.$.songListPane.$.readFiles.setContent($L("Connecting..."));
       this.$.songListPane.$.readProgress.setMax(3);
       this.$.songListPane.$.readProgress.animateProgressTo(1);
       this.$.songListPane.$.listPane.setIndex(0);
+    } else {
+      this.$.songListPane.$.searchSpinner.show();
     }
     var success = enyo.bind(this, this.readDirectory);
     var error = enyo.bind(this, this.connectError);
@@ -167,7 +181,6 @@ enyo.kind({
     this.$.songListPane.goToLibrary();
     this.$.songListPane.$.library.setValue(false);
     this.online = false;
-    this.readFilesFromDatabase();
   },
   
   dropboxError: function(error) {
@@ -175,7 +188,6 @@ enyo.kind({
     enyo.error("Dropbox error: ", error);
     this.$.songListPane.goToLibrary();
     this.$.songListPane.$.library.setValue(false);
-    this.online = false;
   },
   
   dbError: function(transaction, error) {
@@ -257,6 +269,7 @@ enyo.kind({
   },
   
   gotDatabaseFile: function(select) {
+    this.log();
     var file = select[0].filename;
     var title = select[0].title;
     var data = select[0].xml;
@@ -275,12 +288,15 @@ enyo.kind({
   
   // Reading files in Dropbox App-Folder
   readDirectory: function() {
+    this.log();
     this.pathCount.a = [];
     this.pathCount.b = [];
-    if (!this.wasOffline) {
+    if (!this.silent) {
       this.libraryList.content = []
       this.log("reading app directory...");
       this.$.songListPane.$.readProgress.animateProgressTo(2);
+    } else {
+      this.$.songListPane.$.searchSpinner.show();
     }
     this.$.viewPane.$.preferences.setDropboxClient(true); // Show Logout Button 
     var success = enyo.bind(this, this.handleDropboxfiles);
@@ -290,7 +306,7 @@ enyo.kind({
   
   handleDropboxfiles: function(files) {
     this.log();
-    if (!this.wasOffline) {
+    if (!this.silent) {
       this.$.songListPane.$.readProgress.animateProgressTo(3);
     }  
     if (files.length === 0) {
@@ -298,7 +314,7 @@ enyo.kind({
       this.$.songListPane.$.listPane.setIndex(5);
     } else {
       this.log(files.length + " files to parse ...");
-      if (!this.wasOffline) {
+      if (!this.silent) {
         this.$.songListPane.$.readProgress.setProgress(0);
         this.$.songListPane.$.readProgress.setMax(files.length+1);
         this.$.songListPane.$.readFiles.setContent($L("Reading Files..."));
@@ -320,7 +336,7 @@ enyo.kind({
     if (ParseXml.get_titles(xml)) { // check for valid title before adding to library
       this.dataList[file.toLowerCase()] = xml;
       var a = {"file": file, "title": ParseXml.get_titles(xml)[0].title};
-      if (!this.wasOffline) {
+      if (!this.silent) {
         this.libraryList.content.push(a);
         this.log(file, "parsed", this.libraryList.content.length);
       }  
@@ -427,17 +443,15 @@ enyo.kind({
   },
 
   checkAllDone: function() {
+    this.log();
     if (this.pathCount.b.length === this.pathCount.a.length) {  // loaded all files from source
-      if (!this.wasOffline) {
-        this.sortAndRefresh();
-      }  
+      this.sortAndRefresh();
       if (this.online) { // update the database
         // get dbase entries (filename, title, xml, date)
         var sqlObj = this.db.getSelect("songs", '');
         var success = enyo.bind(this, this.doExtraDbFiles, this.wasOffline);
         this.db.query(sqlObj, {"onSuccess": success});
       }
-    this.wasOffline = !this.online;  // all loaded 
     }
   },
   
@@ -508,20 +522,31 @@ enyo.kind({
     this.log();
     this.libraryList.content.sort(this.sortByTitle);
     // Switch to libraryPane
-    this.$.songListPane.goToLibrary();
-    this.$.songListPane.$.library.setValue(true);
+    if (!this.silent) {
+      this.$.songListPane.goToLibrary();
+      this.$.songListPane.$.library.setValue(true);
+    } else { 
+      this.$.songListPane.$.searchSpinner.hide();
+    }
     // select file when given
+    var fi = undefined;
     if (file) {
       this.log("file to select", file);
       for (i in this.libraryList.content) {
         if (this.libraryList.content[i].file === file) {
-          this.openSong(i);
+          fi = i;
           break;
         }
       }
     } else if (this.currentIndex >= 0) {
-      this.openSong(this.currentIndex);
+      fi = this.currentIndex;
     }
+    if (fi && this.silent) {
+      this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(fi);
+    } else if (fi) {
+      opensong(fi);
+    }
+    this.silent = false;
   },
   
   findIndex: function() {
