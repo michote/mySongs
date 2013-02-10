@@ -91,23 +91,16 @@ enyo.kind({
 
   isOnline: function(x) {
     this.log("now", x.type);
+    //~ this.wasOffline = !this.online
     this.online = (x.type === "online");
-    this.log("wasOffline", this.wasOffline);
-    if (this.online && this.wasOffline) {
+    if (this.online) {
       this.log("upload offline changes to Dropbox");
       this.silent = true;
-      if (dropboxHelper.client.uid) { // already connected to Dropbox
-        var success = enyo.bind(this, this.readDirectory);
-        setTimeout(success, 1000);
-      } else { // first time online => connect to Dropbox
-        var success = enyo.bind(this, this.connectToDropbox);
-        setTimeout(success, 1000);
-      }
-    } else {
-      this.silent = false;
+      var success = enyo.bind(this, this.connectToDropbox);
+      setTimeout(success, 700);
     }
-    this.wasOffline = (x.type === "offline");
   },
+
 
   openDatabase: function() {
     this.db = this.$.mySongsDbase;
@@ -544,7 +537,7 @@ enyo.kind({
     if (fi && this.silent) {
       this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(fi);
     } else if (fi) {
-      opensong(fi);
+      this.openSong(fi);
     }
     this.silent = false;
   },
