@@ -424,9 +424,10 @@ enyo.kind({
         break;
       }
     }
-    o.currentIndex = o.currentIndex-1;
-    o.sortAndRefresh();
+    this.log("currentIndex", o.currentIndex);
+    (o.currentIndex === 0) ? o.currentIndex = 0 : o.currentIndex-1;
     o.$.viewPane.$.viewPanels.setIndex(1);
+    o.sortAndRefresh();
   },
   
   saveModifications: function() {

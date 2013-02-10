@@ -502,10 +502,10 @@ enyo.kind({
   
   // Sort Library alphabetically
   sortByTitle: function (a,b) {
-    if (a.title < b.title) {
+    if (a.title.toLowerCase() < b.title.toLowerCase()) {
       return -1;
     }
-    if (a.title > b.title) {
+    if (a.title.toLowerCase() > b.title.toLowerCase()) {
       return 1;
     }
     return 0;
@@ -528,15 +528,17 @@ enyo.kind({
       for (i in this.libraryList.content) {
         if (this.libraryList.content[i].file === file) {
           fi = i;
+          this.currentIndex = i;
           break;
         }
       }
-    } else if (this.currentIndex >= 0) {
+    } else if (this.currentIndex) {
       fi = this.currentIndex;
     }
     if (fi && this.silent) {
       this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(fi);
     } else if (fi) {
+      this.log(fi);
       this.openSong(fi);
     }
     this.silent = false;
@@ -580,7 +582,7 @@ enyo.kind({
   },
   
   currentIndexChanged: function() {
-    this.log();
+    this.log(this.currentIndex);
     if (this.currentIndex >= 0) {
       this.openSong(this.currentIndex);
     } else {
