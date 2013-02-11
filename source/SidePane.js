@@ -12,7 +12,7 @@ enyo.kind({
   back: undefined,
   parts: [1],
   published: {
-    css: {"size": 0, "space": 0},
+    css: {"size": 4, "space": 2, "fMin": 2, "fMax": 12, "autoResize": false },
     element: undefined
   },
   components: [ 
@@ -77,7 +77,14 @@ enyo.kind({
             {style: "width:50%; display:inline-block; text-align:left;", content: $L("small")},
             {style: "width:50%; display:inline-block; text-align:right;", content: $L("large")}
           ]},
-          {name: "size", kind: "onyx.Slider", onChange: "sliderChanged", max: 10},
+          //{name: "size", kind: "onyx.Slider", onChange: "sliderChanged", max: 10},
+          {name: "size", kind: "CombinedSlider", rangeMin: 1, rangeStart: 2, rangeEnd: 8, rangeMax: 20, isSimple: false,  
+            increment: 0.1, showLabels: false, onChanging: "sliderChanging", onChange: "sliderChanged"},
+            {style: "padding: .5rem;", components: [
+              {content: $L("Auto resize"), style: "display: inline; line-height: 32px"},
+              {kind: "onyx.ToggleButton", name: "autoSize", style: "display: inline; float: right;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") },
+              {tag: "br"},
+          ]},
           {tag: "br"},
           {content: $L("Line spacing:"), classes: "divider"},
           {components: [
@@ -290,16 +297,54 @@ enyo.kind({
     this.largePane();
     this.$.Pane.setIndex(2);
     this.$.title.setContent($L("Font Settings"));
-    this.$.size.setValue(this.css.size);
+    //this.$.size.setValue(this.css.size);
+    this.$.size.rangeStart = this.css.fMin;
+    this.$.size.rangeEnd = this.css.fMax;
+    this.$.size.isSimple = !this.css.autoResize; 
+    this.$.autoSize.setValue(this.css.autoResize);
+    this.$.size.refreshRangeSlider();
     this.$.space.setValue(this.css.space);
   },
-  
+/*  
   sliderChanged: function(inSender, inEvent) {
     this.log(inSender.name + " changed to " + Math.round(inSender.getValue()));
     this.css[inSender.name] = Math.round(inSender.getValue());
     this.owner.setFont(this.css);
   },
-  
+*/  
+  sliderChanged: function(inSender, inEvent) {
+    switch (inSender.name) {
+      case "space":
+        this.log(inSender.name + " changed to " + Math.round(inSender.getValue()));
+        this.css[inSender.name] = Math.round(inSender.getValue());
+        break;
+      case "size":
+        if (this.$.size.isSimple) {
+          this.log(inSender.name + " end changed to " + Math.round(inSender.rangeEnd));
+          this.css["size"] = Math.round(inSender.rangeEnd);
+          this.css["fMin"] = Math.round(inSender.rangeStart);
+          this.css["fMax"] = Math.round(inSender.rangeEnd);
+        } else {
+          this.log(inSender.name + " start changed to " + Math.round(inSender.rangeStart));
+          this.log(inSender.name + " end changed to " + Math.round(inSender.rangeEnd));
+          if (inEvent.startChanged) {
+            this.css["size"] = Math.round(inSender.rangeStart);
+          } else {
+            this.css["size"] = Math.round(inSender.rangeEnd);
+          }
+          this.css["fMin"] = Math.round(inSender.rangeStart);
+          this.css["fMax"] = Math.round(inSender.rangeEnd);
+        }
+        break;
+    }
+    this.owner.setFont(this.css);
+  },
+
+  sliderChanging: function(inSender, inEvent) {
+    if (inSender.name === "size") {
+    }
+  },
+
   // Editing
   // got to add
   goToAdd: function(type) {
@@ -520,11 +565,32 @@ enyo.kind({
     }
   },
   
+  toggle: function (inSender, inEvent) {
+    this.log("toggled:", inSender.name, inEvent.value);
+    if (inSender.name === "autoSize") {
+      this.$.size.isSimple = !inEvent.value;
+      this.css.autoResize = inEvent.value;
+      if (!this.$.size.isSimple) {
+        this.$.size.rangeStart = this.css.fMin;
+        this.$.size.rangeEnd = this.css.fMax;
+      } else {
+        this.$.size.rangeEnd = (this.css.fMin + this.css.fMax) / 2;
+      }
+      this.$.size.refreshRangeSlider();
+    }
+  },
+  
   // close
   closeClicked: function(sender) {
     this.log(this.$.Pane.getIndex());
     switch (this.$.Pane.getIndex()) {
-      case 2: this.owner.saveCss(this.css); // Font settings
+      case 2: if (!this.$.size.isSimple) {
+                this.css["size"] = Math.round((this.css["fMin"] + this.css["fMax"]) / 2);
+              } else { 
+                this.css["size"] = Math.round(this.css["fMax"]);
+              }
+              this.owner.saveCss(this.css); // Font settings
+              this.owner.$.viewPane.$.songViewPane.resizeLyrics();
               break;
                
       case 4: this.$.closeButton.setContent($L("Close")); // Edit element
