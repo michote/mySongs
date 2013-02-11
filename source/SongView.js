@@ -68,7 +68,7 @@ enyo.kind({
           {name: "trSpacer", kind: "my.Spacer", showing: false},
           {name: "transposergr", kind: "FittableColumns", components: [
             {name: "transminus", kind: "onyx.IconButton", src: Helper.iconPath()+"minus.png", style: "width: 1.25rem;", ontap: "transMinus", disabled: true},
-            {name: "transposer", kind: "onyx.Button", classes: "reintext-button", style: "width: " + (Helper.phone() ? 3.5 : 5) + "rem; margin-top: -.25rem", ontap: "transButton"},
+            {name: "transposer", kind: "onyx.Button", classes: "reintext-button", style: "width: " + (Helper.phone() ? 3.5 : 5) + "rem; margin-top: -.125rem !important", ontap: "transButton"},
             {kind: "onyx.IconButton", name: "transplus", src: Helper.iconPath()+"plus.png", style: "width: 1.25rem;", ontap: "transPlus", disabled: true},
             {kind: "my.Spacer"}
           ]},

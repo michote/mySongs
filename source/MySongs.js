@@ -537,8 +537,10 @@ enyo.kind({
     }
     if (fi && this.silent) {
       this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(fi);
+      this.$.songListPane.$.libraryList.scrollToRow(fi);
     } else if (fi) {
       this.log(fi);
+      this.$.songListPane.$.libraryList.scrollToRow(fi);
       this.openSong(fi);
     }
     this.silent = false;
