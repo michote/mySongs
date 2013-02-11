@@ -28,12 +28,20 @@ html {
     .quer { /* hide some stuff when in landscape */
         display: none;
     }
+    
+    .searchbuttons {
+        width: 7rem;
+    }
 }
 
 /* hide some stuff when in portrait */
 @media all and (min-width: 800px) { 
     .hochk {
         display: none;
+    }
+    
+    .searchbuttons {
+        width: 4.75rem;
     }
 }
 

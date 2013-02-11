@@ -18,15 +18,17 @@ enyo.kind({
   xmlList: [],
   listIndex: undefined,
   components: [
-    {name: "getXml", kind: "WebService", onSuccess: "gotXml", 
-      onFailure: "gotXmlFailure"},
     // header Toolbar
     {name: "headerToolbar", kind: "onyx.Toolbar", components: [
-      {name: "title", classes: "title", content: $L("Song List")},
-      {name: "prefsButton", kind: "onyx.IconButton", src: Helper.iconPath()+"prefs.png", style: "float: right;", classes: "hochk", ontap: "showMenu"},
-      {name: "searchButton", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"search.png", style: "float: right", ontap: "extendSearch", disabled: true},
-      {name: "searchSpinner", style: "float: right; margin-top: 0;", showing: false, components: [
-        {kind:"jmtk.Spinner", color: "#FFFFFF", diameter: (Helper.ratio() * 30)}
+      {kind: "FittableColumns", style: "width: 100%; margin: 0; padding: 0;", components: [
+        {name: "title", fit: true, classes: "title", style: "line-height: 2rem;", content: $L("Song List")},
+        {kind: "FittableColumns", classes: "searchbuttons", components: [
+          {name: "prefsButton", kind: "onyx.IconButton", src: Helper.iconPath()+"prefs.png", style: "float: right;", classes: "hochk", ontap: "showMenu"},
+          {name: "searchButton", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"search.png", style: "float: right", ontap: "extendSearch", disabled: true},
+          {name: "searchSpinner", style: "float: right; margin-top: 0;", showing: false, components: [
+            {kind:"jmtk.Spinner", color: "#FFFFFF", diameter: (Helper.ratio() * 30)}
+          ]}
+        ]}
       ]}
     ]},
     
