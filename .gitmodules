@@ -1,18 +1,24 @@
 [submodule "enyo"]
 	path = enyo
 	url = https://github.com/enyojs/enyo.git
+	ignore = all
 [submodule "lib/onyx"]
 	path = lib/onyx
 	url = https://github.com/enyojs/onyx.git
+	ignore = all
 [submodule "lib/layout"]
 	path = lib/layout
 	url = https://github.com/enyojs/layout.git
+	ignore = all
 [submodule "lib/g11n"]
 	path = lib/g11n
 	url = https://github.com/enyojs/g11n.git
+	ignore = all
 [submodule "source/modules/JMTKspinner"]
 	path = source/modules/JMTKspinner
 	url = git://github.com/JMTK/canvas-spinner.git
+	ignore = all
 [submodule "lib/canvas"]
 	path = lib/canvas
 	url = https://github.com/enyojs/canvas.git
+	ignore = all
