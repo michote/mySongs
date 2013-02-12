@@ -8,5 +8,6 @@ enyo.depends(
     "txtConverter.js",
     "dropbox.js",
     "dropboxHelper.js",
-    "database-enyo.js"
+    "database-enyo.js",
+    "CombinedSlider.js"
 );

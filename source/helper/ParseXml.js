@@ -407,7 +407,7 @@ function ParseXml () {}
           pt = t.slice(pIdx, gtIdx).split('"')[1];
           t = t.replace(t.slice(0, gtIdx+1), '');
         } else {
-          t = t.replace('>', '');
+          t = t.slice(gtIdx+1);
         }
         t = t.replace('</lines>', '');
         // remove line braeks and leading spaces

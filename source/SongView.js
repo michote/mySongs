@@ -468,6 +468,23 @@ enyo.kind({
     this.$.forthButton.setDisabled(false);
     this.$.backButton.setDisabled(false);
     this.$.printButton.setDisabled(false);
+    this.resizeLyrics();
+  },
+  
+  resizeLyrics: function() {
+    this.log();
+    if (this.$.lyric.node !== null && this.owner.owner.$.sidePane.css.autoResize === true) {
+      this.$.lyric.applyStyle("font-size", "100%");
+      this.$.lyric.applyStyle("display", "inline-block");
+      var iFS = this.$.lyric.node.style.fontSize.split("%")[0];
+      var newFS = (iFS * (this.$.lyric.owner.width - 20)/this.$.lyric.node.clientWidth);
+      var cmpFS = this.owner.owner.$.sidePane.css.fMin  * 12 * Helper.ratio() + 100;
+      newFS = newFS < cmpFS ? cmpFS : newFS;
+      cmpFS = this.owner.owner.$.sidePane.css.fMax  * 12 * Helper.ratio() + 100;
+      newFS = newFS > cmpFS ? cmpFS : newFS;
+      this.$.lyric.applyStyle("font-size", newFS + "%");
+      this.$.lyric.applyStyle("display", "block");
+    }
   },
   
   initForTextPlay: function() {
