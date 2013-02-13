@@ -21,6 +21,7 @@ enyo.kind({
   halfHt: 0,
   rowsTraversed: 0,
   cursorRow: 0,
+  tapTimer: undefined,
   textIndex: 0,
   scroll: 0,
   transpose: 0,
@@ -82,7 +83,7 @@ enyo.kind({
       {name: "viewIncScrollBar", kind: "FittableColumns", fit: true, classes:"app-panels inner-panels", components: [
         {name: "cursorScrollBar", kind: "cursorScrollBar", ontap: "resetCursorTiming", classes: "cursor"},
         {name: "viewScroller", kind: "enyo.Scroller", classes: "michote-scroller", horizontal: "hidden", fit: true, components: [
-          {name: "lyric", ondragfinish: "songDragFinish", ondblclick: "onDoubleClick"}
+          {name: "lyric", ondragfinish: "songDragFinish", ontap: "onDoubleTap"}
         ]}
       ]},
       {name: "transposeList", kind: "List", touch: true, count: 16, style: "height: 100%; min-width: 4rem; max-width: 4rem; visibility: hidden;", classes: "side-pane", onSetupItem: "getTranspose", components: [
@@ -607,24 +608,32 @@ enyo.kind({
       this.$.titleDrawer.setOpen(false);
     }
   },
-  
+
   // Maximize view on doubleclick
-  onDoubleClick: function() {
+  onDoubleTap: function(inSender, inEvent) {
     this.log("double tap: set fullscreen: ", !this.fullscreen);
-    this.fullscreen = !this.fullscreen;
-    if (this.fullscreen === true) {this.$.titleDrawer.setOpen(false);
-      this.$.headerToolbar.hide(); 
-      this.$.footerToolbar.hide();
-      this.$.titleDrawer.setOpen(false);
-      this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
-    } else {
-      this.$.headerToolbar.show(); 
-      this.$.footerToolbar.show();
-      this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
-    }
-    if (window.PalmSystem) {
-      enyo.setFullScreen(this.fullscreen);
-    }
+    if (inEvent.type = "tap") {
+      if (this.tapTimer === undefined) {
+        this.tapTimer = setTimeout(function(){}, 300);
+      } else { // double tap
+        clearTimeout(this.tapTimer);
+        this.tapTimer = undefined;
+        this.fullscreen = !this.fullscreen;
+        if (this.fullscreen === true) {this.$.titleDrawer.setOpen(false);
+          this.$.headerToolbar.hide(); 
+          this.$.footerToolbar.hide();
+          this.$.titleDrawer.setOpen(false);
+          this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
+        } else {
+          this.$.headerToolbar.show(); 
+          this.$.footerToolbar.show();
+          this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
+        }
+        if (window.PalmSystem) {
+          enyo.setFullScreen(this.fullscreen);
+        }
+      }
+    }  
   },
   
   // ### Button ###
