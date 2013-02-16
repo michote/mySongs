@@ -18,8 +18,14 @@ enyo.kind({
   xmlList: [],
   listIndex: undefined,
   components: [
+    // Drawer for Phone Title and Copyright !!
+    {name: "performanceDrawer", kind: "onyx.Drawer", open: false, classes: "searchbar", components: [
+      {style: "color: #fff; padding: .5rem; background-color: rgba(0,0,0,0.6); text-align: center;", ontap: "closePerformance", components: [
+        {name: "performanceText", classes: "title", allowHtml: true},
+      ]}
+    ]},
     // header Toolbar
-    {name: "headerToolbar", kind: "onyx.Toolbar", components: [
+    {name: "headerToolbar", kind: "onyx.Toolbar", ondragfinish: "performanceDragFinish", components: [
       {kind: "FittableColumns", style: "width: 100%; margin: 0; padding: 0;", components: [
         {name: "title", fit: true, classes: "title", style: "line-height: 2rem;", content: $L("Song List")},
         {kind: "FittableColumns", classes: "searchbuttons", components: [
@@ -251,6 +257,24 @@ enyo.kind({
     this.owner.$.sidePane.showMenu();
   },
   
+  // Swipe down in Titlebar in 
+  performanceDragFinish: function(inSender, inEvent) {
+    if (this.$.listPane.getIndex() === 2) {
+      if (+inEvent.dy > 50) {
+        this.$.performanceDrawer.setOpen(true);
+      }
+      if (+inEvent.dy < -50) {
+        this.$.performanceDrawer.setOpen(false);
+      }
+    }
+  },
+  
+  closePerformance: function() {
+    if (!this.running) {
+      this.$.performanceDrawer.setOpen(false);
+    }
+  },
+  
   // ### Panes ###
   goToSync: function() {
     this.log();
@@ -294,6 +318,7 @@ enyo.kind({
       this.owner.currentList = "customList";
       this.owner.setCurrentIndex(undefined);
       this.$.title.setContent(this.owner.customList.title+ " (" + this.owner.customList.content.length + ")");
+      this.$.performanceText.setContent('<big><b>' + this.owner.customList.content.length + " " + $L("title") + "</b></big><br> Total duration:  s");
       this.$.addRem.setSrc(Helper.iconPath()+"remove.png");
       this.$.open.setSrc(Helper.iconPath()+"open.png");
       this.$.addRem.setDisabled(false);

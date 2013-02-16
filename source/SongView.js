@@ -300,7 +300,7 @@ enyo.kind({
       copy = "&copy; " + y + $L("no" + this.showPrefs.showinToolbar);
     }
     this.$.copy.setContent(copy);
-    this.$.titleText.setContent('<big><b>' + t + '</big></b><br><small>' + copy + '</small>'); 
+    this.$.titleText.setContent('<big><b>' + t + '</b></big><br><small>' + copy + '</small>'); 
   },
   
   lyricDataSet: function() {
