@@ -12,6 +12,7 @@
     "Preferences": "Einstellungen",
     "General Settings": "Allgemeine Einstellungen",
     "Display Settings": "Anzeige Einstellungen",
+    "Dropbox Settings": "Dropbox Einstellungen",
     "Sort Lyric": "Sortiere Lyrics nach Ablauf (z.B. Str1 - Refr - Str2 - Refr...)",
     "yes": "ja",
     "no": "nein",
@@ -23,12 +24,16 @@
     "Show Chords": "Zeige Akkorde wenn verfügbar",
     "Show Comments": "Zeige Kommentare",
     "Show elementname (e.g. V1:)": "Zeige den Elementnamen (z.B. S1:) an",
-    
+    "Sync": "Synchronisiere",
+    "on startup": "beim Start",
+    "automatically": "automatisch",
+    "manually": "manuell",
     
     "Font Settings": "Schrift Einstellungen",
     "Font size:": "Schriftgröße",
     "Line spacing:": "Zeilenabstand",
     "small": "klein",
+    "large": "groß",
     
     "Song List": "Liedliste",
     
@@ -81,6 +86,7 @@
     " You can create custom lists of songs to display.": " Es können eigenen Liedlisten angelegt werden.",
     "Icon Guide": "Symbol Leitfaden",
     "Main View": "Hauptfenster",
+    "toggles language if present": "Wechselt zwischen verfügbaren Sprachen",
     "Transposer": "Transponierer",
     "prevents the screen from dimming or turning off": "Verhindert, dass der Bildschirm abblendet oder ausgeht",
     "change fontsize and linespacing": "Schriftgröße und Zeilenabstand verändern",

@@ -21,6 +21,10 @@ enyo.kind({
         {allowHtml: true, content: "<h3>" + $L("Main View") + "</h3>"},
         {tag: 'ul', classes: "help", components: [
           {tag: 'il', components: [
+            {kind: "Image", src: Helper.iconPath()+"flag-help.png", fit: false},
+            {tag: 'p', content: $L("toggles language if present")}
+          ]},
+          {tag: 'il', components: [
             {kind: "Image", src: Helper.iconPath()+"minus-help.png"},
             {kind: "Image", src: Helper.iconPath()+"plus-help.png"},
             {tag: 'p', content: $L("Transposer")}
@@ -29,10 +33,6 @@ enyo.kind({
             //~ {kind: "Image", src: Helper.iconPath()+"lock-open-help.png"},
             //~ {tag: 'p', content: $L("prevents the screen from dimming or turning off")}
           //~ ]},
-          {tag: 'il', components: [
-            {kind: "Image", src: Helper.iconPath()+"flag-help.png", fit: false},
-            {tag: 'p', content: $L("toggles language if present")}
-          ]},
           {tag: 'il', components: [
             {kind: "Image", src: Helper.iconPath()+"font-help.png", fit: false},
             {tag: 'p', content: $L("change fontsize and linespacing")}

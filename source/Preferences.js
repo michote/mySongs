@@ -16,7 +16,8 @@ enyo.kind({
       showScroll: true,
       showAuto: true,
       scrollToNext: true
-    }
+    },
+    sync: "auto",
   },
   components: [
     {name: "headerToolbar", kind: "onyx.Toolbar", style: "text-align:center;", components: [
@@ -34,7 +35,7 @@ enyo.kind({
           {kind: Helper.phone() ? "FittableRows" : "FittableColumns", style: "padding: .5rem;", components: [
             {content:  $L("Show in bottom toolbar:")},
             {name: "showinToolbar", kind: "onyx.RadioGroup", onActivate: "toggleShowinToolbar", style: "display: inline-block; float: right; margin: -.1875rem 0 !important", components: [
-              {name: "copyright", content: $L("copyright"), active: true},
+              {name: "copyright", content: $L("copyright")},
               {name: "authors", content: $L("author")},
               {name: "publisher", content: $L("publisher")}
             ]},
@@ -79,6 +80,15 @@ enyo.kind({
         ]},
         {kind: "onyx.Groupbox", components: [
           {kind: "onyx.GroupboxHeader", content: $L("Dropbox Settings")},
+          {kind: Helper.phone() ? "FittableRows" : "FittableColumns", style: "padding: .5rem;", components: [
+            {content:  $L("Sync")},
+            {name: "sync", kind: "onyx.RadioGroup", onActivate: "toggleSync", style: "display: inline-block; float: right; margin: -.1875rem 0 !important", components: [
+              {name: "startup", content: $L("on startup")},
+              {name: "auto", content: $L("automatically")},
+              {name: "manual", content: $L("manually")}
+            ]},
+            {tag: "br", style: "clear:both;"}
+          ]},
           {style: "padding: .5rem;", components: [
             {content:  $L("Logout from Dropbox"), style: "display: inline-block; width: 65%;"},
             {name: "login", kind:"onyx.Button", content: "Login", classes: "onyx-affirmative", style: "float: right;", ontap:"logTapped", showing: false},
@@ -123,8 +133,12 @@ enyo.kind({
   getPrefs: function() {
     if (Helper.getItem("showPrefs")) {
       this.showPrefs = Helper.getItem("showPrefs");
-      this.log("got showPrefs", Helper.getItem("showPrefs"));
     }
+    if (Helper.getItem("sync")) {
+      this.sync = Helper.getItem("sync");
+      this.owner.owner.setSync(this.sync);
+    }
+    this.log("got showPrefs", Helper.getItem("showPrefs"), "sync:", Helper.getItem("sync"));
   },
   
   setPrefs: function() {
@@ -138,7 +152,8 @@ enyo.kind({
         this.$[i].setValue(this.showPrefs[i]);
       }
     }
-    this.log(this);
+    this.log("set sync:", this.sync);
+    this.$[this.sync].setActive(true);
   },
   
   savePrefs: function() {
@@ -159,6 +174,15 @@ enyo.kind({
   toggle: function (inSender, inEvent) {
     this.log("toggled:", inSender.name, inEvent.value);
     this.showPrefs[inSender.name] = inEvent.value;
+  },
+  
+  toggleSync: function (inSender, inEvent) {
+    if (inEvent.originator.getActive()) {
+      this.log("toggled:", inSender.name, inEvent.originator.name);
+      this.sync = inEvent.originator.name;
+      Helper.setItem("sync", this.sync);
+      this.owner.owner.setSync(this.sync);
+    }
   },
   
   grabber: function() {

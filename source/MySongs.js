@@ -28,6 +28,7 @@ enyo.kind({
     searchList: {"content": []},
     css: undefined,
     currentList: "libraryList",
+    sync: "auto",
     currentIndex: undefined,
     dropboxDate: 0,
     db: undefined,
@@ -65,40 +66,105 @@ enyo.kind({
     }
   ],
   
+  // respond to phonegap deviceready event
   deviceReady: function() {
-    // respond to deviceready event
+    this.log("phonegap deviceready");
+    document.addEventListener("offline", online, false);
+    document.addEventListener("online", online, false);
   },
 
   create: function() {
+    this.inherited(arguments);
     enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
+    this.getPreferences();
     // online status
     var online = enyo.bind(this, this.isOnline);
     window.addEventListener("offline", online, false);
     window.addEventListener("online", online, false);
     this.online = window.navigator.onLine;
-    this.inherited(arguments);
     this.openDatabase();
-    this.getPreferences();
-    if (this.online) {
-      this.connectToDropbox();
-      this.silent = false;
-    } else {
-      this.initDatabaseRead();
-      this.silent = false;
-    }
+    this.connect();
   },
 
   isOnline: function(x) {
     this.log("now", x.type);
     this.online = (x.type === "online");
-    if (this.online) {
+    if (this.online && (this.sync === "auto")) {
       this.log("upload offline changes to Dropbox");
       this.silent = true;
-      this.connectToDropbox();  // delay move to connect call 
+      var success = enyo.bind(this, this.connect);
+      setTimeout(success, 700);
+    }
+  },
+  
+  connect: function() {
+    this.log("sync prefs: ", this.sync);
+    if ((this.sync !== "manual") && this.online) {
+      if (dropboxHelper.client.uid) {
+        this.readDirectory() 
+      } else {
+        this.connectToDropbox();
+      }
+    } else {
+      this.initDatabaseRead();
     }
   },
 
-
+  connectToDropbox: function() {
+    this.log("Connecting to Dropbox, please confirm the popup if any");
+    if (!this.silent) {
+      this.$.songListPane.$.readFiles.setContent($L("Connecting..."));
+      this.$.songListPane.$.readProgress.setMax(3);
+      this.$.songListPane.$.readProgress.animateProgressTo(1);
+      this.$.songListPane.$.listPane.setIndex(0);
+    } else {
+      this.$.songListPane.$.searchSpinner.show();
+    }
+    var success = enyo.bind(this, this.readDirectory);
+    var error = enyo.bind(this, this.connectError);
+    setTimeout(dropboxHelper.connect(success, error), 700);
+  },
+  
+  // Refresh Library
+  refreshLibrary: function() {
+    this.log("refreshing library ...");
+    this.libraryList.content = [];
+    this.$.songListPane.goToSync();
+    if (this.online) {
+      this.connect();
+    } else {
+      this.readFilesFromDatabase();
+    }
+  },
+  
+  connectError: function(error) {
+    this.$.songListPane.showError($L("Connection error: ") + error);
+    enyo.error("Connection error: ", error);
+    this.$.songListPane.goToLibrary();
+    this.$.songListPane.$.library.setValue(false);
+    this.online = false;
+  },
+  
+  dropboxError: function(error) {
+    this.$.songListPane.showError($L("Dropbox error: ") + error);
+    enyo.error("Dropbox error: ", error);
+    this.$.songListPane.goToLibrary();
+    this.$.songListPane.$.library.setValue(false);
+  },
+  
+  // Dropbox Logout
+  signOut: function() {
+    this.log("signing out from dropbox ...");
+    var success = enyo.bind(this, this.signOutSuccess);
+    setTimeout(dropboxHelper.signOut(success), 50);
+  },
+  
+  signOutSuccess: function() {
+    this.$.viewPane.$.preferences.setDropboxClient(false); // Hide Logout Button 
+    this.$.songListPane.$.listPane.setIndex(6);
+    this.log("successfully logged out from Dropbbox");
+  },
+  
   openDatabase: function() {
     this.db = this.$.mySongsDbase;
     //this.db.query('DROP TABLE IF EXISTS "songs"');
@@ -149,67 +215,12 @@ enyo.kind({
       })
     })
   },
-
-  connectToDropbox: function() {
-    if (!this.silent) {
-      this.log("Connecting to Dropbox, please confirm the popup");
-      this.$.songListPane.$.readFiles.setContent($L("Connecting..."));
-      this.$.songListPane.$.readProgress.setMax(3);
-      this.$.songListPane.$.readProgress.animateProgressTo(1);
-      this.$.songListPane.$.listPane.setIndex(0);
-    } else {
-      this.$.songListPane.$.searchSpinner.show();
-    }
-    var success = enyo.bind(this, this.readDirectory);
-    var error = enyo.bind(this, this.connectError);
-    setTimeout(dropboxHelper.connect(success, error), 700);
-  },
-  
-  connectError: function(error) {
-    this.$.songListPane.showError($L("Connection error: ") + error);
-    enyo.error("Connection error: ", error);
-    this.$.songListPane.goToLibrary();
-    this.$.songListPane.$.library.setValue(false);
-    this.online = false;
-  },
-  
-  dropboxError: function(error) {
-    this.$.songListPane.showError($L("Dropbox error: ") + error);
-    enyo.error("Dropbox error: ", error);
-    this.$.songListPane.goToLibrary();
-    this.$.songListPane.$.library.setValue(false);
-  },
   
   dbError: function(transaction, error) {
     this.log();
     //this.$.songListPane.showError($L("Database error: "));
     this.$.songListPane.goToLibrary();
     this.$.songListPane.$.library.setValue(false);
-  },
-  
-  // Dropbox Logout
-  signOut: function() {
-    this.log("signing out from dropbox ...");
-    var success = enyo.bind(this, this.signOutSuccess);
-    setTimeout(dropboxHelper.signOut(success), 50);
-  },
-  
-  signOutSuccess: function() {
-    this.$.viewPane.$.preferences.setDropboxClient(false); // Hide Logout Button 
-    this.$.songListPane.$.listPane.setIndex(6);
-    this.log("successfully logged out from Dropbbox");
-  },
-  
-  // Refresh Library
-  refreshLibrary: function() {
-    this.log("refreshing library ...");
-    this.libraryList.content = [];
-    this.$.songListPane.goToSync();
-    if (this.online) {
-      this.readDirectory();
-    } else {
-      this.readFilesFromDatabase();
-    }
   },
   
   //Reading files in database
