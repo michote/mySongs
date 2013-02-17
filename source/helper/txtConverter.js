@@ -47,6 +47,15 @@
       fullSong = true;
       doProperties(srceLyrics);
     }
+    // remove OnSong's double blank lines
+    var i = 0;
+    while (i<lyricLines.length - 1) {
+      if (lyricLines[i] == "" && lyricLines[i+1] == "") {
+        lyricLines.splice(i,1);                            // double blank line -> single
+      }
+      i++;
+    }
+
     var chordsFound = false;
     var opensong = false;
 
