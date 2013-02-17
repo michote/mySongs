@@ -491,6 +491,7 @@ enyo.kind({
   initForTextPlay: function() {
     this.log();
     var ctrls = this.$.lyric.getControls();
+    this.resizeLyrics();  // in case screen size/orientation changed
     this.rowsTraversed = this.$.lyric.node.clientHeight;
     for (i = 0; i < ctrls.length; i++) {
       if (ctrls[i].name === "scrollspacer") {
@@ -500,11 +501,7 @@ enyo.kind({
     this.halfHt = this.$.viewScroller.node.clientHeight / 2;
     this.$.viewScroller.setScrollTop(this.lyricsCurrRow);
     this.$.cursorScrollBar.$.canvas.setAttribute("height", this.$.viewScroller.node.clientHeight);
-    if (this.data.duration) {
-      this.songSecs = this.data.duration;
-    } else {
-      this.songSecs = this.defaultSongSecs;
-    }
+    this.songSecs = (this.data.duration) ? this.data.duration : this.defaultSongSecs;
     this.$.cursorScrollBar.cursorOff();
     this.$.cursorScrollBar.hasNode().height = this.$.viewScroller.node.clientHeight;
     this.$.editButton.setDisabled(true);
@@ -609,31 +606,35 @@ enyo.kind({
     }
   },
 
-  // Maximize view on doubleclick
-  onDoubleTap: function(inSender, inEvent) {
-    this.log("double tap: set fullscreen: ", !this.fullscreen);
-    if (inEvent.type = "tap") {
-      if (this.tapTimer === undefined) {
-        this.tapTimer = setTimeout(function(){}, 300);
-      } else { // double tap
-        clearTimeout(this.tapTimer);
-        this.tapTimer = undefined;
-        this.fullscreen = !this.fullscreen;
-        if (this.fullscreen === true) {this.$.titleDrawer.setOpen(false);
-          this.$.headerToolbar.hide(); 
-          this.$.footerToolbar.hide();
-          this.$.titleDrawer.setOpen(false);
-          this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
-        } else {
-          this.$.headerToolbar.show(); 
-          this.$.footerToolbar.show();
-          this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
-        }
-        if (window.PalmSystem) {
-          enyo.setFullScreen(this.fullscreen);
-        }
+  // Maximize view on doubletap
+  onDoubleTap: function() {
+    if (this.tapTimer === undefined) {
+      this.tapTimer = window.setTimeout(enyo.bind(this, this.undefTimer), 300);
+    } else { // double tap
+      this.log("double tap: set fullscreen: ", !this.fullscreen);
+      window.clearTimeout(this.tapTimer);
+      this.tapTimer = undefined;
+      this.fullscreen = !this.fullscreen;
+      if (this.fullscreen === true) {
+        this.$.titleDrawer.setOpen(false);
+        this.$.headerToolbar.hide(); 
+        this.$.footerToolbar.hide();
+        this.$.titleDrawer.setOpen(false);
+        this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
+      } else {
+        this.$.headerToolbar.show(); 
+        this.$.footerToolbar.show();
+        this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
       }
-    }  
+      if (window.PalmSystem) {
+        enyo.setFullScreen(this.fullscreen);
+      }
+    }
+  },
+
+  // timing out does no undefine variable
+  undefTimer: function() {
+    this.tapTimer = undefined;
   },
   
   // ### Button ###
