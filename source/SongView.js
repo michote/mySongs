@@ -15,13 +15,22 @@ enyo.kind({
   // Properties
   defaultSongSecs: 200, // seconds for song
   songSecs: this.defaultSongSecs, 
-  intervalSong: 0,
+  scrollTimeout: 0,
   running: false,
   lyricsCurrRow: 0,
+  perRowMSecs: 0,
   halfHt: 0,
   rowsTraversed: 0,
   cursorRow: 0,
+  initTime: 0,
+  currIntDate: 0,
+  currTime: 0,
+  diffTime: 0,
+  reqPrms: 0,
+  prevRow: 0,
   tapTimer: undefined,
+  tapTimer2: undefined,
+  tapTimer3: undefined,
   textIndex: 0,
   scroll: 0,
   transpose: 0,
@@ -81,8 +90,8 @@ enyo.kind({
     ]},
     {name:"transposePanels", kind: "Panels", fit: true, arrangerKind: "CollapsingArranger", draggable: false, components: [
       {name: "viewIncScrollBar", kind: "FittableColumns", fit: true, classes:"app-panels inner-panels", components: [
-        {name: "cursorScrollBar", kind: "cursorScrollBar", ontap: "resetCursorTiming", classes: "cursor"},
-        {name: "viewScroller", kind: "enyo.Scroller", classes: "michote-scroller", horizontal: "hidden", fit: true, components: [
+        {name: "cursorScrollBar", kind: "cursorScrollBar", ontap: "cursorTapHandler", classes: "cursor"},
+        {name: "viewScroller", kind: "enyo.Scroller", strategyKind: "ScrollStrategy", classes: "michote-scroller", horizontal: "hidden", fit: true, components: [
           {name: "lyric", ondragfinish: "songDragFinish", ontap: "onDoubleTap"}
         ]}
       ]},
@@ -370,20 +379,25 @@ enyo.kind({
 
   // ### Autoscroll ###
   togglePlay: function() {
+    this.log();
+    this.tapTimer2 = undefined;  // for tap handler
     if (this.$.playButton.src === Helper.iconPath()+"play.png") { 
       // play
       if (this.lyricsCurrRow !== 0) {
         // paused
         this.running = true;
+        this.showLyrics(false);
       } else { 
         // begining to play
         this.initForTextPlay();
         this.$.cursorScrollBar.cursorOn();
         this.running = true;
         this.finished = false;
-        var perRowMSecs = 1000*this.songSecs/this.rowsTraversed;
-        this.intervalSong = window.setInterval(enyo.bind(this, "showLyrics"), perRowMSecs);
-      }
+        this.perRowMSecs = 1000*this.songSecs/this.rowsTraversed;
+        this.log("Require to scroll a row per", this.perRowMSecs, "mSecs. duration", this.songSecs);
+        this.resetStartTime();
+        this.showLyrics(true);
+        }
       this.$.playButton.setProperty("src", Helper.iconPath()+"pause.png");
       this.$.forthButton.setDisabled(false);
       this.$.forthButton.setDisabled(true);
@@ -403,18 +417,42 @@ enyo.kind({
   },
   
   movingLyrics: function() {
-    this.log();
+    //this.log();
     if ((this.lyricsCurrRow > this.halfHt) && (this.lyricsCurrRow < (this.rowsTraversed - this.halfHt))) {
       return true;
     } else {
       return false;
     }
   },
+ 
+  cursorTapHandler: function(inSender, inEvent) {
+    if (this.tapTimer2 === undefined) {
+      //this.log("single tap");
+      this.tapTimer2 = window.setTimeout(enyo.bind(this, this.togglePlay), 300);
+    } else if (this.running && this.tapTimer3 === undefined) { // double tap
+      //this.log("double tap");
+      window.clearTimeout(this.tapTimer2);
+      this.tapTimer2 = undefined;
+      this.tapTimer3 = window.setTimeout(enyo.bind(this, this.undefTimer3), 200); // debounce double tap
+      this.resetCursorTiming(inEvent);
+    }
+    return false;
+  },
 
-  resetCursorTiming: function() {
-    this.log();
+  undefTimer3: function () {
+    this.tapTimer3 = undefined;
+  },
+
+  resetStartTime: function() {
+    this.currIntDate = new Date();
+    this.currTime = this.currIntDate.getTime();
+    this.initTime = this.currTime - this.diffTime;
+    this.prevRow = this.lyricsCurrRow - 1;
+  },
+
+  resetCursorTiming: function(inEvent) {
     // adjust the position of the cursor
-    var yAdj = event.offsetY - this.cursorRow;  
+    var yAdj = inEvent.clientY - this.$.headerToolbar.getBounds().height - this.cursorRow;  
     var lyricsPrevRow = this.lyricsCurrRow;  // save for later
     this.lyricsCurrRow = this.lyricsCurrRow + yAdj;
     if (this.lyricsCurrRow < this.halfHt) {
@@ -428,29 +466,61 @@ enyo.kind({
     this.$.cursorScrollBar.setY(this.cursorRow);
     // now adjust the speed of the cursor.
     this.songSecs = this.songSecs * lyricsPrevRow / this.lyricsCurrRow;
-    window.clearInterval(this.intervalSong);
-    var perRowMSecs = 1000*this.songSecs/this.rowsTraversed;
-    this.intervalSong = window.setInterval(enyo.bind(this, "showLyrics"), perRowMSecs);
+    window.clearTimeout(this.scrollTimeout);
+    this.perRowMSecs = 1000*this.songSecs/this.rowsTraversed;
+    this.diffTime = this.perRowMSecs * this.lyricsCurrRow;
+    this.resetStartTime();
+//    this.log("Now a row per", this.perRowMSecs, "mSecs. Duration", this.songSecs);
+    this.showLyrics(false);
     if (this.data.titles) { var theTitles = ParseXml.titlesToString(this.data.titles); }
     this.$.title.setContent(theTitles + " (" + Math.floor(this.songSecs) + " secs)");
   },
   
-  showLyrics: function() {
+  // only allow autoscroll row step to change by 'allow' rows
+  smoothRow: function(pRow, nRow) {
+    var allow = 4;
+    var d = nRow - pRow;
+    var sRow = nRow
+    if (Math.abs(d) > allow) {
+      this.log("Row rate change",d, "-> ", allow);
+      sRow = pRow + allow;
+    }
+    return sRow;
+  },
+  
+  showLyrics: function(init) {
     if (this.running) {
-      this.log();
-      if (this.movingLyrics()) {
-        this.$.viewScroller.setScrollTop(this.lyricsCurrRow - this.cursorRow);
-      } else {
-        this.cursorRow = this.cursorRow + 1;
-        this.$.cursorScrollBar.setY(this.cursorRow);
+      if (this.lyricsCurrRow === 0 && init) {
+        var initDate = new Date();
+        this.initTime = initDate.getTime();
+        this.prevRow = 0;
+        this.diffTime = 0;
       }
-      this.lyricsCurrRow = this.lyricsCurrRow + 1;
-      if (this.lyricsCurrRow > this.rowsTraversed) {
-        window.clearInterval(this.intervalSong);
+      this.currIntDate = new Date();
+      this.currTime = this.currIntDate.getTime() ;
+      this.lyricsCurrRow = this.rowsTraversed * (this.currTime - this.initTime)/(this.songSecs*1000);
+      //this.lyricsCurrRow = this.smoothRow(this.prevRow, this.lyricsCurrRow);
+      if (this.prevRow !== this.lyricsCurrRow) {
+        if (this.movingLyrics()) {
+          this.$.viewScroller.scrollTo(0,this.lyricsCurrRow - this.cursorRow);
+        } else {
+          this.cursorRow = (this.lyricsCurrRow < this.halfHt) ? this.lyricsCurrRow : 2*this.halfHt - this.rowsTraversed + this.lyricsCurrRow;
+          this.$.cursorScrollBar.setY(this.cursorRow);
+        }
+      }
+      this.prevRow = this.lyricsCurrRow;
+      if (this.lyricsCurrRow > this.rowsTraversed) { // finished
+        window.clearTimeout(this.scrollTimeout);
         this.$.cursorScrollBar.cursorOff();
         this.finished = true;
         this.running = false;
+        this.log("duration ",(new Date().getTime()-this.initTime)/1000, "secs");
+      } else {
+        var _this = this;
+        this.scrollTimeout = window.setTimeout(function() {enyo.requestAnimationFrame(enyo.bind(_this, "showLyrics", false));}, this.perRowMSecs);
       }
+    } else {
+      this.diffTime = this.currTime - this.initTime;
     }
   },
 
@@ -461,8 +531,9 @@ enyo.kind({
     this.$.viewScroller.setScrollTop(this.lyricsCurrRow);
     this.$.cursorScrollBar.setY(this.cursorRow);    
     this.$.cursorScrollBar.cursorOff();
-    window.clearInterval(this.intervalSong);
+    window.clearTimeout(this.scrollTimeout);
     this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
+    this.running = false;
     this.finished = false;
     this.$.editButton.setDisabled(false);
     this.$.fontButton.setDisabled(false);
@@ -609,7 +680,7 @@ enyo.kind({
   // Maximize view on doubletap
   onDoubleTap: function() {
     if (this.tapTimer === undefined) {
-      this.tapTimer = window.setTimeout(enyo.bind(this, this.undefTimer), 300);
+      this.tapTimer = window.setTimeout(enyo.bind(this, this.undefTimer), 500);
     } else { // double tap
       this.log("double tap: set fullscreen: ", !this.fullscreen);
       window.clearTimeout(this.tapTimer);
