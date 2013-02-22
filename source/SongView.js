@@ -91,7 +91,7 @@ enyo.kind({
     {name:"transposePanels", kind: "Panels", fit: true, arrangerKind: "CollapsingArranger", draggable: false, components: [
       {name: "viewIncScrollBar", kind: "FittableColumns", fit: true, classes:"app-panels inner-panels", components: [
         {name: "cursorScrollBar", kind: "cursorScrollBar", ontap: "cursorTapHandler", classes: "cursor"},
-        {name: "viewScroller", kind: "enyo.Scroller", strategyKind: "ScrollStrategy", classes: "michote-scroller", horizontal: "hidden", fit: true, components: [
+        {name: "viewScroller", kind: "enyo.Scroller", classes: "michote-scroller", horizontal: "hidden", fit: true, components: [
           {name: "lyric", ondragfinish: "songDragFinish", ontap: "onDoubleTap"}
         ]}
       ]},
@@ -386,6 +386,7 @@ enyo.kind({
       if (this.lyricsCurrRow !== 0) {
         // paused
         this.running = true;
+        this.resetStartTime();
         this.showLyrics(false);
       } else { 
         // begining to play
@@ -502,7 +503,7 @@ enyo.kind({
       //this.lyricsCurrRow = this.smoothRow(this.prevRow, this.lyricsCurrRow);
       if (this.prevRow !== this.lyricsCurrRow) {
         if (this.movingLyrics()) {
-          this.$.viewScroller.scrollTo(0,this.lyricsCurrRow - this.cursorRow);
+          this.$.viewScroller.setScrollTop(this.lyricsCurrRow - this.cursorRow);
         } else {
           this.cursorRow = (this.lyricsCurrRow < this.halfHt) ? this.lyricsCurrRow : 2*this.halfHt - this.rowsTraversed + this.lyricsCurrRow;
           this.$.cursorScrollBar.setY(this.cursorRow);
