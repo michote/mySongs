@@ -33,6 +33,7 @@ enyo.kind({
     dropboxDate: 0,
     db: undefined,
   },
+  
   components: [
     {kind: "Signals", ondeviceready: "deviceReady"},
     // Layout
@@ -69,6 +70,7 @@ enyo.kind({
   // respond to phonegap deviceready event
   deviceReady: function() {
     this.log("phonegap deviceready");
+    var online = enyo.bind(this, this.isOnline);
     document.addEventListener("offline", online, false);
     document.addEventListener("online", online, false);
   },
