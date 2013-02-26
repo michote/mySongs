@@ -21,6 +21,7 @@
 			// tell Enyo to listen for deviceready event
 		      document.addEventListener( "deviceready", onDeviceReady, false );
 		      function onDeviceReady () {
+            window.thisPlatform = device.platform;
 		        new mySongs().renderInto(document.body);
 		      }
 		</script>
