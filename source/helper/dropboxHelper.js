@@ -8,7 +8,7 @@ function dropboxHelper() {}
     var client = new Dropbox.Client({
       key: "lpeVNiL3tbA=|x788bF+1BPiRNPVBsEVpNQMzzXxnRQvH+i19rNMJ+Q==", sandbox: true
     });
-    client.authDriver(new Dropbox.Drivers.Popup({
+    client.authDriver(new Dropbox.Drivers.Cordova({
         receiverUrl: "https://dl.dropbox.com/u/1429945/MySongBook/index.html",
         rememberUser: true}));
     client.authenticate(function(error, client) {

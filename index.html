@@ -19,9 +19,10 @@
 	<body class="enyo-unselectable">
 		<script>
 			// tell Enyo to listen for deviceready event
-			enyo.dispatcher.listen(document, "deviceready");
-
-			new mySongs().renderInto(document.body);
+		      document.addEventListener( "deviceready", onDeviceReady, false );
+		      function onDeviceReady () {
+		        new mySongs().renderInto(document.body);
+		      }
 		</script>
 	</body>
 </html>
