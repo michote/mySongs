@@ -31,16 +31,15 @@ enyo.kind({
     sync: "auto",
     currentIndex: undefined,
     dropboxDate: 0,
-    db: undefined,
+    db: undefined
   },
-  
   components: [
     {kind: "Signals", ondeviceready: "deviceReady"},
     // Layout
-    {kind: "Panels", name:"infoPanels", classes:"enyo-fit", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
-      {kind: "Panels", name:"mainPanels", onTransitionFinish: "doResizeLyrics", classes:"app-panels inner-panels", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
+    {kind: "Panels", name: "infoPanels", classes: "enyo-fit", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
+      {kind: "Panels", name: "mainPanels", onTransitionFinish: "doResizeLyrics", classes: "app-panels inner-panels", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
         {name: "songListPane", kind: "SongList"},
-        {name:"viewPane", kind: "ViewPane", style: "height: 100%;"}
+        {name: "viewPane", kind: "ViewPane", style: "height: 100%;"}
       ]},
       {name: "sidePane", kind: "SidePane", style: "height: 100%;"}
     ]},
@@ -48,10 +47,10 @@ enyo.kind({
       {kind: "FittableRows", style: "padding: .5rem; background-color: rgba(255, 255, 255, 0.5)", components: [
         {kind: "FittableColumns", style: "width: 100%;", components: [
           {content: $L("New song"), tag: 'b', fit: true, style: "font-size: 1.2rem;"},
-          {kind: "onyx.Button", style: "color: #fff;", content: $L("Import"), ontap: "openImportSong"},
+          {kind: "onyx.Button", style: "color: #fff;", content: $L("Import"), ontap: "openImportSong"}
         ]},
         {kind: "onyx.InputDecorator", style: "width: 14.75rem; margin-top: .5rem;", components: [
-          {name: "songName", kind: "onyx.Input", placeholder: $L("Enter songname"), style: "width: 100%;"}, //onchange: "createSong"},
+          {name: "songName", kind: "onyx.Input", placeholder: $L("Enter songname"), style: "width: 100%;"} //onchange: "createSong"},
         ]},
         {components: [
           {kind: "onyx.Button", classes: "onyx-negative", style: "margin: .5rem 0 0;", content: $L("Cancel"), ontap: "closeCreateSong"},
@@ -67,23 +66,22 @@ enyo.kind({
     }
   ],
   
+/*
   // respond to phonegap deviceready event
   deviceReady: function() {
     this.log("phonegap deviceready");
-    var online = enyo.bind(this, this.isOnline);
-    document.addEventListener("offline", online, false);
-    document.addEventListener("online", online, false);
+    document.addEventListener("offline", this.online, false);
+    document.addEventListener("online", this.online, false);
   },
-
+*/
   create: function() {
     this.inherited(arguments);
     enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
     this.getPreferences();
     // online status
-    var online = enyo.bind(this, this.isOnline);
-    window.addEventListener("offline", online, false);
-    window.addEventListener("online", online, false);
-    this.online = window.navigator.onLine;
+    this.online = enyo.bind(this, this.isOnline);
+    window.addEventListener("offline", this.online, false);
+    window.addEventListener("online", this.online, false);
     this.openDatabase();
     this.connect();
   },
@@ -103,7 +101,7 @@ enyo.kind({
     this.log("sync prefs: ", this.sync);
     if ((this.sync !== "manual") && this.online) {
       if (dropboxHelper.client.uid) {
-        this.readDirectory() 
+        this.readDirectory(); 
       } else {
         this.connectToDropbox();
       }
@@ -124,7 +122,7 @@ enyo.kind({
     }
     var success = enyo.bind(this, this.readDirectory);
     var error = enyo.bind(this, this.connectError);
-    setTimeout(dropboxHelper.connect(success, error), 700);
+    setTimeout(function() {dropboxHelper.connect(success, error);}, 700);
   },
   
   // Refresh Library
@@ -158,7 +156,7 @@ enyo.kind({
   signOut: function() {
     this.log("signing out from dropbox ...");
     var success = enyo.bind(this, this.signOutSuccess);
-    setTimeout(dropboxHelper.signOut(success), 50);
+    dropboxHelper.signOut(success);
   },
   
   signOutSuccess: function() {
@@ -215,10 +213,10 @@ enyo.kind({
           ]
         );  
       })
-    })
+    });
   },
   
-  dbError: function(transaction, error) {
+  dbError: function() {
     this.log();
     //this.$.songListPane.showError($L("Database error: "));
     this.$.songListPane.goToLibrary();
@@ -231,7 +229,7 @@ enyo.kind({
     this.$.songListPane.$.readProgress.setMax(3);
     this.$.songListPane.$.readProgress.animateProgressTo(1);
     this.$.songListPane.$.listPane.setIndex(0);
-    this.libraryList.content = []
+    this.libraryList.content = [];
     this.readFilesFromDatabase();
   },
   
@@ -240,7 +238,7 @@ enyo.kind({
     this.log("reading filenames from database...");
     this.pathCount.a = [];
     this.pathCount.b = [];
-    this.libraryList.content = []
+    this.libraryList.content = [];
     this.$.songListPane.$.readProgress.animateProgressTo(2);
     var sqlObj = this.db.getSelect("songs", ["filename"]);
     var success = enyo.bind(this, this.handleDatabaseFiles);
@@ -295,7 +293,7 @@ enyo.kind({
     this.pathCount.a = [];
     this.pathCount.b = [];
     if (!this.silent) {
-      this.libraryList.content = []
+      this.libraryList.content = [];
       this.log("reading app directory...");
       this.$.songListPane.$.readProgress.animateProgressTo(2);
     } else {
@@ -304,7 +302,7 @@ enyo.kind({
     this.$.viewPane.$.preferences.setDropboxClient(true); // Show Logout Button 
     var success = enyo.bind(this, this.handleDropboxfiles);
     var error = enyo.bind(this, this.dropboxError);
-    setTimeout(dropboxHelper.readDir(success, error), 10);
+    dropboxHelper.readDir(success, error);
   },
   
   handleDropboxfiles: function(files) {
@@ -387,7 +385,7 @@ enyo.kind({
     this.log("Upating library from Dropbox file", dboxFileObj.filename);
     for (i in this.libraryList.content) {
       if (this.libraryList.content.file === dboxFileObj.filename) {
-      this.libraryList.content.title = dboxFileObj.title;  // title may have changed
+        this.libraryList.content.title = dboxFileObj.title;  // title may have changed
       break;
       }
     }
@@ -413,7 +411,7 @@ enyo.kind({
       var modDate = dboxFileObj.xml.slice(dboxFileObj.xml.indexOf("modifiedDate")+14);
       modDate = modDate.substring(0,modDate.indexOf('"',1));
       dboxFileObj.date = Date.parse(modDate);
-      this.db.insertData({"table":"songs", data: dboxFileObj}, {"onSuccess": success});
+      this.db.insertData({"table": "songs", data: dboxFileObj}, {"onSuccess": success});
     }
   },
   
@@ -427,7 +425,7 @@ enyo.kind({
         this.pathCount.b.splice(i,1);
         break;
       }  
-    i++
+    i++;
     }
     var success = enyo.bind(this, this.checkAllDone);
     var sqlObj = this.db.getDelete("changes", {"filename": file});
@@ -524,7 +522,7 @@ enyo.kind({
     this.$.songListPane.$.library.setValue(true);
     this.$.songListPane.$.searchSpinner.hide();
     // select file when given
-    var fi = undefined;
+    var fi;
     if (file) {
       this.log("file to select", file);
       for (i in this.libraryList.content) {
@@ -558,7 +556,7 @@ enyo.kind({
   
   // Open Song
   openSong: function(index) {
-    this.log("open song:", this[this.currentList].content[index].file);
+    this.log("open song: ", this[this.currentList].content[index].file);
     this.$.viewPane.$.songViewPane.setFirst(true);
     this.$.viewPane.$.songViewPane.setFile(this[this.currentList].content[index].file);
     this.$.viewPane.$.songViewPane.start();
@@ -605,13 +603,13 @@ enyo.kind({
     if (Helper.getItem("savedLists")) {
       this.savedLists = Helper.getItem("savedLists");
     }
-    this.log("got Prefs: css:", Helper.getItem("css"), "customList:", Helper.getItem("customList"), "savedLists:", Helper.getItem("savedLists"));
+    this.log("got Prefs: css: ", Helper.getItem("css"), "customList: ", Helper.getItem("customList"), "savedLists: ", Helper.getItem("savedLists"));
   },
   
   saveLists: function () {
     Helper.setItem("savedLists", this.savedLists);
     Helper.setItem("customList", this.customList);
-    this.log("saved: savedLists:", this.savedLists, "customList:", this.customList);
+    this.log("saved: savedLists: ", this.savedLists, "customList: ", this.customList);
   },
   
   saveCss: function(inCss) {
@@ -624,7 +622,7 @@ enyo.kind({
     if (css) {
       var size = (css.size * 10 * Helper.ratio() + 80) + "%";
       var space = (css.space * 8 + 100) + "%";
-      this.log("set font css: size:", size, "space:", space);
+      this.log("set font css: size: ", size, "space: ", space);
       this.$.viewPane.$.songViewPane.$.lyric.applyStyle("font-size", size);
       this.$.viewPane.$.songViewPane.$.lyric.applyStyle("line-height", space);
       this.$.viewPane.$.songViewPane.lyricDataSet();
@@ -645,9 +643,9 @@ enyo.kind({
 
   dbStoreRec: function(file, content, date, songt, dbRec, result) {
     var success = enyo.bind(this, this.dbWriteToChanges, 0, file, content, songt);
-    if (result.length == 0) {  //record not previous stored 
+    if (result.length === 0) {  //record not previous stored 
       this.db.insertData(
-        {"table":"songs", 
+        {"table": "songs", 
           data: {
             "filename": file,
             "title": songt,
@@ -670,7 +668,7 @@ enyo.kind({
       var sqlObj = this.db.getDelete("changes", {"filename": file});
       this.db.query(sqlObj);
       var success = enyo.bind(this, this.writeFileSuccess, rev, file, content, songt);
-      this.db.insertData({"table":"changes", data: {"filename": file, "action":"created"}}, {"onSuccess": success});
+      this.db.insertData({"table": "changes", data: {"filename": file, "action": "created"}}, {"onSuccess": success});
     }
   },
   
@@ -754,7 +752,7 @@ enyo.kind({
     if (songt) {
       var file = songt.title.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
       file = this.testFilename(file);
-      this.log("create imported file:", file);
+      this.log("create imported file: ", file);
       this.writeXml(file, song, songt.title);
     } else {
       this.importError(song);
@@ -765,7 +763,7 @@ enyo.kind({
     var songt = this.$.songName.getValue();
     var file = songt.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
     file = this.testFilename(file);
-    this.log("create file:", file);
+    this.log("create file: ", file);
     this.newSong = true;
     // Try txt file
     if (this.online) {
