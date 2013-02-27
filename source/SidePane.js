@@ -171,7 +171,7 @@ enyo.kind({
   ],
   
   largePane: function() {
-    this.applyStyle("min-width", "16rem");
+    //~ this.applyStyle("min-width", "16rem");
     this.applyStyle("max-width", "16rem");
   },
   
@@ -348,7 +348,7 @@ enyo.kind({
   // Editing
   // got to add
   goToAdd: function(type) {
-    this.applyStyle("min-width", "10rem");
+    //~ this.applyStyle("min-width", "10rem");
     this.applyStyle("max-width", "10rem");
     this.$.Pane.setIndex(3);
     this.$.title.setContent($L("Add new:"));
@@ -376,7 +376,7 @@ enyo.kind({
   editElement: function(element, title) {
     this.$.title.setContent(title);
     this.$.Pane.setIndex(4);
-    this.applyStyle("min-width", "18rem");
+    //~ this.applyStyle("min-width", "18rem");
     this.applyStyle("max-width", "18rem");
     this.$.closeButton.setContent($L("Done"));
     this.$.deleteButton.setContent($L("delete element"));
@@ -469,7 +469,7 @@ enyo.kind({
   
   // ChordPicker
   openPicker: function() {
-    this.applyStyle("min-width", "10rem");
+    //~ this.applyStyle("min-width", "10rem");
     this.applyStyle("max-width", "10rem");
     this.$.title.setContent($L("Chord Picker"));
     Helper.browser() || this.$.closeButton.setContent($L("Insert"));
@@ -536,7 +536,7 @@ enyo.kind({
   
   // Import
   showImport: function() {
-    this.applyStyle("min-width", "100%");
+    //~ this.applyStyle("min-width", "100%");
     this.applyStyle("max-width", "100%");
     this.$.closeButton.setContent($L("Import"));
     this.$.deleteButton.setContent($L("Cancel"));

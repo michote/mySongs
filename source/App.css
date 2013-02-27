@@ -51,7 +51,9 @@ html {
 }
 
 .side-pane {
+/*
     min-width: 16rem;
+*/
     max-width: 16rem;
     right: 0; 
     margin-left: auto;

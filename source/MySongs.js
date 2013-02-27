@@ -34,7 +34,7 @@ enyo.kind({
     db: undefined
   },
   components: [
-    {kind: "Signals", ondeviceready: "deviceReady"},
+    {kind: "Signals", ondeviceready: "deviceReadyHandler"},
     // Layout
     {kind: "Panels", name: "infoPanels", classes: "enyo-fit", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
       {kind: "Panels", name: "mainPanels", onTransitionFinish: "doResizeLyrics", classes: "app-panels inner-panels", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
@@ -66,24 +66,29 @@ enyo.kind({
     }
   ],
   
-/*
   // respond to phonegap deviceready event
-  deviceReady: function() {
+  deviceReadyHandler: function() {
     this.log("phonegap deviceready");
+    this.online = true;
     document.addEventListener("offline", this.online, false);
     document.addEventListener("online", this.online, false);
+    this.connect();
+    !enyo.platform.android || navigator.splashscreen.hide();
   },
-*/
+
   create: function() {
+    //~ enyo.platform = {android:4};
     this.inherited(arguments);
     enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
     this.getPreferences();
-    // online status
-    this.online = enyo.bind(this, this.isOnline);
-    window.addEventListener("offline", this.online, false);
-    window.addEventListener("online", this.online, false);
-    this.openDatabase();
-    this.connect();
+    if (Helper.browser) {
+      // online status
+      this.online = enyo.bind(this, this.isOnline);
+      window.addEventListener("offline", this.online, false);
+      window.addEventListener("online", this.online, false);
+      this.openDatabase();
+      this.connect();
+    }
   },
 
   isOnline: function(x) {
