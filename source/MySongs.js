@@ -15,10 +15,10 @@ enyo.kind({
   realtimeFit: true,
   // Properties
   pathCount: {"a": [], "b": []},
-  dirPath: "/media/internal/MySongBook/",
   newSong: false,
   textSrce: "",
   online: undefined,
+  databaseOn: false,
   silent: false,
   published: {
     dataList: {},
@@ -66,6 +66,7 @@ enyo.kind({
     }
   ],
   
+/*
   // respond to phonegap deviceready event
   deviceReadyHandler: function() {
     this.log("phonegap deviceready");
@@ -75,19 +76,26 @@ enyo.kind({
     this.connect();
     !enyo.platform.android || navigator.splashscreen.hide();
   },
-
+*/
   create: function() {
     //~ enyo.platform = {android:4};
     this.inherited(arguments);
-    enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
+    //enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
     this.getPreferences();
     if (Helper.browser) {
       // online status
       this.online = enyo.bind(this, this.isOnline);
       window.addEventListener("offline", this.online, false);
       window.addEventListener("online", this.online, false);
-      this.openDatabase();
+      if (enyo.platform.chrome) {
+        this.databaseOn = true;
+      }
+      this.log("database on", this.databaseOn);
+      if (this.databaseOn) {
+        this.openDatabase();
+      }
       this.connect();
+      !enyo.platform.android || navigator.splashscreen.hide();
     }
   },
 
@@ -110,7 +118,7 @@ enyo.kind({
       } else {
         this.connectToDropbox();
       }
-    } else {
+    } else if (this.databaseOn) {
       this.initDatabaseRead();
     }
   },
@@ -137,7 +145,7 @@ enyo.kind({
     this.$.songListPane.goToSync();
     if (this.online) {
       this.connect();
-    } else {
+    } else if (this.databaseOn) {
       this.readFilesFromDatabase();
     }
   },
@@ -174,7 +182,7 @@ enyo.kind({
     this.db = this.$.mySongsDbase;
     //this.db.query('DROP TABLE IF EXISTS "songs"');
     //this.db.query('DROP TABLE IF EXISTS "changes"');
-    this.db.query("SELECT COUNT(*) FROM `ms_database`;" , {
+    this.db.query("SELECT COUNT(*) FROM 'songs';" , {
       onError: enyo.bind(this, function(error){
         this.log("Error: ("+error.message+") Need to create tables from JSON now");     
         this.db.setSchema(
@@ -344,13 +352,17 @@ enyo.kind({
       var a = {"file": file, "title": ParseXml.get_titles(xml)[0].title};
       if (!this.silent) {
         this.libraryList.content.push(a);
-      }  
-      var modDate = xml.childNodes[0].attributes["modifiedDate"].value;
-      var dropboxFileObj = {"filename": file, "title": a.title, "xml": data,"date": Date.parse(modDate)}; 
-      var sqlObj = this.db.getSelect("songs", '', {"filename": file});
-      var success = enyo.bind(this, this.processDbRecord, dropboxFileObj);
-      this.log("attempting to read db file : " + file);
-      this.db.query(sqlObj, {"onSuccess": success});
+      }
+      if (this.databaseOn) {
+        var modDate = xml.childNodes[0].attributes["modifiedDate"].value;
+        var dropboxFileObj = {"filename": file, "title": a.title, "xml": data,"date": Date.parse(modDate)}; 
+        var sqlObj = this.db.getSelect("songs", '', {"filename": file});
+        var success = enyo.bind(this, this.processDbRecord, dropboxFileObj);
+        this.log("attempting to read db file : " + file);
+        this.db.query(sqlObj, {"onSuccess": success});
+      } else {
+        this.fileDone(a.title);
+      }
     }
   },
   
@@ -454,7 +466,7 @@ enyo.kind({
     this.log(this.pathCount.b.length, this.pathCount.a.length);
     if (this.pathCount.b.length === this.pathCount.a.length) {  // loaded all files from source
       this.sortAndRefresh();
-      if (this.online) { // update the database
+      if (this.online && this.databaseOn) { // update the database
         // get dbase entries (filename, title, xml, date)
         var sqlObj = this.db.getSelect("songs", '');
         var success = enyo.bind(this, this.doExtraDbFiles);

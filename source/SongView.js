@@ -481,7 +481,7 @@ enyo.kind({
   smoothRow: function(pRow, nRow) {
     var allow = 4;
     var d = nRow - pRow;
-    var sRow = nRow
+    var sRow = nRow;
     if (Math.abs(d) > allow) {
       this.log("Row rate change",d, "-> ", allow);
       sRow = pRow + allow;
