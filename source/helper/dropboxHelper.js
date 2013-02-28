@@ -10,6 +10,7 @@ function dropboxHelper() {}
     });
     if (!Helper.browser()) {
       client.authDriver(new Dropbox.Drivers.Cordova({
+        receiverUrl: "https://dl.dropbox.com/u/1429945/MySongBook/index.html",
         rememberUser: true}));
     } else {      
       client.authDriver(new Dropbox.Drivers.Popup({

@@ -17,10 +17,13 @@
     <script src="build/app.js"></script>
   </head>
   <body class="enyo-unselectable">
-    <script>
-      // tell Enyo to listen for deviceready event
-      enyo.dispatcher.listen(document, "deviceready");
-      new mySongs().renderInto(document.body);
-    </script>
+		<script>
+			// tell Enyo to listen for deviceready event
+		      document.addEventListener( "deviceready", onDeviceReady, false );
+		      function onDeviceReady () {
+            window.thisPlatform = device.platform;
+		        new mySongs().renderInto(document.body);
+		      }
+		</script>
   </body>
 </html>

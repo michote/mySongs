@@ -385,7 +385,7 @@ enyo.kind({
     if (this.owner.owner.owner.online) {
       var error = enyo.bind(this, this.owner.owner.owner.dropboxError);
       var success = enyo.bind(this, this.deleteFromDbase);
-      setTimeout(dropboxHelper.deleteFile(this.file, success, error), 10);
+      setTimeout(function() {dropboxHelper.deleteFile(this.file, success, error);}, 10);
     } else {
       this.deleteFromDbase();
     }
