@@ -82,11 +82,22 @@ enyo.kind({
         ]}
       ]},
       // Library List
-      {name: "libraryList", kind: "List", classes: "inner-panels", style: "height: 100%;", onSetupItem: "getLibrary", components: [
-        {name: "libraryListItem", ontap: "listTab", components: [
-          {name: "libraryListTitle", classes: "item"}
-        ]}
-      ]},
+      {name: "libraryList", kind: "List", classes: "inner-panels", style: "height: 100%;", 
+        reorderable: true, centerReorderContainer: false, enableSwipe: false,
+        onSetupItem: "getLibrary", 
+        onReorder: "listReorder",
+        onSetupReorderComponents: "setupReorderComponents", components: [
+          {name: "libraryListItem", ontap: "listTab", components: [
+            {name: "libraryListTitle", classes: "item"}
+          ]}
+        ],
+     		reorderComponents: [
+          {name: "reorderContent", classes: "enyo-fit reorderDragger", components: [
+            {name: "reorderTitle", classes: "item"}
+          ]}
+        ]
+      },
+
       // Custom List
       {name: "customList", kind: "List", classes: "inner-panels", style: "height: 100%;", onSetupItem: "getCustomList", components: [
         {name: "customListItem", ontap: "listTab", components: [
@@ -161,7 +172,24 @@ enyo.kind({
     this.$.libraryListItem.addRemoveClass("item-not-selected", !isRowSelected);
     this.$.libraryListTitle.setContent(r.title);
   },
-  
+
+	listReorder: function(inSender, inEvent) {
+    var s = this.owner.libraryList.content;
+    var movedItem = enyo.clone(s[inEvent.reorderFrom]);
+    s.splice(inEvent.reorderFrom,1);
+    s.splice((inEvent.reorderTo),0,movedItem);
+    this.owner.setCurrentIndex(inEvent.reorderTo);
+	},
+ 
+	setupReorderComponents: function(inSender, inEvent) {
+    var s = this.owner.libraryList.content;
+    var i = inEvent.index;
+    if(!s[i]) {
+      return;
+    }
+    this.$.reorderTitle.setContent(s[i].title);
+  },
+
   listTab: function(inSender, inEvent) {
     inEvent.rowIndex === this.owner.currentIndex ? this.owner.openSong(inEvent.rowIndex) : this.owner.setCurrentIndex(inEvent.rowIndex);
   },
