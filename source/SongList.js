@@ -17,6 +17,7 @@ enyo.kind({
   searchCount: {"a": [], "b": []},
   xmlList: [],
   listIndex: undefined,
+  swipeToAdd: false,
   components: [
     // Drawer for Phone Title and Copyright !!
     {name: "performanceDrawer", kind: "onyx.Drawer", open: false, classes: "searchbar", components: [
@@ -85,15 +86,15 @@ enyo.kind({
       {name: "libraryList", kind: "List", classes: "inner-panels", style: "height: 100%;",
         reorderable: false, centerReorderContainer: false, enableSwipe: true,
         onSetupItem: "getLibrary", 
-   			onSetupSwipeItem: "setupSwipeItem",
-        onSwipeComplete: "swipeComplete",
+        onSetupSwipeItem: "setupLibrarySwipeItem",
+        onSwipeComplete: "librarySwipeComplete",
         components: [
           {name: "libraryListItem", ontap: "listTab", components: [
             {name: "libraryListTitle", classes: "item"}
           ]}
         ],
-   			swipeableComponents: [
-          {name: "librarySwipeItem", classes: "enyo-fit swipeGreen", components: [
+        swipeableComponents: [
+          {name: "librarySwipeItem", classes: "enyo-fit swipe", components: [
             {name: "librarySwipeTitle", classes: "item"}
           ]}
         ]
@@ -104,7 +105,7 @@ enyo.kind({
         onSetupItem: "getCustomList", 
         onReorder: "listReorder",
         onSetupReorderComponents: "setupReorderComponents", 
-   			onSetupSwipeItem: "setupSwipeItem",
+        onSetupSwipeItem: "setupSwipeItem",
         onSwipeComplete: "swipeComplete",
         components: [
           {name: "customListItem", ontap: "listTab", components: [
@@ -112,12 +113,12 @@ enyo.kind({
           ]}
         ],
         reorderComponents: [
-          {name: "customReorderContent", classes: "enyo-fit reorderDragger", components: [
+          {name: "customReorderContent", classes: "enyo-fit reorder", components: [
             {name: "customReorderTitle", classes: "item"}
           ]}
         ],
-   			swipeableComponents: [
-          {name: "customSwipeItem", classes: "enyo-fit listSwipe", components: [
+        swipeableComponents: [
+          {name: "customSwipeItem", classes: "enyo-fit swipe", components: [
             {name: "customSwipeTitle", classes: "item"}
           ]}
         ]
@@ -131,11 +132,29 @@ enyo.kind({
         ]}
       ]},
       // List Management
-      {name: "customListList", kind: "List", classes: "inner-panels", style: "height: 100%;", onSetupItem: "getListNames", components: [
-        {name: "listNameItem", ontap: "manageTab", components: [
-          {name: "listNameTitle", classes: "item"}
-        ]}
-      ]},
+      {name: "customListList", kind: "List", classes: "inner-panels", style: "height: 100%;",
+        reorderable: true, centerReorderContainer: false, enableSwipe: true,
+        onSetupItem: "getListNames", 
+        onReorder: "listReorder",
+        onSetupReorderComponents: "setupReorderComponents", 
+        onSetupSwipeItem: "setupSwipeItem",
+        onSwipeComplete: "swipeComplete",
+        components: [
+          {name: "listNameItem", ontap: "manageTab", components: [
+            {name: "listNameTitle", classes: "item"}
+          ]}
+        ],
+        reorderComponents: [
+          {name: "listNameReorderContent", classes: "enyo-fit reorder", components: [
+            {name: "listNameReorderTitle", classes: "item"}
+          ]}
+        ],
+        swipeableComponents: [
+          {name: "listNameSwipeItem", classes: "enyo-fit swipe", components: [
+            {name: "listNameSwipeTitle", classes: "item"}
+          ]}
+        ]
+      },
       // First Use
       {classes: "inner-panels", components: [
         {classes: "deco enyo-center", style: "text-align: center;", components: [
@@ -194,6 +213,30 @@ enyo.kind({
   listTab: function(inSender, inEvent) {
     inEvent.rowIndex === this.owner.currentIndex ? this.owner.openSong(inEvent.rowIndex) : this.owner.setCurrentIndex(inEvent.rowIndex);
   },
+  
+  setupLibrarySwipeItem: function(inSender, inEvent) {
+    var s = this.owner.libraryList.content;
+    var i = inEvent.index;
+    if(!s[i]) {
+      return;
+    }
+    if (this.swipeToAdd) {
+      this.$.libraryList.setPersistSwipeableItem(false);
+      this.$.librarySwipeTitle.setContent($L("Add: ") + s[i].title);
+    } else {
+      this.$.libraryList.setPersistSwipeableItem(true);
+      this.$.librarySwipeTitle.setContent($L("irreversible delete: ") + s[i].title);
+    }
+  },
+  
+  librarySwipeComplete: function(inSender, inEvent) {
+    this.log();
+    if (this.swipeToAdd) {
+      this.addToCustomlist(inEvent.index);
+    } else {
+      this.$.librarySwipeItem.applyStyle("height", "4rem");
+    }    
+  },
     
   // populate custom list
   getCustomList: function(inSender, inEvent) {
@@ -204,15 +247,15 @@ enyo.kind({
     this.$.customListTitle.setContent(r.title);
   },
   
-	listReorder: function(inSender, inEvent) {
+  listReorder: function(inSender, inEvent) {
     var s = this.owner.customList.content;
     var movedItem = enyo.clone(s[inEvent.reorderFrom]);
     s.splice(inEvent.reorderFrom,1);
     s.splice((inEvent.reorderTo),0,movedItem);
     this.owner.setCurrentIndex(inEvent.reorderTo);
-	},
+  },
  
-	setupReorderComponents: function(inSender, inEvent) {
+  setupReorderComponents: function(inSender, inEvent) {
     var s = this.owner.customList.content;
     var i = inEvent.index;
     if(!s[i]) {
@@ -221,16 +264,16 @@ enyo.kind({
     this.$.customReorderTitle.setContent(s[i].title);
   },
 
-	setupSwipeItem: function(inSender, inEvent) {
+  setupSwipeItem: function(inSender, inEvent) {
     var s = this.owner.libraryList.content;
-		var i = inEvent.index;
-		if(!s[i]) {
-			return;
-		}
-		this.$.librarySwipeTitle.setContent(s[i].title);
-	},
+    var i = inEvent.index;
+    if(!s[i]) {
+      return;
+    }
+    this.$.librarySwipeTitle.setContent(s[i].title);
+  },
 
-	swipeComplete: function(inSender, inEvent) {
+  swipeComplete: function(inSender, inEvent) {
     var found = false;
     for (var i=0; i<this.owner.customList.content.length; i++) {
       if (this.owner.customList.content[i].file === this.owner.libraryList.content[inEvent.index].file) {
@@ -241,7 +284,7 @@ enyo.kind({
     if (!found) {
       this.owner.customList.content.push(this.owner.libraryList.content[inEvent.index]);
     }  
-	},
+  },
 
   // populate Manager list
   getListNames: function(inSender, inEvent) {
@@ -445,13 +488,7 @@ enyo.kind({
     this.log(this.$.listPane.getIndex());
     switch (this.$.listPane.getIndex()) {
       case 2: // Remove from List
-        if (this.owner.currentIndex >= 0) {
-          this.log("remove", this.owner.customList.content[this.owner.currentIndex].title, "from", this.owner.customList);
-          this.owner.customList.content.splice(this.owner.currentIndex, 1);
-          this.$.customList.setCount(this.owner.customList.content.length);
-          this.$.customList.refresh();
-          this.addLists();
-        }
+        this.removeFromCustomlist(this.owner.currentIndex);
         break;
         
       case 4: // Add new List
@@ -460,12 +497,26 @@ enyo.kind({
         break;
       
       default: // Add to List
-        if (!this.owner.customList) {
-          this.noList();
-        } else if (this.owner.currentIndex >= 0) {
-          this.owner.customList.content.push(this.owner[this.owner.currentList].content[this.owner.currentIndex]);
-          this.addLists();
-        }
+        this.addToCustomlist(this.owner.currentIndex);
+    }
+  },
+  
+  addToCustomlist: function(index) {
+    if (!this.owner.customList) {
+      this.noList();
+    } else if (index >= 0) {
+      this.owner.customList.content.push(this.owner[this.owner.currentList].content[index]);
+      this.addLists();
+    }
+  },
+  
+  removeFromCustomlist: function(index) {
+    if (index >= 0) {
+      this.log("remove", this.owner.customList.content[index].title, "from", this.owner.customList);
+      this.owner.customList.content.splice(index, 1);
+      this.$.customList.setCount(this.owner.customList.content.length);
+      this.$.customList.refresh();
+      this.addLists();
     }
   },
   

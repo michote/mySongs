@@ -457,7 +457,7 @@ enyo.kind({
     this.pathCount.b.push(1);
     this.log(this.pathCount.b.length, songt);
     if (!this.silent) {
-      this.$.songListPane.$.readProgress.animateProgressTo(this.pathCount.a.length);
+      this.$.songListPane.$.readProgress.animateProgressTo(this.pathCount.b.length);
     }
     this.checkAllDone();
   },

@@ -158,8 +158,19 @@ html {
     min-height: 1.25rem;
 }
 
-.reorderDragger {
-    background-color: #D0D3A5;
+.reorder {
+    background-color: rgba(0,0,0,0.7);
+    border-top: .0625rem solid rgba(255, 255, 255, 0.2);
+    border-bottom: .0625rem solid rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.swipe {
+    background-color: rgba(0,0,0,0.7);
+    border-top: .0625rem solid rgba(255, 255, 255, 0.2);
+    border-bottom: .0625rem solid rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    color: #9E0508;
 }
 
 .item-not-selected {
