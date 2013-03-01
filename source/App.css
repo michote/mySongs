@@ -3,11 +3,12 @@
 	This way, you can minify your application, and just remove the "source" folder for production
 */
 
-/*
 html {
-    font-size: 200%;
-}
+/*
+    font-size: 150%;
 */
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
 
 .bg {
     background: url(../assets/images/paper.jpg); 

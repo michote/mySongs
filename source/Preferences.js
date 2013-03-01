@@ -29,8 +29,8 @@ enyo.kind({
         {kind: "onyx.Groupbox", components: [
           {kind: "onyx.GroupboxHeader", content: $L("Display Settings")},
           {style: "padding: .5rem;", components: [
-            {content: $L("Sort Lyric"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "sortLyrics", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Sort Lyric"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "sortLyrics", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
           {kind: Helper.phone() ? "FittableRows" : "FittableColumns", style: "padding: .5rem;", components: [
             {content:  $L("Show in bottom toolbar:")},
@@ -42,40 +42,40 @@ enyo.kind({
             {tag: "br", style: "clear:both;"}
           ]},
           {style: "padding: .5rem;", components: [
-            {content: $L("Show Chords"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "showChords", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Show Chords"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "showChords", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
           {style: "padding: .5rem;", components: [
-            {content: $L("Show Comments"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "showComments", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Show Comments"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "showComments", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
           {style: "padding: .5rem;", components: [
-            {content: $L("Show elementname (e.g. V1:)"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "showName", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Show elementname (e.g. V1:)"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "showName", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]}
         ]},
         
         {kind: "onyx.Groupbox", components:[
           {kind: "onyx.GroupboxHeader", content: $L("Button Settings")},
           {style: "padding: .5rem;", components: [
-            {content: $L("Show Transposer"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "showTransposer", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Show Transposer"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "showTransposer", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
           {style: "padding: .5rem;", components: [
-            {content: $L("Show Scrollbuttons"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "showScroll", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Show Scrollbuttons"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "showScroll", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
           {style: "padding: .5rem;", components: [
-            {content: $L("Show Autoscrollbutton"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "showAuto", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Show Autoscrollbutton"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "showAuto", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
           {style: "padding: .5rem;", components: [
-            {content: $L("Autoscroll end to next page (on button press)"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "scrollToNext", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Autoscroll end to next page (on button press)"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "scrollToNext", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]},
           {style: "padding: .5rem;", components: [
-            {content: $L("Show Printbutton"), style: "display: inline-block; width: 75%;"},
-            {kind: "onyx.ToggleButton", name: "showPrint", style: "display: inline-block; float: right; max-width: 25%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
+            {content: $L("Show Printbutton"), style: "display: inline-block; width: 73%;"},
+            {kind: "onyx.ToggleButton", name: "showPrint", style: "display: inline-block; float: right; max-width: 27%;", value: false, onChange: "toggle", onContent: $L("yes"), offContent: $L("no") }
           ]}
         ]},
         {kind: "onyx.Groupbox", components: [

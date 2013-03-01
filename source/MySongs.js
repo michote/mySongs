@@ -95,7 +95,7 @@ enyo.kind({
         this.openDatabase();
       }
       this.connect();
-      !enyo.platform.android || navigator.splashscreen.hide();
+      //~ !enyo.platform.android || navigator.splashscreen.hide();
     }
   },
 
