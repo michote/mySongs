@@ -159,6 +159,10 @@ html {
     min-height: 1.25rem;
 }
 
+.reorderDragger {
+    background-color: #D0D3A5;
+}
+
 .item-not-selected {
     background-color: rgba(255,255,255,0.5);
     border-top: .0625rem solid rgba(255, 255, 255, 0.5);
