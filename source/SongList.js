@@ -82,28 +82,46 @@ enyo.kind({
         ]}
       ]},
       // Library List
-      {name: "libraryList", kind: "List", classes: "inner-panels", style: "height: 100%;", 
-        reorderable: true, centerReorderContainer: false, enableSwipe: false,
+      {name: "libraryList", kind: "List", classes: "inner-panels", style: "height: 100%;",
+        reorderable: false, centerReorderContainer: false, enableSwipe: true,
         onSetupItem: "getLibrary", 
-        onReorder: "listReorder",
-        onSetupReorderComponents: "setupReorderComponents", components: [
+   			onSetupSwipeItem: "setupSwipeItem",
+        onSwipeComplete: "swipeComplete",
+        components: [
           {name: "libraryListItem", ontap: "listTab", components: [
             {name: "libraryListTitle", classes: "item"}
           ]}
         ],
-     		reorderComponents: [
-          {name: "reorderContent", classes: "enyo-fit reorderDragger", components: [
-            {name: "reorderTitle", classes: "item"}
+   			swipeableComponents: [
+          {name: "librarySwipeItem", classes: "enyo-fit swipeGreen", components: [
+            {name: "librarySwipeTitle", classes: "item"}
           ]}
         ]
       },
-
       // Custom List
-      {name: "customList", kind: "List", classes: "inner-panels", style: "height: 100%;", onSetupItem: "getCustomList", components: [
-        {name: "customListItem", ontap: "listTab", components: [
-          {name: "customListTitle", classes: "item"}
-        ]}
-      ]},
+      {name: "customList", kind: "List", classes: "inner-panels", style: "height: 100%;", 
+        reorderable: true, centerReorderContainer: false, enableSwipe: true,
+        onSetupItem: "getCustomList", 
+        onReorder: "listReorder",
+        onSetupReorderComponents: "setupReorderComponents", 
+   			onSetupSwipeItem: "setupSwipeItem",
+        onSwipeComplete: "swipeComplete",
+        components: [
+          {name: "customListItem", ontap: "listTab", components: [
+            {name: "customListTitle", classes: "item"}
+          ]}
+        ],
+        reorderComponents: [
+          {name: "customReorderContent", classes: "enyo-fit reorderDragger", components: [
+            {name: "customReorderTitle", classes: "item"}
+          ]}
+        ],
+   			swipeableComponents: [
+          {name: "customSwipeItem", classes: "enyo-fit listSwipe", components: [
+            {name: "customSwipeTitle", classes: "item"}
+          ]}
+        ]
+      },
       //  No List
       {classes: "inner-panels", components: [
         {classes: "deco enyo-center", style: "text-align: center;", components: [
@@ -173,23 +191,6 @@ enyo.kind({
     this.$.libraryListTitle.setContent(r.title);
   },
 
-	listReorder: function(inSender, inEvent) {
-    var s = this.owner.libraryList.content;
-    var movedItem = enyo.clone(s[inEvent.reorderFrom]);
-    s.splice(inEvent.reorderFrom,1);
-    s.splice((inEvent.reorderTo),0,movedItem);
-    this.owner.setCurrentIndex(inEvent.reorderTo);
-	},
- 
-	setupReorderComponents: function(inSender, inEvent) {
-    var s = this.owner.libraryList.content;
-    var i = inEvent.index;
-    if(!s[i]) {
-      return;
-    }
-    this.$.reorderTitle.setContent(s[i].title);
-  },
-
   listTab: function(inSender, inEvent) {
     inEvent.rowIndex === this.owner.currentIndex ? this.owner.openSong(inEvent.rowIndex) : this.owner.setCurrentIndex(inEvent.rowIndex);
   },
@@ -203,6 +204,45 @@ enyo.kind({
     this.$.customListTitle.setContent(r.title);
   },
   
+	listReorder: function(inSender, inEvent) {
+    var s = this.owner.customList.content;
+    var movedItem = enyo.clone(s[inEvent.reorderFrom]);
+    s.splice(inEvent.reorderFrom,1);
+    s.splice((inEvent.reorderTo),0,movedItem);
+    this.owner.setCurrentIndex(inEvent.reorderTo);
+	},
+ 
+	setupReorderComponents: function(inSender, inEvent) {
+    var s = this.owner.customList.content;
+    var i = inEvent.index;
+    if(!s[i]) {
+      return;
+    }
+    this.$.customReorderTitle.setContent(s[i].title);
+  },
+
+	setupSwipeItem: function(inSender, inEvent) {
+    var s = this.owner.libraryList.content;
+		var i = inEvent.index;
+		if(!s[i]) {
+			return;
+		}
+		this.$.librarySwipeTitle.setContent(s[i].title);
+	},
+
+	swipeComplete: function(inSender, inEvent) {
+    var found = false;
+    for (var i=0; i<this.owner.customList.content.length; i++) {
+      if (this.owner.customList.content[i].file === this.owner.libraryList.content[inEvent.index].file) {
+        found = true;
+        break;
+      }
+    }  
+    if (!found) {
+      this.owner.customList.content.push(this.owner.libraryList.content[inEvent.index]);
+    }  
+	},
+
   // populate Manager list
   getListNames: function(inSender, inEvent) {
     var r = this.owner.savedLists[inEvent.index];
