@@ -86,14 +86,15 @@ enyo.kind({
         reorderable: false, centerReorderContainer: false, enableSwipe: true,
         onSetupItem: "getLibrary", 
    			onSetupSwipeItem: "setupSwipeItem",
-        onSwipeComplete: "swipeComplete",
         components: [
-          {name: "libraryListItem", ontap: "listTab", components: [
-            {name: "libraryListTitle", classes: "item"}
+          {name: "libraryListItem", components: [
+            {name: "libraryListTitle", ontap: "listTab", classes: "item"},
+            {name: "confirmation", kind: "ConfirmPrompt", showing: false, 
+              onConfirm: "swipeComplete", onCancel: "abortSwipe"}
           ]}
         ],
    			swipeableComponents: [
-          {name: "librarySwipeItem", classes: "enyo-fit swipeGreen", components: [
+          {name: "librarySwipeItem", classes: "enyo-fit", components: [
             {name: "librarySwipeTitle", classes: "item"}
           ]}
         ]
@@ -185,6 +186,7 @@ enyo.kind({
   // populate library list
   getLibrary: function(inSender, inEvent) {
     var r = this.owner[this.owner.currentList === "searchList" ? "searchList" : "libraryList"].content[inEvent.index];
+    this.$.confirmation.setShowing(this.$.confirmation.getConfirmIndex() === inEvent.index);
     var isRowSelected = inSender.isSelected(inEvent.index);
     this.$.libraryListItem.addRemoveClass("item-selected", isRowSelected);
     this.$.libraryListItem.addRemoveClass("item-not-selected", !isRowSelected);
@@ -221,16 +223,26 @@ enyo.kind({
     this.$.customReorderTitle.setContent(s[i].title);
   },
 
+  abortSwipe: function(inSender, inEvent) {
+    this.$.confirmation.clearConfirm();
+    this.$.libraryList.refresh();
+  },
 	setupSwipeItem: function(inSender, inEvent) {
+    // need to switch on inSender  - currently just libraryList
     var s = this.owner.libraryList.content;
 		var i = inEvent.index;
 		if(!s[i]) {
 			return;
 		}
+    this.$.confirmation.initConfirm(i);
 		this.$.librarySwipeTitle.setContent(s[i].title);
+    this.listTab(inSender, inEvent);
+    this.$.libraryList.refresh();
 	},
 
 	swipeComplete: function(inSender, inEvent) {
+    this.$.libraryList.refresh();
+    this.$.confirmation.clearConfirm();
     var found = false;
     for (var i=0; i<this.owner.customList.content.length; i++) {
       if (this.owner.customList.content[i].file === this.owner.libraryList.content[inEvent.index].file) {
@@ -527,5 +539,60 @@ enyo.kind({
       this.$.errorContent.show();
       this.resized();
     }
+  }
+});
+
+/**
+A prompt with confirm and cancel buttons. The onConfirm and onCancel events fire when the user
+clicks the confirm and cancel buttons, respectively.
+*/
+enyo.kind({
+	name: "enyo.ConfirmPrompt",
+	kind: "FittableColumns",
+	published: {
+		confirmCaption: $L("Confirm"),
+		cancelCaption: $L("Cancel"),
+    confirmIndex: undefined
+  },
+	className: "enyo-confirmprompt",
+	events: {
+		onConfirm: "confirmAction",
+		onCancel: "cancelAction"
+	},
+	//* @protected
+	defaultKind: "Button",
+	components: [
+		{name: "cancel", onclick: "_doCancel"},
+		{kind: "Control", width: "14px"},
+		{name: "confirm", className: "enyo-button-negative", onclick: "_doConfirm"}
+	],
+  create: function() {
+		this.inherited(arguments);
+		this.confirmCaptionChanged();
+		this.cancelCaptionChanged();
+	},
+	confirmCaptionChanged: function() {
+		this.$.confirm.content = this.confirmCaption;
+	},
+	cancelCaptionChanged: function() {
+		this.$.cancel.content = this.cancelCaption;
+	},
+  initConfirm: function(Idx) {
+    if (!this.confirmIndex) {
+      this.confirmIndex = Idx;
+    } else {
+      this.clearConfirm();
+    }
+  },
+  clearConfirm: function() {
+    this.confirmIndex = undefined;
+  },
+	_doCancel: function() {
+    this.clearConfirm();
+    this.doCancel();
+  },
+	_doConfirm: function() {
+    this.clearConfirm();
+    this.doConfirm();
   }
 });
