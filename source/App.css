@@ -24,6 +24,7 @@ html {
 @media all and (max-width: 799px) {
     .app-panels > * {
         box-shadow: none;
+        width: 100%;
     }
     
     .quer { /* hide some stuff when in landscape */

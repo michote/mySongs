@@ -37,7 +37,7 @@ enyo.kind({
     {kind: "Signals", ondeviceready: "deviceReadyHandler"},
     // Layout
     {kind: "Panels", name: "infoPanels", classes: "enyo-fit", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
-      {kind: "Panels", name: "mainPanels", onTransitionFinish: "doResizeLyrics", classes: "app-panels inner-panels", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, components: [
+      {kind: "Panels", name: "mainPanels", onTransitionFinish: "doResizeLyrics", classes: "app-panels inner-panels", arrangerKind: "CollapsingArranger", draggable: false, realtimeFit: true, narrowFit: false, components: [
         {name: "songListPane", kind: "SongList"},
         {name: "viewPane", kind: "ViewPane", style: "height: 100%;"}
       ]},
