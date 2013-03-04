@@ -21,7 +21,7 @@ html {
 }
 
 /* on small devices, make each panel fit to the app width */
-@media all and (max-width: 800px) {
+@media all and (max-width: 799px) {
     .app-panels > * {
         box-shadow: none;
     }
@@ -110,7 +110,7 @@ html {
     }
 }
 
-@media all and (max-width: 800px) { 
+@media all and (max-width: 799px) { 
     .side {
         width: 35%;
     }
