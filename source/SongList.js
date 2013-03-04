@@ -95,7 +95,12 @@ enyo.kind({
         ],
         swipeableComponents: [
           {name: "librarySwipeItem", classes: "enyo-fit swipe", components: [
-            {name: "librarySwipeTitle", classes: "item"}
+            {name: "librarySwipeTitle", classes: "item"},
+            {name: "librarySwipeButtons", kind: "FittableColumns", fit: true, style: "padding: .25rem; text-align: center;", components: [
+              {kind: "onyx.Button", classes: "onyx-negative", content: $L("Delete"), ontap: "deleteSong"},
+              {style: "width: .5rem;"},
+              {kind: "onyx.Button", content: $L("Cancel"), ontap: "hideSwipe"}
+            ]}
           ]}
         ]
       },
@@ -209,10 +214,6 @@ enyo.kind({
     this.$.libraryListItem.addRemoveClass("item-not-selected", !isRowSelected);
     this.$.libraryListTitle.setContent(r.title);
   },
-
-  listTab: function(inSender, inEvent) {
-    inEvent.rowIndex === this.owner.currentIndex ? this.owner.openSong(inEvent.rowIndex) : this.owner.setCurrentIndex(inEvent.rowIndex);
-  },
   
   setupLibrarySwipeItem: function(inSender, inEvent) {
     var s = this.owner.libraryList.content;
@@ -220,22 +221,40 @@ enyo.kind({
     if(!s[i]) {
       return;
     }
-    if (this.swipeToAdd) {
-      this.$.libraryList.setPersistSwipeableItem(false);
-      this.$.librarySwipeTitle.setContent($L("Add: ") + s[i].title);
-    } else {
+    if (inEvent.xDirection === -1) {
+      // swiped from right to left
       this.$.libraryList.setPersistSwipeableItem(true);
-      this.$.librarySwipeTitle.setContent($L("irreversible delete: ") + s[i].title);
+      this.$.librarySwipeTitle.hide();
+      this.$.librarySwipeButtons.show();
+      this.$.librarySwipeItem.addClass("swipe-delete");
+      this.listIndex = i;
+    } else {
+      this.$.librarySwipeTitle.show();
+      this.$.librarySwipeButtons.hide();
+      this.$.librarySwipeItem.removeClass("swipe-delete");
+      this.$.librarySwipeTitle.setContent($L("Add: ") + s[i].title);
     }
+  },
+
+  listTab: function(inSender, inEvent) {
+    inEvent.rowIndex === this.owner.currentIndex ? this.owner.openSong(inEvent.rowIndex) : this.owner.setCurrentIndex(inEvent.rowIndex);
   },
   
   librarySwipeComplete: function(inSender, inEvent) {
     this.log();
-    if (this.swipeToAdd) {
-      this.addToCustomlist(inEvent.index);
-    } else {
-      this.$.librarySwipeItem.applyStyle("height", "4rem");
-    }    
+    this.addToCustomlist(inEvent.index);
+  },
+  
+  deleteSong: function(inSender, inEvent) {
+    this.log();
+    this.owner.deleteFile(this.owner.libraryList.content[this.listIndex].file);
+    this.$.libraryList.clearSwipeables();
+    this.listIndex = undefined;
+  },
+  
+  hideSwipe: function(inSender, inEvent) {
+    this.listIndex = undefined;
+    this.$.libraryList.clearSwipeables();
   },
     
   // populate custom list

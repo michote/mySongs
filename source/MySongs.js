@@ -817,7 +817,58 @@ enyo.kind({
     }
     this.$.newSongDialog.hide();
   },
+  
+  // Delete file
+  deleteFile: function(file) {
+    this.log("delete ", file);
+    this.file = file;
+    if (this.online) {
+      var error = enyo.bind(this, this.dropboxError);
+      var success = enyo.bind(this, this.deleteFromDbase);
+      setTimeout(function() {dropboxHelper.deleteFile(file, success, error);}, 10);
+    } else {
+      this.deleteFromDbase();
+    }
+  },
+  
+  deleteFromDbase: function() {
+    var error = enyo.bind(this, this.dbError);
+    var success = enyo.bind(this, this.deleteUpdateChanges, this.file);
+    var sqlObj = this.db.getDelete("songs", {"filename": this.file});
+    this.db.query(sqlObj, {"onSuccess": success, "onError": error});
+  },
 
+  deleteUpdateChanges: function(filename) {
+    // if dropBox off make changes entry
+    if (!this.online) {
+      var error = enyo.bind(this, this.dbError);
+      var success = enyo.bind(this, this.deleteSuccess);
+      var sqlObj = this.db.getDelete("changes", {"filename": this.file});
+      this.db.query(sqlObj);
+      this.db.insertData({"table":"changes", data: {"filename": filename, "action":"deleted"}}, {"onSuccess": success, "onError": error});
+    } else {
+      this.deleteSuccess();
+    }
+  },
+  
+  // delete file from library and data list
+  deleteSuccess: function() {
+    this.log(this.file, "deleted");
+    delete this.dataList[this.file.toLowerCase()];
+    for (i in this.libraryList.content) {
+      if (this.libraryList.content[i].file === this.file) {
+        this.libraryList.content.splice(i, 1);
+        break;
+      }
+    }
+    this.currentIndex = (this.currentIndex === this.libraryList.content.length) ? this.currentIndex-1 : this.currentIndex;
+    this.log("currentIndex", this.currentIndex);
+    this.$.viewPane.$.viewPanels.setIndex(1);
+    this.file = undefined;
+    this.sortAndRefresh();
+  },
+
+  // Resizing 
   doResizeLyrics: function() {
       this.$.viewPane.$.songViewPane.resizeLyrics();
   }

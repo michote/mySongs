@@ -160,17 +160,23 @@ html {
 
 .reorder {
     background-color: rgba(0,0,0,0.7);
+    box-shadow: inset 0 .0625rem .25rem rgba(0,0,0,0.3);
     border-top: .0625rem solid rgba(255, 255, 255, 0.2);
     border-bottom: .0625rem solid rgba(0, 0, 0, 0.5);
     color: white;
 }
 
 .swipe {
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,0.8);
+    box-shadow: inset 0 .0625rem .25rem rgba(0,0,0,0.3);
     border-top: .0625rem solid rgba(255, 255, 255, 0.2);
     border-bottom: .0625rem solid rgba(0, 0, 0, 0.5);
     font-weight: bold;
-    color: #9E0508;
+    color: white;
+}
+
+.swipe-delete{
+    background-color: #9E0508;
 }
 
 .item-not-selected {
