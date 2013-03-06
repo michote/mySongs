@@ -110,8 +110,8 @@ enyo.kind({
         onSetupItem: "getCustomList", 
         onReorder: "listReorder",
         onSetupReorderComponents: "setupReorderComponents", 
-        onSetupSwipeItem: "setupSwipeItem",
-        onSwipeComplete: "swipeComplete",
+        onSetupSwipeItem: "setupCustomSwipeItem",
+        onSwipeComplete: "customSwipeComplete",
         components: [
           {name: "customListItem", ontap: "listTab", components: [
             {name: "customListTitle", classes: "item"}
@@ -123,8 +123,13 @@ enyo.kind({
           ]}
         ],
         swipeableComponents: [
-          {name: "customSwipeItem", classes: "enyo-fit swipe", components: [
+          {name: "customSwipeItem", classes: "enyo-fit swipe swipe-delete", components: [
             {name: "customSwipeTitle", classes: "item"}
+            //~ {kind: "FittableColumns", fit: true, style: "padding: .25rem; text-align: center;", components: [
+              //~ {kind: "onyx.Button", classes: "onyx-negative", content: $L("Delete"), ontap: "deleteSong"},
+              //~ {style: "width: .5rem;"},
+              //~ {kind: "onyx.Button", content: $L("Cancel"), ontap: "hideSwipe"}
+            //~ ]}
           ]}
         ]
       },
@@ -155,8 +160,12 @@ enyo.kind({
           ]}
         ],
         swipeableComponents: [
-          {name: "listNameSwipeItem", classes: "enyo-fit swipe", components: [
-            {name: "listNameSwipeTitle", classes: "item"}
+          {name: "listNameSwipeItem", classes: "enyo-fit swipe swipe-delete", components: [
+            {kind: "FittableColumns", fit: true, style: "padding: .25rem; text-align: center;", components: [
+              {kind: "onyx.Button", classes: "onyx-negative", content: $L("Delete"), ontap: "deleteSong"},
+              {style: "width: .5rem;"},
+              {kind: "onyx.Button", content: $L("Cancel"), ontap: "hideSwipe"}
+            ]}
           ]}
         ]
       },
@@ -267,6 +276,7 @@ enyo.kind({
   },
   
   listReorder: function(inSender, inEvent) {
+    this.log();
     var s = this.owner.customList.content;
     var movedItem = enyo.clone(s[inEvent.reorderFrom]);
     s.splice(inEvent.reorderFrom,1);

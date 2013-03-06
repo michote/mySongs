@@ -62,6 +62,7 @@ enyo.kind({
       name: "mySongsDbase", kind: "onecrayon.Database",
       database: 'ext:ms_database',
       version: '',
+      estimatedSize: 200000,
       debug: true
     }
   ],
@@ -87,12 +88,12 @@ enyo.kind({
       this.online = enyo.bind(this, this.isOnline);
       window.addEventListener("offline", this.online, false);
       window.addEventListener("online", this.online, false);
-      if (enyo.platform.chrome) {
+      if (openDatabase) { // not Firefox
         this.databaseOn = true;
       }
       this.log("database on", this.databaseOn);
       if (this.databaseOn) {
-        this.openDatabase();
+        this.openMyDatabase();
       }
       this.connect();
       //~ !enyo.platform.android || navigator.splashscreen.hide();
@@ -178,7 +179,7 @@ enyo.kind({
     this.log("successfully logged out from Dropbbox");
   },
   
-  openDatabase: function() {
+  openMyDatabase: function() {
     this.db = this.$.mySongsDbase;
     //this.db.query('DROP TABLE IF EXISTS "songs"');
     //this.db.query('DROP TABLE IF EXISTS "changes"');
@@ -334,12 +335,15 @@ enyo.kind({
         this.$.songListPane.$.readFiles.setContent($L("Reading Files..."));
       }
       var success = enyo.bind(this, this.gotDropboxFile);
+      var successlist = enyo.bind(this, this.gotListFile);
       var error = enyo.bind(this, this.dropboxError);
       for (i = 0; i < files.length; i++) {
         if (files[i].split('.').pop() === 'xml') { // only parse xml-files
           this.pathCount.a.push({"idx":i, "file": files[i]});
           this.log("parsing dropbox file", i+1, "of", files.length, files[i]);
           dropboxHelper.readFile(files[i], success, error);
+        } else if (files[i].split('.').pop() === 'json') {
+          dropboxHelper.readFile(files[i], successlist, error);
         }
       }
     }
@@ -364,6 +368,11 @@ enyo.kind({
         this.fileDone(a.title);
       }
     }
+  },
+  
+  gotListFile: function(data, file) {
+    var list = JSON.parse(data)
+    this.log(list);
   },
   
   processDbRecord: function(dboxFileObj, result) {
