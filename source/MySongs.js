@@ -85,9 +85,10 @@ enyo.kind({
     this.getPreferences();
     if (Helper.browser) {
       // online status
-      this.online = enyo.bind(this, this.isOnline);
-      window.addEventListener("offline", this.online, false);
-      window.addEventListener("online", this.online, false);
+      this.online = navigator.onLine;
+      var ol = enyo.bind(this, this.isOnline);
+      window.addEventListener("offline", ol, false);
+      window.addEventListener("online", ol, false);
       if (openDatabase) { // not Firefox
         this.databaseOn = true;
       }
