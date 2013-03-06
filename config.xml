@@ -49,6 +49,7 @@
 -->
   
   <!-- Splash Screens -->
+  <preference name="splash-screen-duration" value="10000" />
   <gap:splash src="splash.png" />
   <gap:splash src="assets/splash/featured.png" width="1024" height="768"/>
   <!-- Android -->

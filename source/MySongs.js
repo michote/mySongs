@@ -75,13 +75,12 @@ enyo.kind({
     document.addEventListener("offline", this.online, false);
     document.addEventListener("online", this.online, false);
     this.connect();
-    !enyo.platform.android || navigator.splashscreen.hide();
   },
 */
   create: function() {
     //~ enyo.platform = {android:4};
     this.inherited(arguments);
-    //enyo.setLogLevel(99); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
+    //~ enyo.setLogLevel(0); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
     this.getPreferences();
     if (Helper.browser) {
       // online status
@@ -97,7 +96,14 @@ enyo.kind({
         this.openMyDatabase();
       }
       this.connect();
-      //~ !enyo.platform.android || navigator.splashscreen.hide();
+    }
+  },
+  
+  rendered: function() {
+    this.inherited(arguments);
+    this.log();
+    if (navigator.splashscreen && enyo.platform.android) {
+      setTimeout(function() {navigator.splashscreen.hide();}, 700);
     }
   },
 
