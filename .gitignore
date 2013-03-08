@@ -2,3 +2,4 @@
 *.ipk
 /build
 /deploy
+/tools

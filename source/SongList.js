@@ -1,8 +1,8 @@
 // #################
 //
-// Copyright (c) 2012 Micha Reischuck
+// Copyright (c) 2012-2013 Micha Reischuck and John Carragher
 //
-// MySongBook is available under the terms of the MIT license. 
+// mySongs is available under the terms of the MIT license. 
 // The full text of the MIT license can be found in the LICENSE file included in this package.
 //
 // #################
@@ -31,7 +31,7 @@ enyo.kind({
         {name: "title", fit: true, classes: "title", style: "line-height: 2rem;", content: $L("Song List")},
         {kind: "FittableColumns", classes: "searchbuttons", components: [
           {name: "prefsButton", kind: "onyx.IconButton", src: Helper.iconPath()+"prefs.png", style: "float: right;", classes: "hochk", ontap: "showMenu"},
-          {name: "searchButton", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"search.png", style: "float: right", ontap: "extendSearch", disabled: true},
+          {name: "searchButton", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"search.png", style: "float: right", onChange: "extendSearch", disabled: true},
           {name: "searchSpinner", style: "float: right; margin-top: 0;", showing: false, components: [
             {kind:"jmtk.Spinner", color: "#FFFFFF", diameter: (Helper.ratio() * 30)}
           ]}
@@ -59,9 +59,10 @@ enyo.kind({
         {name: "listName", kind: "onyx.Input", placeholder: $L("Enter listname"), style: "min-width: 90%; max-width: 95%;", onchange: "saveClicked"},
       ]},
       {name: "errorContent", style: "color: #fff; padding: .5rem; background-color: #9E0508;", showing: false},
-      {classes: "newlist", components: [
-        {kind: "onyx.Button", classes: "onyx-negative", style: "width: 50%;", content: $L("Cancel"), ontap: "clearDialog"},
-        {kind: "onyx.Button", classes: "onyx-affirmative", style: "width: 50%;", content: $L("Save"), ontap: "saveClicked"}
+      {kind: "FittableColumns", fit: true, classes: "newlist", style: "padding: .25rem 0; text-align: center;", components: [
+        {kind: "onyx.Button", classes: "onyx-negative", content: $L("Cancel"), ontap: "clearDialog"},
+        {style: "width: .5rem;"},
+        {kind: "onyx.Button", classes: "onyx-affirmative", content: $L("Save"), ontap: "saveClicked"}
       ]}
     ]},
     // Error Drawer
@@ -108,8 +109,8 @@ enyo.kind({
       {name: "customList", kind: "List", classes: "inner-panels", style: "height: 100%;", 
         reorderable: true, centerReorderContainer: false, enableSwipe: true,
         onSetupItem: "getCustomList", 
-        onReorder: "listReorder",
-        onSetupReorderComponents: "setupReorderComponents", 
+        onReorder: "customListReorder",
+        onSetupReorderComponents: "setupCustomReorderComponents", 
         onSetupSwipeItem: "setupCustomSwipeItem",
         onSwipeComplete: "customSwipeComplete",
         components: [
@@ -133,22 +134,14 @@ enyo.kind({
           ]}
         ]
       },
-      //  No List
-      {classes: "inner-panels", components: [
-        {classes: "deco enyo-center", style: "text-align: center;", components: [
-          {content: $L("Please select or define a list"), allowHtml: true},
-          {tag: "br"},
-          {kind: "onyx.Button", content: $L("Manage Lists"), style: "width: 100%; color: white;", ontap: "openListManager"}
-        ]}
-      ]},
       // List Management
       {name: "customListList", kind: "List", classes: "inner-panels", style: "height: 100%;",
         reorderable: true, centerReorderContainer: false, enableSwipe: true,
         onSetupItem: "getListNames", 
-        onReorder: "listReorder",
-        onSetupReorderComponents: "setupReorderComponents", 
-        onSetupSwipeItem: "setupSwipeItem",
-        onSwipeComplete: "swipeComplete",
+        onReorder: "manageListReorder",
+        onSetupReorderComponents: "setupManageReorderComponents", 
+        onSetupSwipeItem: "setupManageSwipeItem",
+        onSwipeComplete: "manageSwipeComplete",
         components: [
           {name: "listNameItem", ontap: "manageTab", components: [
             {name: "listNameTitle", classes: "item"}
@@ -162,13 +155,21 @@ enyo.kind({
         swipeableComponents: [
           {name: "listNameSwipeItem", classes: "enyo-fit swipe swipe-delete", components: [
             {kind: "FittableColumns", fit: true, style: "padding: .25rem; text-align: center;", components: [
-              {kind: "onyx.Button", classes: "onyx-negative", content: $L("Delete"), ontap: "deleteSong"},
+              {kind: "onyx.Button", classes: "onyx-negative", content: $L("Delete"), ontap: "deleteList"},
               {style: "width: .5rem;"},
               {kind: "onyx.Button", content: $L("Cancel"), ontap: "hideSwipe"}
             ]}
           ]}
         ]
       },
+      //  No List
+      {classes: "inner-panels", components: [
+        {classes: "deco enyo-center", style: "text-align: center;", components: [
+          {content: $L("Please select or define a list"), allowHtml: true},
+          {tag: "br"},
+          {kind: "onyx.Button", content: $L("Manage Lists"), style: "width: 100%; color: white;", ontap: "openListManager"}
+        ]}
+      ]},
       // First Use
       {classes: "inner-panels", components: [
         {classes: "deco enyo-center", style: "text-align: center;", components: [
@@ -191,10 +192,10 @@ enyo.kind({
     // footer Toolbar
     {name: "footerToolbar", kind: "onyx.Toolbar", components: [
       {kind: "FittableColumns", style: "width: 100%; margin: 0; padding: 0;", components: [
-        {name: "open", kind: "onyx.IconButton", src: Helper.iconPath()+"open.png", ontap: "open", disabled: true},
+        {name: "open", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"open.png", onChange: "openListManager", disabled: true},
         {kind: "FittableColumns", fit: true, style: "margin: 0; padding: 0; text-align: center;", components: [
-          {name: "library", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"library.png", ontap: "goToLibrary"},
-          {name: "list",  kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"list.png", ontap: "goToList"}
+          {name: "library", kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"library.png", onChange: "goToLibrary", disabled: true},
+          {name: "list",  kind: "onyx.ToggleIconButton", src: Helper.iconPath()+"list.png", onChange: "goToList", disabled: true}
         ]},
         {name: "addRem", kind: "onyx.IconButton", src: Helper.iconPath()+"add.png", ontap: "addRem", disabled: true}
       ]}
@@ -223,6 +224,10 @@ enyo.kind({
     this.$.libraryListItem.addRemoveClass("item-not-selected", !isRowSelected);
     this.$.libraryListTitle.setContent(r.title);
   },
+
+  listTab: function(inSender, inEvent) {
+    inEvent.rowIndex === this.owner.currentIndex ? this.owner.openSong(inEvent.rowIndex) : this.owner.setCurrentIndex(inEvent.rowIndex);
+  },
   
   setupLibrarySwipeItem: function(inSender, inEvent) {
     var s = this.owner.libraryList.content;
@@ -244,10 +249,6 @@ enyo.kind({
       this.$.librarySwipeTitle.setContent($L("Add: ") + s[i].title);
     }
   },
-
-  listTab: function(inSender, inEvent) {
-    inEvent.rowIndex === this.owner.currentIndex ? this.owner.openSong(inEvent.rowIndex) : this.owner.setCurrentIndex(inEvent.rowIndex);
-  },
   
   librarySwipeComplete: function(inSender, inEvent) {
     this.log();
@@ -264,6 +265,7 @@ enyo.kind({
   hideSwipe: function(inSender, inEvent) {
     this.listIndex = undefined;
     this.$.libraryList.clearSwipeables();
+    this.$.customListList.clearSwipeables();
   },
     
   // populate custom list
@@ -275,16 +277,17 @@ enyo.kind({
     this.$.customListTitle.setContent(r.title);
   },
   
-  listReorder: function(inSender, inEvent) {
+  customListReorder: function(inSender, inEvent) {
     this.log();
     var s = this.owner.customList.content;
     var movedItem = enyo.clone(s[inEvent.reorderFrom]);
     s.splice(inEvent.reorderFrom,1);
     s.splice((inEvent.reorderTo),0,movedItem);
     this.owner.setCurrentIndex(inEvent.reorderTo);
+    this.addLists();
   },
  
-  setupReorderComponents: function(inSender, inEvent) {
+  setupCustomReorderComponents: function(inSender, inEvent) {
     var s = this.owner.customList.content;
     var i = inEvent.index;
     if(!s[i]) {
@@ -293,26 +296,17 @@ enyo.kind({
     this.$.customReorderTitle.setContent(s[i].title);
   },
 
-  setupSwipeItem: function(inSender, inEvent) {
-    var s = this.owner.libraryList.content;
+  setupCustomSwipeItem: function(inSender, inEvent) {
+    var s = this.owner.customList.content;
     var i = inEvent.index;
     if(!s[i]) {
       return;
     }
-    this.$.librarySwipeTitle.setContent(s[i].title);
+    this.$.customSwipeTitle.setContent($L("Remove: ") + s[i].title);
   },
 
-  swipeComplete: function(inSender, inEvent) {
-    var found = false;
-    for (var i=0; i<this.owner.customList.content.length; i++) {
-      if (this.owner.customList.content[i].file === this.owner.libraryList.content[inEvent.index].file) {
-        found = true;
-        break;
-      }
-    }  
-    if (!found) {
-      this.owner.customList.content.push(this.owner.libraryList.content[inEvent.index]);
-    }  
+  customSwipeComplete: function(inSender, inEvent) {
+    this.removeFromCustomlist(inEvent.index);
   },
 
   // populate Manager list
@@ -327,7 +321,53 @@ enyo.kind({
   manageTab: function(inSender, inEvent) {
     this.listIndex = inEvent.rowIndex;
     this.owner.customList = this.owner.savedLists[inEvent.rowIndex];
+    this.goToList();
     this.owner.saveLists();
+  },
+  
+  manageListReorder: function(inSender, inEvent) {
+    this.log();
+    //~ var s = this.owner.customList.content;
+    //~ var movedItem = enyo.clone(s[inEvent.reorderFrom]);
+    //~ s.splice(inEvent.reorderFrom,1);
+    //~ s.splice((inEvent.reorderTo),0,movedItem);
+    //~ this.owner.setCurrentIndex(inEvent.reorderTo);
+    //~ this.addLists();
+  },
+  
+  setupManageReorderComponents: function(inSender, inEvent) {
+    var s = this.owner.savedLists;
+    var i = inEvent.index;
+    if(!s[i]) {
+      return;
+    }
+    this.$.listNameReorderTitle.setContent(s[i].title);
+  },
+  
+  setupManageSwipeItem: function(inSender, inEvent) {
+    this.log();
+    var s = this.owner.savedLists;
+    var i = inEvent.index;
+    if(!s[i]) {
+      return;
+    }
+    this.$.customListList.setPersistSwipeableItem(true);
+    this.listIndex = i;
+  },
+  
+  deleteList: function(inSender, inEvent) {
+    this.log();
+    if (this.listIndex >= 0) {
+      this.log("remove custom list:", this.owner.savedLists[this.listIndex].title);
+      this.owner.savedLists.splice(this.listIndex, 1);
+      this.owner.customList = false;
+      this.listIndex = undefined; 
+      this.owner.saveLists();
+      this.$.customListList.setCount(this.owner.savedLists.length);
+      this.$.customListList.refresh();
+    }
+    this.$.customListList.clearSwipeables();
+    this.listIndex = undefined;
   },
   
   // ### Search ### 
@@ -423,7 +463,7 @@ enyo.kind({
     this.owner.currentList = "libraryList";
     this.$.libraryList.setCount(0);
     this.$.title.setContent($L("Song List"));
-    this.$.open.setSrc(Helper.iconPath()+"open.png");
+    this.$.open.setValue(false);
     this.$.addRem.setSrc(Helper.iconPath()+"add.png");
     this.$.searchButton.setDisabled(true);
     this.$.addRem.setDisabled(true);
@@ -440,7 +480,7 @@ enyo.kind({
     this.$.title.setContent($L("Song List") + " (" + this.owner.libraryList.content.length + ")");
     this.$.libraryList.setCount(this.owner.libraryList.content.length);
     this.$.libraryList.reset();
-    this.$.open.setSrc(Helper.iconPath()+"open.png");
+    this.$.open.setValue(false);
     this.$.addRem.setSrc(Helper.iconPath()+"add.png");
     this.$.addRem.setDisabled(false);
     this.$.open.setDisabled(false);
@@ -460,7 +500,7 @@ enyo.kind({
       this.$.title.setContent(this.owner.customList.title+ " (" + this.owner.customList.content.length + ")");
       this.$.performanceText.setContent('<big><b>' + this.owner.customList.content.length + " " + $L("title") + "</b></big><br> Total duration:  s");
       this.$.addRem.setSrc(Helper.iconPath()+"remove.png");
-      this.$.open.setSrc(Helper.iconPath()+"open.png");
+      this.$.open.setValue(false);
       this.$.addRem.setDisabled(false);
       this.$.listPane.setIndex(2);
       this.$.customList.setCount(this.owner.customList.content.length);
@@ -474,10 +514,10 @@ enyo.kind({
     this.log();
     this.$.searchButton.setDisabled(true);
     this.$.addRem.setDisabled(false);
-    this.$.listPane.setIndex(4);
+    this.$.listPane.setIndex(3);
     this.owner.$.viewPane.$.viewPanels.setIndex(0);
     this.$.title.setContent($L("Manage Lists"));
-    this.$.open.setSrc(Helper.iconPath()+"remove.png");
+    this.$.open.setValue(true);
     this.$.addRem.setSrc(Helper.iconPath()+"add.png");
     this.owner.currentList === "customList" ? this.$.list.setValue(false) : this.$.library.setValue(false);
     this.$.customListList.setCount(this.owner.savedLists.length);
@@ -486,31 +526,12 @@ enyo.kind({
   
   noList: function() {
     this.log();
-    this.$.listPane.setIndex(3);
+    this.$.listPane.setIndex(4);
     this.$.title.setContent($L("List?"));
     this.$.addRem.setSrc(Helper.iconPath()+"add.png");
     this.$.addRem.setDisabled(true);
     this.$.list.setValue(false);
     this.owner.currentList === "customList" ? this.$.list.setValue(false) : this.$.library.setValue(false);
-  },
-  
-  open: function() {
-    this.log(this.$.listPane.getIndex());
-    switch (this.$.listPane.getIndex()) {
-      case 4: // Remove List
-        if (this.listIndex >= 0) {
-          this.log("remove custom list:", this.owner.savedLists[this.listIndex].title);
-          this.owner.savedLists.splice(this.listIndex, 1);
-          this.owner.customList = false;
-          this.listIndex = undefined; 
-          this.owner.saveLists();
-          this.$.customListList.setCount(this.owner.savedLists.length);
-          this.$.customListList.refresh();
-        }
-        break;
-      
-      default: this.openListManager();
-    }
   },
   
   addRem: function() {
@@ -545,6 +566,7 @@ enyo.kind({
       this.owner.customList.content.splice(index, 1);
       this.$.customList.setCount(this.owner.customList.content.length);
       this.$.customList.refresh();
+      this.$.title.setContent(this.owner.customList.title+ " (" + this.owner.customList.content.length + ")");
       this.addLists();
     }
   },
@@ -565,7 +587,7 @@ enyo.kind({
   // Error
   showError: function(text) {
     this.$.error.setOpen(true);
-    this.$.errorText.setContent(text);
+    this.$.errorText.setContent(text.substring(0,300)+"...");
   },
   
   close: function() {

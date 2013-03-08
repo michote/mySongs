@@ -1,8 +1,8 @@
 // #################
 //
-// Copyright (c) 2012 Micha Reischuck
+// Copyright (c) 2012-2013 Micha Reischuck and John Carragher
 //
-// MySongBook is available under the terms of the MIT license. 
+// mySongs is available under the terms of the MIT license. 
 // The full text of the MIT license can be found in the LICENSE file included in this package.
 //
 // #################
@@ -58,43 +58,46 @@ enyo.kind({
         ]}
       ]}
     ]},
-    {
-      name: "mySongsDbase", kind: "onecrayon.Database",
-      database: 'ext:ms_database',
-      version: '',
-      estimatedSize: 200000,
-      debug: true
-    }
+
   ],
   
-/*
   // respond to phonegap deviceready event
   deviceReadyHandler: function() {
     this.log("phonegap deviceready");
-    this.online = true;
-    document.addEventListener("offline", this.online, false);
-    document.addEventListener("online", this.online, false);
-    this.connect();
+    if (!enyo.platform.webos) { // webos testing
+      this.connect();
+    }
   },
-*/
+  
   create: function() {
-    //~ enyo.platform = {android:4};
     this.inherited(arguments);
     //~ enyo.setLogLevel(0); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
     this.getPreferences();
-    if (Helper.browser) {
-      // online status
-      this.online = navigator.onLine;
-      var ol = enyo.bind(this, this.isOnline);
-      window.addEventListener("offline", ol, false);
-      window.addEventListener("online", ol, false);
-      if (openDatabase) { // not Firefox
-        this.databaseOn = true;
-      }
-      this.log("database on", this.databaseOn);
-      if (this.databaseOn) {
-        this.openMyDatabase();
-      }
+    // online status
+    this.online = navigator.onLine;
+    var ol = enyo.bind(this, this.isOnline);
+    window.addEventListener("offline", ol, false);
+    window.addEventListener("online", ol, false);
+    // creating Database
+    if (!enyo.platform.firefox) { // not Firefox
+      this.databaseOn = true;
+      this.createComponent({ 
+        name: "mySongsDbase", 
+        kind: "onecrayon.Database",
+        database: 'ext:ms_database',
+        version: '',
+        estimatedSize: 200000,
+        debug: true,
+        owner: this
+      });
+    }
+    this.log("database on", this.databaseOn);
+    if (this.databaseOn) {
+      this.openMyDatabase();
+    }
+    // Connect to Dropbox
+    this.log(Helper.browser());
+    if (Helper.browser()) {
       this.connect();
     }
   },
@@ -103,7 +106,7 @@ enyo.kind({
     this.inherited(arguments);
     this.log();
     if (navigator.splashscreen && enyo.platform.android) {
-      setTimeout(function() {navigator.splashscreen.hide();}, 700);
+      setTimeout(function() {navigator.splashscreen.hide();}, 800);
     }
   },
 
@@ -114,7 +117,7 @@ enyo.kind({
       this.log("upload offline changes to Dropbox");
       this.silent = true;
       var success = enyo.bind(this, this.connect);
-      setTimeout(success, 700);
+      setTimeout(success, 1000);
     }
   },
   
@@ -150,6 +153,9 @@ enyo.kind({
   refreshLibrary: function() {
     this.log("refreshing library ...");
     this.libraryList.content = [];
+    this.$.songListPane.$.library.setDisabled(true);
+    this.$.songListPane.$.library.setValue(true);
+    this.$.songListPane.$.list.setDisabled(true);
     this.$.songListPane.goToSync();
     if (this.online) {
       this.connect();
@@ -253,7 +259,6 @@ enyo.kind({
     this.libraryList.content = [];
     this.readFilesFromDatabase();
   },
-  
   
   readFilesFromDatabase: function() {
     this.log("reading filenames from database...");
@@ -552,6 +557,8 @@ enyo.kind({
     this.libraryList.content.sort(this.sortByTitle);
     // Switch to libraryPane
     this.$.songListPane.goToLibrary();
+    this.$.songListPane.$.library.setDisabled(false);
+    this.$.songListPane.$.list.setDisabled(false);
     this.$.songListPane.$.library.setValue(true);
     this.$.songListPane.$.searchSpinner.hide();
     // select file when given
@@ -780,9 +787,10 @@ enyo.kind({
   },
   
   importSong: function(song) {
+    this.log();
     this.newSong = true;
     var songt = ParseXml.get_titles(ParseXml.parse_dom(song))[0];
-    if (songt) {
+    if (songt.title) {
       var file = songt.title.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
       file = this.testFilename(file);
       this.log("create imported file: ", file);

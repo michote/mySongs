@@ -1,12 +1,11 @@
 // #################
 //
-// Copyright (c) 2012 Micha Reischuck
+// Copyright (c) 2012-2013 Micha Reischuck
 //
-// MySongBook is available under the terms of the MIT license. 
+// mySongs is available under the terms of the MIT license. 
 // The full text of the MIT license can be found in the LICENSE file included in this package.
 //
 // #################
-
 
 function ParseXml () {}
 

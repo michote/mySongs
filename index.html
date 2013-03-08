@@ -16,13 +16,11 @@
     <script src="build/enyo.js"></script>
     <script src="build/app.js"></script>
   </head>
-  <body class="enyo-unselectable" style="background-color: red;">
+  <body class="enyo-unselectable" style="background-image: url(assets/images/paper.jpg) ">
     <script>
     // tell Enyo to listen for deviceready event
-      document.addEventListener("deviceready", onDeviceReady, false);
-      function onDeviceReady () {
-        new mySongs().renderInto(document.body);
-      }
+      enyo.dispatcher.listen(document, "deviceready");
+      new mySongs().renderInto(document.body);
     </script>
   </body>
 </html>

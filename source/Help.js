@@ -12,10 +12,9 @@ enyo.kind({
       components: [
       {name: "helpContent", kind: "FittableRows", classes:  Helper.phone() ? "lyric lyricmar-phone" : "lyric lyricmar", components: [
         {allowHtml: true, content: "<h1>" + $L("Welcome to ") + Helper.app},
-        {allowHtml: true, content: Helper.app + $L(" is an App to display Songs in ")
-          + '<a href="http://openlyrics.info/" target="_blank"> OpenLyrics XML Standard</a>' +
-          $L(" from the internal storage of your device.") + "<br>" + 
-          $L(" You can create custom lists of songs to display.") + "<br><br>",},
+        {allowHtml: true, content: $L("Display, manage and edit your songs on your device.") + "<br>"
+          + '<a href="http://openlyrics.info/" target="_blank">OpenLyrics XML Standard</a>' + "<br>" +
+          $L(" TODO") +  "<br><br>",},
         {allowHtml: true, content: "<h2>" + $L("Icon Guide") + "</h2>"},
         
         {allowHtml: true, content: "<h3>" + $L("Main View") + "</h3>"},
