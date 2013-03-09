@@ -96,7 +96,6 @@ enyo.kind({
       this.openMyDatabase();
     }
     // Connect to Dropbox
-    this.log(Helper.browser());
     if (Helper.browser()) {
       this.connect();
     }
@@ -117,7 +116,7 @@ enyo.kind({
       this.log("upload offline changes to Dropbox");
       this.silent = true;
       var success = enyo.bind(this, this.connect);
-      setTimeout(success, 1000);
+      setTimeout(success, 2000);
     }
   },
   
@@ -146,7 +145,7 @@ enyo.kind({
     }
     var success = enyo.bind(this, this.readDirectory);
     var error = enyo.bind(this, this.connectError);
-    setTimeout(function() {dropboxHelper.connect(success, error);}, 700);
+    setTimeout(function() {dropboxHelper.connect(success, error);}, 20);
   },
   
   // Refresh Library
@@ -576,10 +575,11 @@ enyo.kind({
       fi = this.currentIndex;
     }
     if (fi && this.silent) {
-      this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(fi);
       this.$.songListPane.$.libraryList.scrollToRow(fi);
+      this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(fi);
     } else if (fi) {
       this.log(fi);
+      this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(fi);
       this.$.songListPane.$.libraryList.scrollToRow(fi);
       this.openSong(fi);
     }
@@ -597,10 +597,10 @@ enyo.kind({
   // Open Song
   openSong: function(index) {
     this.log("open song: ", this[this.currentList].content[index].file);
+    //~ this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(index);
     this.$.viewPane.$.songViewPane.setFirst(true);
     this.$.viewPane.$.songViewPane.setFile(this[this.currentList].content[index].file);
     this.$.viewPane.$.songViewPane.start();
-    this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(index);
     this.$.viewPane.$.songViewPane.$.viewScroller.setScrollTop(0);
     this.$.viewPane.$.viewPanels.setIndex(1);
     this.handleSidepane();
@@ -626,6 +626,7 @@ enyo.kind({
     this.log(this.currentIndex);
     this.silent = false;  // changed song, so okay
     if (this.currentIndex >= 0) {
+      this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(this.currentIndex);
       this.openSong(this.currentIndex);
     } else {
       this.$.songListPane.$[this.currentList].refresh();
@@ -790,7 +791,7 @@ enyo.kind({
     this.log();
     this.newSong = true;
     var songt = ParseXml.get_titles(ParseXml.parse_dom(song))[0];
-    if (songt.title) {
+    if (songt && songt.title) {
       var file = songt.title.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
       file = this.testFilename(file);
       this.log("create imported file: ", file);

@@ -70,7 +70,7 @@ enyo.kind({
       {style: "color: #fff; padding: .5rem; background-color: #9E0508; text-align: center; max-height: 20rem;", components: [
         {name: "errorText"},
         {tag: "br"},
-        {kind: "onyx.Button", classes: "onyx-negative", style: "width: 80%;", content: $L("Close"), ontap: "close"}
+        {kind: "onyx.Button", classes: "onyx-negative", style: "width: 80%;", content: $L("Close"), ontap: "closeError"}
       ]}
     ]},
     
@@ -226,7 +226,13 @@ enyo.kind({
   },
 
   listTab: function(inSender, inEvent) {
-    inEvent.rowIndex === this.owner.currentIndex ? this.owner.openSong(inEvent.rowIndex) : this.owner.setCurrentIndex(inEvent.rowIndex);
+    this.$[(this.owner.currentList === "searchList") ? "libraryList" : this.owner.currentList].select(inEvent.rowIndex);
+    var tap = enyo.bind(this, this.openSong, inEvent.rowIndex);
+    setTimeout(tap, 50);
+  },
+  
+  openSong: function(index) {
+    index === this.owner.currentIndex ? this.owner.openSong(index) : this.owner.setCurrentIndex(index);
   },
   
   setupLibrarySwipeItem: function(inSender, inEvent) {
@@ -375,8 +381,8 @@ enyo.kind({
     this.$.searchBar.setOpen(!this.$.searchBar.open);
     this.$.searchSpinner.setShowing(this.$.searchBar.open);
     if (this.$.searchBar.open) {
+      this.closeError();
       this.$.searchBox.focus();
-      this.$.searchSpinner.hide();
     } else {
       this.clearSearch();
     }
@@ -458,6 +464,7 @@ enyo.kind({
   // ### Panes ###
   goToSync: function() {
     this.log();
+    this.closeError();
     this.$.newList.setOpen(false);
     this.$.searchBar.setOpen(false);
     this.owner.currentList = "libraryList";
@@ -494,6 +501,7 @@ enyo.kind({
     this.$.searchBar.setOpen(false);
     this.$.searchButton.setDisabled(true);
     this.$.library.setValue(false);
+    this.$.customList.reset();
     if (this.owner.customList) {
       this.owner.currentList = "customList";
       this.owner.setCurrentIndex(undefined);
@@ -512,6 +520,7 @@ enyo.kind({
   
   openListManager: function() {
     this.log();
+    this.closeError();
     this.$.searchButton.setDisabled(true);
     this.$.addRem.setDisabled(false);
     this.$.listPane.setIndex(3);
@@ -526,6 +535,7 @@ enyo.kind({
   
   noList: function() {
     this.log();
+    this.closeError();
     this.$.listPane.setIndex(4);
     this.$.title.setContent($L("List?"));
     this.$.addRem.setSrc(Helper.iconPath()+"add.png");
@@ -590,8 +600,9 @@ enyo.kind({
     this.$.errorText.setContent(text.substring(0,300)+"...");
   },
   
-  close: function() {
+  closeError: function() {
     this.$.error.setOpen(false);
+    this.$.searchSpinner.hide();
   },
   
   // newListDialog  
