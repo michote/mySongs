@@ -151,7 +151,7 @@ function Helper() {}
     var t = ParseXml.get_titles(xml)
     var tit = [];
     for (j in t) {
-      tit.push(t[j].title.toLowerCase());
+      tit.push(t[j].title.toLowerCase().replace(/,/g , ""));
     }
     if (this.isIn(term, tit.join())) {
       return true;
@@ -175,7 +175,7 @@ function Helper() {}
     var l = ParseXml.get_lyrics(xml, [""], false, true, 0).lyrics;
     var lyr = [];
     for (j in l) {
-      lyr.push(l[j][1].replace(/&nbsp;/g, " ").replace(/(<([^>]+)>)/ig,""));
+      lyr.push(l[j][1].replace(/&nbsp;/g, " ").replace(/(<([^>]+)>)/ig,"").replace(/,/g , "").replace(/./g , " "));
     }
     if (this.isIn(term, lyr.join().toLowerCase())) {
       return true;

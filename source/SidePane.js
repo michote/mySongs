@@ -45,7 +45,8 @@ enyo.kind({
         {name: "about", kind: "onyx.Drawer", open: false, components: [
           {classes: "deco", style: "text-align: center;", components: [
             {content: '<span style="color: #9E0508; font-weight: bold;">'+Helper.app+' &ndash; v. '+Helper.vers +'</span><br>'
-              + "&copy; 2013 <a href='mailto:reischuck.micha@googlemail.com'>Micha Reischuck</a><br>"
+              + '&copy; 2013: <a href="mailto:reischuck.micha@googlemail.com">Micha Reischuck</a>'
+              + ', <a href="mailto:johncc@internode.on.net">John Carragher</a><br>'
               + 'License: <a href="http://opensource.org/licenses/mit-license.php">MIT</a>', allowHtml: true},
             {kind: "Image", src: Helper.iconPath()+"icon128.png"}
           ]},
@@ -555,7 +556,12 @@ enyo.kind({
   },
   
   import: function() {
-    this.owner.importSong(convLyrics(this.$.importText.getValue().replace(/<div>/g, '').replace(/<\/div>/g, '<br>').replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ')));
+    var text = this.$.importText.getValue();
+    // remove some html formating
+    text = text.replace(/<[\/]{0,1}(br|BR)[^><]*>/g,"\n");
+    text = text.replace(/<div>/g, '').replace(/<\/div>/g, '<br>').replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ');
+    text = text.replace(/<[\/]{0,1}(span|SPAN)[^><]*>/g,"");
+    this.owner.importSong(convLyrics(text));
   },
   
   // Swipe right to close

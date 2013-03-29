@@ -236,6 +236,7 @@ enyo.kind({
   },
   
   setupLibrarySwipeItem: function(inSender, inEvent) {
+    this.log();
     var s = this.owner.libraryList.content;
     var i = inEvent.index;
     if(!s[i]) {
@@ -277,14 +278,15 @@ enyo.kind({
   // populate custom list
   getCustomList: function(inSender, inEvent) {
     var r = this.owner.customList.content[inEvent.index];
-    var isRowSelected = inSender.isSelected(inEvent.index);
-    this.$.customListItem.addRemoveClass("item-selected", isRowSelected);
-    this.$.customListItem.addRemoveClass("item-not-selected", !isRowSelected);
-    this.$.customListTitle.setContent(r.title);
+    if (r) {
+      var isRowSelected = inSender.isSelected(inEvent.index);
+      this.$.customListItem.addRemoveClass("item-selected", isRowSelected);
+      this.$.customListItem.addRemoveClass("item-not-selected", !isRowSelected);
+      this.$.customListTitle.setContent(r.title)
+    }
   },
   
   customListReorder: function(inSender, inEvent) {
-    this.log();
     var s = this.owner.customList.content;
     var movedItem = enyo.clone(s[inEvent.reorderFrom]);
     s.splice(inEvent.reorderFrom,1);
@@ -317,7 +319,7 @@ enyo.kind({
 
   // populate Manager list
   getListNames: function(inSender, inEvent) {
-    var r = this.owner.savedLists[inEvent.index];
+    var r = this.owner.savedLists.data[inEvent.index];
     var isRowSelected = inSender.isSelected(inEvent.index);
     this.$.listNameItem.addRemoveClass("item-selected", isRowSelected);
     this.$.listNameItem.addRemoveClass("item-not-selected", !isRowSelected);
@@ -326,23 +328,22 @@ enyo.kind({
   
   manageTab: function(inSender, inEvent) {
     this.listIndex = inEvent.rowIndex;
-    this.owner.customList = this.owner.savedLists[inEvent.rowIndex];
+    this.owner.customList = this.owner.savedLists.data[inEvent.rowIndex];
     this.goToList();
     this.owner.saveLists();
   },
   
   manageListReorder: function(inSender, inEvent) {
-    this.log();
-    //~ var s = this.owner.customList.content;
-    //~ var movedItem = enyo.clone(s[inEvent.reorderFrom]);
-    //~ s.splice(inEvent.reorderFrom,1);
-    //~ s.splice((inEvent.reorderTo),0,movedItem);
-    //~ this.owner.setCurrentIndex(inEvent.reorderTo);
-    //~ this.addLists();
+    var s = this.owner.savedLists.data;
+    var movedItem = enyo.clone(s[inEvent.reorderFrom]);
+    s.splice(inEvent.reorderFrom,1);
+    s.splice((inEvent.reorderTo),0,movedItem);
+    this.listIndex = inEvent.reorderTo;
+    this.addLists();
   },
   
   setupManageReorderComponents: function(inSender, inEvent) {
-    var s = this.owner.savedLists;
+    var s = this.owner.savedLists.data;
     var i = inEvent.index;
     if(!s[i]) {
       return;
@@ -352,7 +353,7 @@ enyo.kind({
   
   setupManageSwipeItem: function(inSender, inEvent) {
     this.log();
-    var s = this.owner.savedLists;
+    var s = this.owner.savedLists.data;
     var i = inEvent.index;
     if(!s[i]) {
       return;
@@ -364,12 +365,12 @@ enyo.kind({
   deleteList: function(inSender, inEvent) {
     this.log();
     if (this.listIndex >= 0) {
-      this.log("remove custom list:", this.owner.savedLists[this.listIndex].title);
-      this.owner.savedLists.splice(this.listIndex, 1);
+      this.log("remove custom list:", this.owner.savedLists.data[this.listIndex].title);
+      this.owner.savedLists.data.splice(this.listIndex, 1);
       this.owner.customList = false;
       this.listIndex = undefined; 
       this.owner.saveLists();
-      this.$.customListList.setCount(this.owner.savedLists.length);
+      this.$.customListList.setCount(this.owner.savedLists.data.length);
       this.$.customListList.refresh();
     }
     this.$.customListList.clearSwipeables();
@@ -529,7 +530,7 @@ enyo.kind({
     this.$.open.setValue(true);
     this.$.addRem.setSrc(Helper.iconPath()+"add.png");
     this.owner.currentList === "customList" ? this.$.list.setValue(false) : this.$.library.setValue(false);
-    this.$.customListList.setCount(this.owner.savedLists.length);
+    this.$.customListList.setCount(this.owner.savedLists.data.length);
     this.$.customListList.reset();
   },
   
@@ -551,7 +552,7 @@ enyo.kind({
         this.removeFromCustomlist(this.owner.currentIndex);
         break;
         
-      case 4: // Add new List
+      case 3: // Add new List
         this.$.newList.setOpen(true);
         this.$.listName.focus();
         break;
@@ -584,9 +585,9 @@ enyo.kind({
   addLists: function() {
     this.log();
     if (this.owner.customList.content.length > 0) {
-      for (i in this.owner.savedLists) {
-        if (this.owner.savedLists[i].title === this.owner.customList.title) {
-          this.owner.savedLists[i] = this.owner.customList
+      for (i in this.owner.savedLists.data) {
+        if (this.owner.savedLists.data[i].title === this.owner.customList.title) {
+          this.owner.savedLists.data[i] = this.owner.customList
           break;
         }
       }
@@ -615,8 +616,8 @@ enyo.kind({
   saveClicked: function(s) {
     this.log(this.$.listName.getValue());
     if (this.$.listName.getValue() !== "") { 
-      for (i in this.owner.savedLists) {
-        if (this.owner.savedLists[i].title === this.$.listName.getValue()) {
+      for (i in this.owner.savedLists.data) {
+        if (this.owner.savedLists.data[i].title === this.$.listName.getValue()) {
           this.log("Name already exist:", this.$.listName.getValue());
           this.$.errorContent.setContent($L("Name already exist"));
           this.$.errorContent.show();
@@ -624,13 +625,13 @@ enyo.kind({
           return;
         }
       }
-      this.owner.savedLists.push({"title": this.$.listName.getValue(),
+      this.owner.savedLists.data.push({"title": this.$.listName.getValue(),
         "content": []});
       if (!this.owner.customList) {
         this.owner.customList = {"title": this.$.listName.getValue(),
           "content": []};
       }
-      this.$.customListList.setCount(this.owner.savedLists.length);
+      this.$.customListList.setCount(this.owner.savedLists.data.length);
       this.$.customListList.refresh();
       this.addLists();
       this.$.listName.setValue("");

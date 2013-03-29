@@ -16,8 +16,10 @@ function dropboxHelper() {}
       client.authDriver(new Dropbox.Drivers.Popup({
         receiverUrl: "https://dl.dropbox.com/u/1429945/MySongBook/index.html",
         rememberUser: true}));
-    }      
+    }
+    this.log(client)
     client.authenticate(function(error, client) {
+      this.log(client)
       if (error) {
         callbackError(_this.showError(error));
       } else {
@@ -73,21 +75,21 @@ function dropboxHelper() {}
   };
   
   dropboxHelper.readFile = function(file, callbackSuccess, callbackError) { 
-    dropboxHelper.client.readFile(file, function(error, data) {
+    dropboxHelper.client.readFile(file, function(error, data, Stat) {
       if (error) {
         callbackError(dropboxHelper.showError(error));
       } else {
-        callbackSuccess(data, file);  // data has the file's contents
+        callbackSuccess(data, file, Stat.modifiedAt);  // data has the file's contents
       }
     });
   };
   
   dropboxHelper.writeFile = function(file, content, songt, callbackSuccess, callbackError) { 
-    dropboxHelper.client.writeFile(file, content, function(error, stat) {
+    dropboxHelper.client.writeFile(file, content, function(error, Stat) {
       if (error) {
         callbackError(dropboxHelper.showError(error));
       } else {
-        callbackSuccess(stat.revisionTag, file, content, songt);
+        callbackSuccess(Stat.modifiedAt, file, content, songt);
       }
     });
   };

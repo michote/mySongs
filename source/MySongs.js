@@ -8,6 +8,7 @@
 // #################
 
 enyo.Scroller.touchScrolling = true;
+//~ enyo.setLogLevel(0); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
 
 enyo.kind({
   name: "mySongs",
@@ -23,7 +24,7 @@ enyo.kind({
   published: {
     dataList: {},
     libraryList: {"content": []},
-    savedLists: [],
+    savedLists: {"data": [], "sync": null, "modified": null},
     customList: false,
     searchList: {"content": []},
     css: undefined,
@@ -66,18 +67,24 @@ enyo.kind({
     this.log("phonegap deviceready");
     if (!enyo.platform.webos) { // webos testing
       this.connect();
+      var ol = enyo.bind(this, this.isOnline);
+      document.addEventListener("offline", ol, false);
+      document.addEventListener("online", ol, false);
     }
   },
   
   create: function() {
     this.inherited(arguments);
-    //~ enyo.setLogLevel(0); // The default log level is 99. enyo.log/this.log will output if the level is 20 or above, enyo.warn at 10, and enyo.error at 0.
     this.getPreferences();
     // online status
     this.online = navigator.onLine;
-    var ol = enyo.bind(this, this.isOnline);
-    window.addEventListener("offline", ol, false);
-    window.addEventListener("online", ol, false);
+    // Connect to Dropbox
+    if (Helper.browser()) {
+      var ol = enyo.bind(this, this.isOnline);
+      window.addEventListener("offline", ol, false);
+      window.addEventListener("online", ol, false);
+      this.connect();
+    }
     // creating Database
     if (!enyo.platform.firefox) { // not Firefox
       this.databaseOn = true;
@@ -86,7 +93,7 @@ enyo.kind({
         kind: "onecrayon.Database",
         database: 'ext:ms_database',
         version: '',
-        estimatedSize: 200000,
+        estimatedSize: 5000000,
         debug: true,
         owner: this
       });
@@ -94,10 +101,6 @@ enyo.kind({
     this.log("database on", this.databaseOn);
     if (this.databaseOn) {
       this.openMyDatabase();
-    }
-    // Connect to Dropbox
-    if (Helper.browser()) {
-      this.connect();
     }
   },
   
@@ -330,7 +333,7 @@ enyo.kind({
     dropboxHelper.readDir(success, error);
   },
   
-  handleDropboxfiles: function(files) {
+  handleDropboxfiles: function(files, modified) {
     this.log();
     if (!this.silent) {
       this.$.songListPane.$.readProgress.animateProgressTo(3);
@@ -353,14 +356,15 @@ enyo.kind({
           this.pathCount.a.push({"idx":i, "file": files[i]});
           this.log("parsing dropbox file", i+1, "of", files.length, files[i]);
           dropboxHelper.readFile(files[i], success, error);
-        } else if (files[i].split('.').pop() === 'json') {
+        } else if (files[i] === 'lists.json') {
           dropboxHelper.readFile(files[i], successlist, error);
         }
       }
     }
   },
   
-  gotDropboxFile: function(data, file) {
+  gotDropboxFile: function(data, file, modified) {
+    this.log(modified);
     var xml = ParseXml.parse_dom(data);
     if (ParseXml.get_titles(xml)) { // check for valid title before adding to library
       this.dataList[file.toLowerCase()] = xml;
@@ -379,11 +383,6 @@ enyo.kind({
         this.fileDone(a.title);
       }
     }
-  },
-  
-  gotListFile: function(data, file) {
-    var list = JSON.parse(data)
-    this.log(list);
   },
   
   processDbRecord: function(dboxFileObj, result) {
@@ -647,10 +646,41 @@ enyo.kind({
     this.log("got Prefs: css: ", Helper.getItem("css"), "customList: ", Helper.getItem("customList"), "savedLists: ", Helper.getItem("savedLists"));
   },
   
+  gotListFile: function(data, file, modified) {
+    this.warn("list file modified:", modified);
+    this.warn("local list synced:", this.savedLists.sync);
+    this.warn("local list modified:", this.savedLists.modified);
+    if (this.savedLists.sync) {
+    } else {
+      this.saveLists();
+      // TODO: check dates 
+      // If modification newer than Dropboxfile sync changes to dropbox
+      //~ this.saveLists();
+      // if older overwrite local changes with dropbox-data
+      //~ this.savedLists = JSON.parse(data);
+    }
+    this.log("updated savedLists:", this.savedLists);
+  },
+  
   saveLists: function () {
+    if (this.online) {
+      var success = enyo.bind(this, this.writeListSuccess);
+      var error = enyo.bind(this, this.dropboxError);
+      dropboxHelper.writeFile("lists.json", JSON.stringify(this.savedLists, null, 2), null, success, error);
+    } else {
+      this.savedLists.sync = false;
+      Helper.setItem("savedLists", this.savedLists);
+    }
+  },
+  
+  writeListSuccess: function(modified) {
+    this.log("List saved at " + modified);
+    this.savedLists.sync = true;
+    this.savedLists.modified = modified;
     Helper.setItem("savedLists", this.savedLists);
     Helper.setItem("customList", this.customList);
     this.log("saved: savedLists: ", this.savedLists, "customList: ", this.customList);
+    this.log("saved lists to file");
   },
   
   saveCss: function(inCss) {
@@ -720,8 +750,8 @@ enyo.kind({
     dropboxHelper.writeFile(file, content, songt, success, error);
   },
   
-  writeFileSuccess: function(revision, file, content, songt) {
-    this.log("File saved as revision " + revision);
+  writeFileSuccess: function(modified, file, content, songt) {
+    this.log("File saved at " + modified);
     this.$.infoPanels.setIndex(0);
     if (this.newSong) {
       this.log("append", file, "to librarylist and select it");
@@ -792,7 +822,7 @@ enyo.kind({
     this.newSong = true;
     var songt = ParseXml.get_titles(ParseXml.parse_dom(song))[0];
     if (songt && songt.title) {
-      var file = songt.title.replace(/\s+/g, "_") + ".xml";   //' ' -> '_'
+      var file = songt.title.replace(/\s+/g, "_").replace(/,/g , "") + ".xml";   //' ' -> '_'
       file = this.testFilename(file);
       this.log("create imported file: ", file);
       this.writeXml(file, song, songt.title);
@@ -854,6 +884,7 @@ enyo.kind({
     } else {
       this.deleteFromDbase();
     }
+    // TODO: Check if File is in savedLists and remove it there as well 
   },
   
   deleteFromDbase: function() {

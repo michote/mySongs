@@ -401,6 +401,11 @@ a {
     padding: .25rem 0;
     border: .0625rem solid rgba(0,0,0,0.1);
     line-height: 2rem;
+    color: #333333;
+}
+
+.author-picker:active {
+    border: 0;
 }
 
 .verse-button {

@@ -31,6 +31,7 @@
   
   <!-- Icons -->
   <!-- <icon src="assets/images/icon64.png" width="64" height="64"/> -->
+  <icon src="assets/images/icon114.png" width="114" height="114"/>
   <icon src="assets/images/icon256.png" width="256" height="256"/>
 <!--
   Android
@@ -65,7 +66,7 @@
   <!-- BB10 -->
   <!-- <rim:splash src="splash-1024x600.png" />
   <rim:splash src="splash-600x1024.png" />
-  <rim:splash src="splash-1280x768.png" />
-  <rim:splash src="splash-768x1280.png" />
-  <rim:splash src="splash-720x720.png" />-->
+  <rim:splash src="splash-1280x768.png" />-->
+  <rim:splash src="assets/splash/768x1280.png" />
+  <!-- <rim:splash src="splash-720x720.png" />-->
 </widget>

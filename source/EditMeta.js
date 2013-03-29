@@ -33,7 +33,7 @@ enyo.kind({
               {name: "author1", kind: "Input", placeholder: $L("author")}
             ]},
             {kind: "onyx.PickerDecorator", classes: "author-picker", components: [
-              {style: "width: 100%; background: none; border: none;"},
+              {style: "width: 100%; background: none; border: none; color: #333;"},
               {name: "authorSwitch1", kind: "onyx.Picker", onSelect: "onchange_author", components: [
                 {name: "null1", content: "", value: "", active: true},
                 {name: "words1", content: $L("words"), value: "words"},
@@ -158,7 +158,7 @@ enyo.kind({
           {name: "author" + this.authorCount, kind: "Input", placeholder: $L("author"), owner: this}
         ]},
         {kind: "onyx.PickerDecorator", classes: "author-picker", owner: this, components: [
-          {style: "width: 100%; background: none; border: none;"},
+          {style: "width: 100%; background: none; border: none; color: #333;"},
           {name:"authorSwitch" + this.authorCount, kind: "onyx.Picker", onSelect: "onchange_author", owner: this, components: [
             {content: "", value: "", active: true},
             {name: "words" + this.authorCount, content: $L("words"), value: "words"},

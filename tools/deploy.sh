@@ -20,10 +20,10 @@ else
 fi
 
 # create a zip and upload to build.phonegap.com
-echo "create zip" 
+#~ echo "create zip" 
 cd /home/micha/stopandgo/Enyo2/mySongs/deploy/mySongs
 zip -rq /home/micha/stopandgo/Enyo2/mySongs/deploy/mySongs.zip *
-echo "upload to build.phonegap.com"
+#~ echo "upload to build.phonegap.com"
 curl -X PUT -F file=@/home/micha/stopandgo/Enyo2/mySongs/deploy/mySongs.zip https://build.phonegap.com/api/v1/apps/302264?auth_token=dFZDtwNV7MF3DJ5RZHx2
 # copy a build to Dropbox public folder
 echo "copy a build to Dropbox public folder"
