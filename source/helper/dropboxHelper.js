@@ -17,9 +17,8 @@ function dropboxHelper() {}
         receiverUrl: "https://dl.dropbox.com/u/1429945/MySongBook/index.html",
         rememberUser: true}));
     }
-    this.log(client)
     client.authenticate(function(error, client) {
-      this.log(client)
+      enyo.log(client);
       if (error) {
         callbackError(_this.showError(error));
       } else {
