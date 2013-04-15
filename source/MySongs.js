@@ -647,9 +647,9 @@ enyo.kind({
   },
   
   gotListFile: function(data, file, modified) {
-    this.warn("list file modified:", modified);
-    this.warn("local list synced:", this.savedLists.sync);
-    this.warn("local list modified:", this.savedLists.modified);
+    enyo.warn("list file modified:", modified);
+    enyo.warn("local list synced:", this.savedLists.sync);
+    enyo.warn("local list modified:", this.savedLists.modified);
     if (this.savedLists.sync) {
     } else {
       this.saveLists();
