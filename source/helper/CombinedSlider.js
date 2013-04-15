@@ -226,14 +226,3 @@ enyo.kind({
 		this.$.endKnob.waterfallDown("onSetLabel", inContent);
 	}
 });
-
-enyo.kind({
-	name: "onyx.RangeSliderKnobLabel",
-	classes: "onyx-range-slider-label",
-	handlers: {
-		onSetLabel: "setLabel"
-	},
-	setLabel: function(inSender, inContent) {
-		this.setContent(inContent);
-	}
-});
