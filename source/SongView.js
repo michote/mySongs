@@ -399,14 +399,14 @@ enyo.kind({
         this.resetStartTime();
         this.showLyrics(true);
         }
-      this.$.playButton.setProperty("src", Helper.iconPath()+"pause.png");
+      this.$.playButton.set("src", Helper.iconPath()+"pause.png");
       this.$.forthButton.setDisabled(false);
       this.$.forthButton.setDisabled(true);
       this.$.backButton.setDisabled(true);
       this.$.printButton.setDisabled(true);
     } else { 
       //pause
-      this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
+      this.$.playButton.set("src", Helper.iconPath()+"play.png");
       this.running = false;
       if (this.finished) {
         this.initCursor();
@@ -477,18 +477,6 @@ enyo.kind({
     this.$.title.setContent(theTitles + " (" + Math.floor(this.songSecs) + " secs)");
   },
   
-  // only allow autoscroll row step to change by 'allow' rows
-  smoothRow: function(pRow, nRow) {
-    var allow = 4;
-    var d = nRow - pRow;
-    var sRow = nRow;
-    if (Math.abs(d) > allow) {
-      this.log("Row rate change",d, "-> ", allow);
-      sRow = pRow + allow;
-    }
-    return sRow;
-  },
-  
   showLyrics: function(init) {
     if (this.running) {
       if (this.lyricsCurrRow === 0 && init) {
@@ -500,7 +488,6 @@ enyo.kind({
       this.currIntDate = new Date();
       this.currTime = this.currIntDate.getTime() ;
       this.lyricsCurrRow = this.rowsTraversed * (this.currTime - this.initTime)/(this.songSecs*1000);
-      //this.lyricsCurrRow = this.smoothRow(this.prevRow, this.lyricsCurrRow);
       if (this.prevRow !== this.lyricsCurrRow) {
         if (this.movingLyrics()) {
           this.$.viewScroller.setScrollTop(this.lyricsCurrRow - this.cursorRow);
@@ -533,7 +520,7 @@ enyo.kind({
     this.$.cursorScrollBar.setY(this.cursorRow);    
     this.$.cursorScrollBar.cursorOff();
     window.clearTimeout(this.scrollTimeout);
-    this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
+    this.$.playButton.set("src", Helper.iconPath()+"play.png");
     this.running = false;
     this.finished = false;
     this.$.editButton.setDisabled(false);
@@ -546,17 +533,35 @@ enyo.kind({
   
   resizeLyrics: function() {
     this.log();
+    var moBoxes = document.getElementsByClassName('mochordbox');
+    if (moBoxes) {
+      for (i=0; i<moBoxes.length; i++) {
+        moBoxes[i].style.width = 'auto';  // remove fixed width
+      }
+    }
     if (this.$.lyric.node !== null && this.owner.owner.$.sidePane.css.autoResize === true) {
-      this.$.lyric.applyStyle("font-size", "100%");
+      var iFS = 100;
+      this.$.lyric.applyStyle("font-size", iFS + "%");
       this.$.lyric.applyStyle("display", "inline-block");
-      var iFS = this.$.lyric.node.style.fontSize.split("%")[0];
-      var newFS = (iFS * (this.$.lyric.owner.width - 20)/this.$.lyric.node.clientWidth);
-      var cmpFS = this.owner.owner.$.sidePane.css.fMin  * 12 * Helper.ratio() + 100;
+      var newFS = (iFS * (this.$.lyric.owner.width-108)/(this.$.lyric.node.clientWidth-72));
+      var cmpFS = this.owner.owner.$.sidePane.css.fMin  * 10 * Helper.ratio() + 80;
       newFS = newFS < cmpFS ? cmpFS : newFS;
-      cmpFS = this.owner.owner.$.sidePane.css.fMax  * 12 * Helper.ratio() + 100;
+      cmpFS = this.owner.owner.$.sidePane.css.fMax  * 10 * Helper.ratio() + 80;
       newFS = newFS > cmpFS ? cmpFS : newFS;
-      this.$.lyric.applyStyle("font-size", newFS + "%");
+      this.$.lyric.applyStyle("font-size", Math.floor(newFS) + "%");
       this.$.lyric.applyStyle("display", "block");
+      // adjust width of chordboxes for music only verses
+    }
+    if (moBoxes) {
+      var max=0;
+      for (i=0; i<moBoxes.length; i++) {
+        if (moBoxes[i].clientWidth > max) {
+          max = moBoxes[i].clientWidth;
+        }
+      }
+      for (i=0; i<moBoxes.length; i++) {
+        moBoxes[i].style.width = max + 'px';
+      }
     }
   },
   
@@ -799,6 +804,11 @@ enyo.kind({
         }
       }
     }
+    for (var i=0; i < this.data.comments.length; i++) 
+      { printCopy += this.data.comments[i] + '<br>';}
+    if (this.data.key){ printCopy += 'Key : ' + this.data.key + '<br>';}
+    if (this.data.duration){ printCopy += 'Duration : ' + this.data.duration + 'secs' + '<br>';}
+    if (this.data.tempo){ printCopy += 'Tempo : ' + this.data.tempo + '<br>';}
     return printCopy;
   },
   
