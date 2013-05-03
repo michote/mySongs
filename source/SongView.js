@@ -693,19 +693,24 @@ enyo.kind({
       this.tapTimer = undefined;
       this.fullscreen = !this.fullscreen;
       if (this.fullscreen === true) {
-        this.$.titleDrawer.setOpen(false);
         this.$.headerToolbar.hide(); 
         this.$.footerToolbar.hide();
         this.$.titleDrawer.setOpen(false);
-        this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
+        this.owner.owner.$.mainPanels.setIndex(1);
       } else {
         this.$.headerToolbar.show(); 
         this.$.footerToolbar.show();
-        this.owner.owner.$.mainPanels.setIndex(this.owner.owner.$.mainPanels.index ? 0 : 1);
+        if (Helper.phone()) {
+          this.owner.owner.$.mainPanels.setIndex(1);
+        } else {
+          this.owner.owner.$.mainPanels.setIndex(0);
+        }
       }
       if (window.PalmSystem) {
         enyo.setFullScreen(this.fullscreen);
       }
+    this.log("mainPanels index", this.owner.owner.$.mainPanels.index)
+    return true;
     }
   },
 
