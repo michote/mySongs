@@ -7,7 +7,21 @@
 		<!-- -->
 		<meta http-equiv="Content-Type" content="text/html; charset=utf8"/>
 		<meta name="apple-mobile-web-app-capable" content="yes"/>
+<!--
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+-->
+		<!-- Set viewport and fontsize using window.devicePixelRatio -->
+		<script>
+			var d = document.getElementsByTagName('head')[0]
+			var meta = document.createElement("meta");
+			meta.setAttribute('name','viewport');
+			meta.setAttribute('content','initial-scale='+ (1/window.devicePixelRatio) + ',user-scalable=no');
+			d.appendChild(meta);
+			var s = document.createElement('style');
+			s.setAttribute('type', 'text/css');
+			s.appendChild(document.createTextNode('html {font-size:' + 100*window.devicePixelRatio + '%;}'));
+			d.appendChild(s);
+		</script>
 		<!-- Less.js (uncomment for client-side rendering of less stylesheets; leave commented to use only CSS) -->
 		 <script src="enyo/tools/minifier/node_modules/less/dist/less-1.3.0e.min.js"></script> 
 		<!-- enyo (debug) -->

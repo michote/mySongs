@@ -520,7 +520,7 @@ enyo.kind({
     this.$.cursorScrollBar.setY(this.cursorRow);    
     this.$.cursorScrollBar.cursorOff();
     window.clearTimeout(this.scrollTimeout);
-    this.$.playButton.set("src", Helper.iconPath()+"play.png");
+    this.$.playButton.setProperty("src", Helper.iconPath()+"play.png");
     this.running = false;
     this.finished = false;
     this.$.editButton.setDisabled(false);

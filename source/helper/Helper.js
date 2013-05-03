@@ -6,19 +6,19 @@ function Helper() {}
   Helper.vers = "0.5";
 
   Helper.ratio = function() { 
-    //~ var p = enyo.platform;
-    //~ if (p.blackberry) {
-      //~ return "2.0";
-    //~ } else if (p.android > 3) {
-      //~ return "1.5";
-    //~ } else {
+    var p = enyo.platform;
+    if (p.blackberry) {
+      return "2.24";
+    } else if (p.android > 3) {
+      return "1.5";
+    } else {
       return "1.0";
-    //~ }
+    }
   };
 
   Helper.iconPath = function() { 
-      //~ return "assets/images/" + this.ratio() +"/"; 
-      return "assets/images/1.0/"; 
+      return "assets/images/" + this.ratio() +"/"; 
+      //~ return "assets/images/1.0/"; 
   }; 
 
   // small Screen on Phone

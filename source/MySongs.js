@@ -78,13 +78,7 @@ enyo.kind({
     this.getPreferences();
     // online status
     this.online = navigator.onLine;
-    // Connect to Dropbox
-    if (Helper.browser()) {
-      var ol = enyo.bind(this, this.isOnline);
-      window.addEventListener("offline", ol, false);
-      window.addEventListener("online", ol, false);
-      this.connect();
-    }
+    this.log("online:", this.online);
     // creating Database
     if (!enyo.platform.firefox) { // not Firefox
       this.databaseOn = true;
@@ -97,6 +91,13 @@ enyo.kind({
         debug: true,
         owner: this
       });
+    }
+    // Connect to Dropbox
+    if (Helper.browser()) {
+      var ol = enyo.bind(this, this.isOnline);
+      window.addEventListener("offline", ol, false);
+      window.addEventListener("online", ol, false);
+      this.connect();
     }
     this.log("database on", this.databaseOn);
     if (this.databaseOn) {
@@ -189,12 +190,14 @@ enyo.kind({
   },
   
   signOutSuccess: function() {
+    this.log();
     this.$.viewPane.$.preferences.setDropboxClient(false); // Hide Logout Button 
     this.$.songListPane.$.listPane.setIndex(6);
     this.log("successfully logged out from Dropbbox");
   },
   
   openMyDatabase: function() {
+    this.log();
     this.db = this.$.mySongsDbase;
     //this.db.query('DROP TABLE IF EXISTS "songs"');
     //this.db.query('DROP TABLE IF EXISTS "changes"');
@@ -254,6 +257,7 @@ enyo.kind({
   
   //Reading files in database
   initDatabaseRead: function() {   // no Dropbox
+    this.log();
     this.$.songListPane.$.readFiles.setContent($L("Connecting..."));
     this.$.songListPane.$.readProgress.setMax(3);
     this.$.songListPane.$.readProgress.animateProgressTo(1);
