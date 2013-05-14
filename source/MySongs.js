@@ -651,19 +651,17 @@ enyo.kind({
   },
   
   gotListFile: function(data, file, modified) {
-    enyo.warn("list file modified:", modified);
-    enyo.warn("local list synced:", this.savedLists.sync);
-    enyo.warn("local list modified:", this.savedLists.modified);
-    if (this.savedLists.sync) {
-    } else {
+    var list = new Date(modified);
+    var loclist = new Date(this.savedLists.modified);
+    if (list > loclist) { // Dropbox listfile newer
+      this.log("Dropbox listfile newer, use this data");
+      this.savedLists = JSON.parse(data);
+      this.$.songListPane.$.customList.reset();
+      this.$.songListPane.$.customListList.reset();
+    } else if (list < loclist) { // local list newer
+      this.log("local list newer, sync it to dropbox");
       this.saveLists();
-      // TODO: check dates 
-      // If modification newer than Dropboxfile sync changes to dropbox
-      //~ this.saveLists();
-      // if older overwrite local changes with dropbox-data
-      //~ this.savedLists = JSON.parse(data);
-    }
-    this.log("updated savedLists:", this.savedLists);
+    } // if both fale, = same date nothing to do
   },
   
   saveLists: function () {
@@ -672,14 +670,13 @@ enyo.kind({
       var error = enyo.bind(this, this.dropboxError);
       dropboxHelper.writeFile("lists.json", JSON.stringify(this.savedLists, null, 2), null, success, error);
     } else {
-      this.savedLists.sync = false;
+      this.savedLists.modified = new Date().toString();
       Helper.setItem("savedLists", this.savedLists);
     }
   },
   
   writeListSuccess: function(modified) {
     this.log("List saved at " + modified);
-    this.savedLists.sync = true;
     this.savedLists.modified = modified;
     Helper.setItem("savedLists", this.savedLists);
     Helper.setItem("customList", this.customList);

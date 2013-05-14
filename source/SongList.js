@@ -330,7 +330,7 @@ enyo.kind({
     this.listIndex = inEvent.rowIndex;
     this.owner.customList = this.owner.savedLists.data[inEvent.rowIndex];
     this.goToList();
-    this.owner.saveLists();
+    //~ this.owner.saveLists(); // ???
   },
   
   manageListReorder: function(inSender, inEvent) {

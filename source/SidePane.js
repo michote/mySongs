@@ -67,7 +67,6 @@ enyo.kind({
           //~ {name: "themebox"},
         ]},
       ]},
-      // ADD: Comments, Variant?
       // ADD: Themes?
       
       // FontDialog
