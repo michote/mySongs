@@ -277,7 +277,7 @@ enyo.kind({
     
   // populate custom list
   getCustomList: function(inSender, inEvent) {
-    var r = this.owner.customList.content[inEvent.index];
+    var r = this.owner.savedLists.data[this.owner.customList].content[inEvent.index];
     if (r) {
       var isRowSelected = inSender.isSelected(inEvent.index);
       this.$.customListItem.addRemoveClass("item-selected", isRowSelected);
@@ -287,7 +287,7 @@ enyo.kind({
   },
   
   customListReorder: function(inSender, inEvent) {
-    var s = this.owner.customList.content;
+    var s = this.owner.savedLists.data[this.owner.customList].content;
     var movedItem = enyo.clone(s[inEvent.reorderFrom]);
     s.splice(inEvent.reorderFrom,1);
     s.splice((inEvent.reorderTo),0,movedItem);
@@ -296,7 +296,7 @@ enyo.kind({
   },
  
   setupCustomReorderComponents: function(inSender, inEvent) {
-    var s = this.owner.customList.content;
+    var s = this.owner.savedLists.data[this.owner.customList].content;
     var i = inEvent.index;
     if(!s[i]) {
       return;
@@ -305,7 +305,7 @@ enyo.kind({
   },
 
   setupCustomSwipeItem: function(inSender, inEvent) {
-    var s = this.owner.customList.content;
+    var s = this.owner.savedLists.data[this.owner.customList].content;
     var i = inEvent.index;
     if(!s[i]) {
       return;
@@ -328,9 +328,9 @@ enyo.kind({
   
   manageTab: function(inSender, inEvent) {
     this.listIndex = inEvent.rowIndex;
-    this.owner.customList = this.owner.savedLists.data[inEvent.rowIndex];
+    this.owner.customList = inEvent.rowIndex;
+    Helper.setItem("customList", inEvent.rowIndex);
     this.goToList();
-    //~ this.owner.saveLists(); // ???
   },
   
   manageListReorder: function(inSender, inEvent) {
@@ -503,16 +503,17 @@ enyo.kind({
     this.$.searchButton.setDisabled(true);
     this.$.library.setValue(false);
     this.$.customList.reset();
-    if (this.owner.customList) {
+    enyo.warn(this.owner.savedLists.data[this.owner.customList]);
+    if (this.owner.savedLists.data[this.owner.customList]) {
       this.owner.currentList = "customList";
       this.owner.setCurrentIndex(undefined);
-      this.$.title.setContent(this.owner.customList.title+ " (" + this.owner.customList.content.length + ")");
-      this.$.performanceText.setContent('<big><b>' + this.owner.customList.content.length + " " + $L("title") + "</b></big><br> Total duration:  s");
+      this.$.title.setContent(this.owner.savedLists.data[this.owner.customList].title+ " (" + this.owner.savedLists.data[this.owner.customList].content.length + ")");
+      this.$.performanceText.setContent('<big><b>' + this.owner.savedLists.data[this.owner.customList].content.length + " " + $L("title") + "</b></big><br> Total duration:  s");
       this.$.addRem.setSrc(Helper.iconPath()+"remove.png");
       this.$.open.setValue(false);
       this.$.addRem.setDisabled(false);
       this.$.listPane.setIndex(2);
-      this.$.customList.setCount(this.owner.customList.content.length);
+      this.$.customList.setCount(this.owner.savedLists.data[this.owner.customList].content.length);
       this.$.customList.refresh();
     } else {
       this.noList();
@@ -563,36 +564,29 @@ enyo.kind({
   },
   
   addToCustomlist: function(index) {
-    if (!this.owner.customList) {
+    if (!this.owner.savedLists.data[this.owner.customList]) {
       this.noList();
     } else if (index >= 0) {
-      this.owner.customList.content.push(this.owner[this.owner.currentList].content[index]);
-      this.addLists();
+      this.owner.savedLists.data[this.owner.customList].content.push(this.owner[this.owner.currentList].content[index]);
+      this.owner.saveLists();
     }
   },
   
   removeFromCustomlist: function(index) {
     if (index >= 0) {
-      this.log("remove", this.owner.customList.content[index].title, "from", this.owner.customList);
-      this.owner.customList.content.splice(index, 1);
-      this.$.customList.setCount(this.owner.customList.content.length);
+      this.log("remove", this.owner.savedLists.data[this.owner.customList].content[index].title, "from", this.owner.savedLists.data[this.owner.customList]);
+      this.owner.savedLists.data[this.owner.customList].content.splice(index, 1);
+      this.$.customList.setCount(this.owner.savedLists.data[this.owner.customList].content.length);
       this.$.customList.refresh();
-      this.$.title.setContent(this.owner.customList.title+ " (" + this.owner.customList.content.length + ")");
-      this.addLists();
+      this.$.title.setContent(this.owner.savedLists.data[this.owner.customList].title+ " (" + this.owner.savedLists.data[this.owner.customList].content.length + ")");
+      this.owner.saveLists();
     }
   },
   
-  addLists: function() {
-    this.log();
-    if (this.owner.customList.content.length > 0) {
-      for (i in this.owner.savedLists.data) {
-        if (this.owner.savedLists.data[i].title === this.owner.customList.title) {
-          this.owner.savedLists.data[i] = this.owner.customList
-          break;
-        }
-      }
-    }
-    this.owner.saveLists();
+  refreshAllLists: function() {
+    this.$.customList.setCount(this.owner.savedLists.data[this.owner.customList].content.length);
+    this.$.customList.reset();
+    this.$.customListList.reset();
   },
   
   // Error
@@ -627,9 +621,8 @@ enyo.kind({
       }
       this.owner.savedLists.data.push({"title": this.$.listName.getValue(),
         "content": []});
-      if (!this.owner.customList) {
-        this.owner.customList = {"title": this.$.listName.getValue(),
-          "content": []};
+      if (!this.owner.savedLists.data[this.owner.customList]) {
+        this.owner.customList = this.owner.savedLists.data.length
       }
       this.$.customListList.setCount(this.owner.savedLists.data.length);
       this.$.customListList.refresh();

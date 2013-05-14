@@ -656,12 +656,11 @@ enyo.kind({
     if (list > loclist) { // Dropbox listfile newer
       this.log("Dropbox listfile newer, use this data");
       this.savedLists = JSON.parse(data);
-      this.$.songListPane.$.customList.reset();
-      this.$.songListPane.$.customListList.reset();
+      this.$.songListPane.refreshAllLists();
     } else if (list < loclist) { // local list newer
       this.log("local list newer, sync it to dropbox");
       this.saveLists();
-    } // if both fale, = same date nothing to do
+    } // if both false, = same date nothing to do
   },
   
   saveLists: function () {
@@ -679,7 +678,6 @@ enyo.kind({
     this.log("List saved at " + modified);
     this.savedLists.modified = modified;
     Helper.setItem("savedLists", this.savedLists);
-    Helper.setItem("customList", this.customList);
     this.log("saved: savedLists: ", this.savedLists, "customList: ", this.customList);
     this.log("saved lists to file");
   },
