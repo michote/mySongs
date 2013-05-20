@@ -24,7 +24,7 @@ enyo.kind({
   published: {
     dataList: {},
     libraryList: {"content": []},
-    savedLists: {"data": [], "sync": null, "modified": null},
+    savedLists: {"data": [], "modified": null},
     customList: false,
     searchList: {"content": []},
     css: undefined,

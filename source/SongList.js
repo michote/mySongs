@@ -237,7 +237,7 @@ enyo.kind({
   
   setupLibrarySwipeItem: function(inSender, inEvent) {
     this.log();
-    var s = this.owner.libraryList.content;
+    var s = this.owner[this.owner.currentList].content;
     var i = inEvent.index;
     if(!s[i]) {
       return;
@@ -277,12 +277,12 @@ enyo.kind({
     
   // populate custom list
   getCustomList: function(inSender, inEvent) {
-    var r = this.owner.savedLists.data[this.owner.customList].content[inEvent.index];
-    if (r) {
+    var r = this.owner.savedLists.data[this.owner.customList];
+    if (r.content[inEvent.index]) {
       var isRowSelected = inSender.isSelected(inEvent.index);
       this.$.customListItem.addRemoveClass("item-selected", isRowSelected);
       this.$.customListItem.addRemoveClass("item-not-selected", !isRowSelected);
-      this.$.customListTitle.setContent(r.title)
+      this.$.customListTitle.setContent(r.content[inEvent.index].title)
     }
   },
   
@@ -330,6 +330,7 @@ enyo.kind({
     this.listIndex = inEvent.rowIndex;
     this.owner.customList = inEvent.rowIndex;
     Helper.setItem("customList", inEvent.rowIndex);
+    this.$.list.setValue(true);
     this.goToList();
   },
   
@@ -468,6 +469,7 @@ enyo.kind({
     this.closeError();
     this.$.newList.setOpen(false);
     this.$.searchBar.setOpen(false);
+    this.$.searchButton.setValue(false);
     this.owner.currentList = "libraryList";
     this.$.libraryList.setCount(0);
     this.$.title.setContent($L("Song List"));
@@ -500,6 +502,7 @@ enyo.kind({
     this.log();
     this.$.newList.setOpen(false);
     this.$.searchBar.setOpen(false);
+    this.$.searchButton.setValue(false);
     this.$.searchButton.setDisabled(true);
     this.$.library.setValue(false);
     this.$.customList.reset();
@@ -523,6 +526,8 @@ enyo.kind({
   openListManager: function() {
     this.log();
     this.closeError();
+    this.$.searchBar.setOpen(false);
+    this.$.searchButton.setValue(false);
     this.$.searchButton.setDisabled(true);
     this.$.addRem.setDisabled(false);
     this.$.listPane.setIndex(3);
@@ -622,11 +627,11 @@ enyo.kind({
       this.owner.savedLists.data.push({"title": this.$.listName.getValue(),
         "content": []});
       if (!this.owner.savedLists.data[this.owner.customList]) {
-        this.owner.customList = this.owner.savedLists.data.length
+        this.owner.customList = 0;
       }
       this.$.customListList.setCount(this.owner.savedLists.data.length);
       this.$.customListList.refresh();
-      this.addLists();
+      this.owner.saveLists();
       this.$.listName.setValue("");
       this.clearDialog();
     } else {

@@ -138,6 +138,9 @@ enyo.kind({
             <li>' + $L("Swipe to the left to open previous song in list") + '</li> \
             <li>' + $L("Doubletab maximizes mainview") + '</li> \
             <li>' + $L("Swipe the sidepane to the right to close it") + '</li> \
+            <li>' + $L("Swipe an librarylist item to add it to the current custom list") + '</li> \
+            <li>' + $L("Swipe an custom list item to remove it from this list") + '</li> \
+            <li>' + $L("Swipe a list to remove it") + '</li> \
           </ul>'},
         {tag: 'br'},
         
