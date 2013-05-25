@@ -599,10 +599,12 @@ enyo.kind({
   
   // Open Song
   openSong: function(index) {
-    this.log("open song: ", this[this.currentList].content[index].file);
+    this.log("list ", this.currentList);
+    var file = ((this.currentList === "customList") ? this.savedLists.data[this.customList].content[index].file : this[this.currentList].content[index].file);
+    this.log("open song: ", file);
     //~ this.$.songListPane.$[(this.currentList === "searchList") ? "libraryList" : this.currentList].select(index);
     this.$.viewPane.$.songViewPane.setFirst(true);
-    this.$.viewPane.$.songViewPane.setFile(this[this.currentList].content[index].file);
+    this.$.viewPane.$.songViewPane.setFile(file);
     this.$.viewPane.$.songViewPane.start();
     this.$.viewPane.$.songViewPane.$.viewScroller.setScrollTop(0);
     this.$.viewPane.$.viewPanels.setIndex(1);
@@ -883,7 +885,23 @@ enyo.kind({
     } else {
       this.deleteFromDbase();
     }
-    // TODO: Check if File is in savedLists and remove it there as well 
+    // Check if file is in savedLists and remove it there as well
+    var changed = false;
+    for (i in this.savedLists.data) {
+      for (j in this.savedLists.data[i].content) {
+        if (this.savedLists.data[i].content[j].file === file) {
+          this.savedLists.data[i].content.splice(j, 1);
+          this.log(file, "removed from savedLists"); 
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      this.saveLists();
+      if (this.currentList === "customList") {
+        this.$.songListPane.$.customList.reset();
+      }
+    }
   },
   
   deleteFromDbase: function() {
